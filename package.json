@@ -1,0 +1,19 @@
+{
+  "name": "obsidian-format-convert",
+  "version": "0.0.1",
+  "description": "選択したMarkdownをSlack・Discord形式に変換、またはMarkdownのままクリップボードにコピーするObsidianプラグイン",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.20.0",
+    "obsidian": "latest",
+    "tslib": "^2.6.0",
+    "typescript": "^5.4.0"
+  }
+}

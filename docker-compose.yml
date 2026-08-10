@@ -1,0 +1,18 @@
+services:
+  format-convert:
+    build: .
+    container_name: obsidian-format-convert-dev
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - format_convert_node_modules:/app/node_modules
+    command: npm run dev
+    networks:
+      - devnet
+
+volumes:
+  format_convert_node_modules:
+
+networks:
+  devnet:
+    external: true
