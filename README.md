@@ -1,7 +1,8 @@
 # Format Convert Copy
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-46%20passed-brightgreen.svg)]()
+[![Build & Test](https://github.com/shallow1992/obsidian-format-convert-copy/actions/workflows/build-test.yml/badge.svg)](https://github.com/shallow1992/obsidian-format-convert-copy/actions/workflows/build-test.yml)
+[![Latest Release](https://img.shields.io/github/v/release/shallow1992/obsidian-format-convert-copy)](https://github.com/shallow1992/obsidian-format-convert-copy/releases/latest)
 [![Obsidian](https://img.shields.io/badge/Obsidian-Desktop%20%26%20Mobile-7C3AED.svg)](https://obsidian.md)
 
 **Format Convert Copy** is a lightning-fast Obsidian plugin that converts selected Markdown text or active notes into **Slack**, **Discord**, and **WhatsApp** formats—or copies clean raw Markdown—with a single tap or shortcut.
@@ -14,6 +15,7 @@ Designed from the ground up for seamless cross-platform usage across **Desktop (
 
 ## Features
 
+- 🌐 **Multilingual Support (i18n)**: Automatically detects Obsidian's UI language to provide a native interface in English (default) and Japanese.
 - 🚀 **One-Tap Multi-Platform Copy**:
   - **Slack**: Generates rich text HTML for desktop Slack with clean mrkdwn fallback (`*bold*`, `_italic_`, `~strike~`, `<url|text>`, blockquotes, nested lists).
   - **Discord**: Full Discord Markdown conversion (`**bold**`, `*italic*`, `__underline__`, `~~strike~~`, code fences).
@@ -112,6 +114,7 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 
 ### 主な特徴
 - **Slack・Discord・WhatsApp・Markdown** の4形式に対応
+- **多言語対応（i18n）**: Obsidianの言語設定に合わせて英語と日本語をシームレスに自動切り替え
 - **モバイル（iOS / Android）完全対応**: ナビゲーションバー、キーボード上部のモバイルツールバー、ファイル一覧の長押しメニューから快適に利用可能
 - **Markdown表（テーブル）の自動等幅化**: チャットアプリで崩れやすい表構文を等幅フォントのコードブロックに自動整形（日本語全角文字の幅も正確に考慮）
 - **数式（LaTeX / MathJax）の保護**: `$E=mc^2$` や `$$...$$` のアンダースコアやアスタリスクが斜体・太字に誤変換されるのを防止
