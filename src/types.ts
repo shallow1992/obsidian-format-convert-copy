@@ -59,8 +59,8 @@ export interface FormatItemConfig {
 }
 
 export const FORMAT_ITEMS: FormatItemConfig[] = [
-	{ id: "slack", label: "Slack形式でコピー", icon: "clipboard-copy" },
-	{ id: "discord", label: "Discord形式でコピー", icon: "clipboard-copy" },
-	{ id: "whatsapp", label: "WhatsApp形式でコピー", icon: "clipboard-copy" },
-	{ id: "raw", label: "Markdownのままコピー", icon: "clipboard-copy" },
+	{ id: "slack", label: "Slack形式でコピー", icon: "share-2" },
+	{ id: "discord", label: "Discord形式でコピー", icon: "message-square" },
+	{ id: "whatsapp", label: "WhatsApp形式でコピー", icon: "message-circle" },
+	{ id: "raw", label: "Markdownのままコピー", icon: "file-text" },
 ];
