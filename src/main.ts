@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Menu, Notice, Plugin } from "obsidian";
+import { Editor, MarkdownView, Menu, Notice, Platform, Plugin } from "obsidian";
 import { convertToDiscord } from "./converters/discord";
 import { convertToSlack, convertToSlackHtml } from "./converters/slack";
 import { FormatConvertSettingTab } from "./settings";
@@ -18,7 +18,7 @@ export default class FormatConvertPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// コマンドパレット・ショートカット
+		// コマンドパレット・ショートカット（PC・モバイル共通）
 		this.addCommand({
 			id: "convert-slack",
 			name: "Slack形式に変換してコピー",
@@ -49,7 +49,7 @@ export default class FormatConvertPlugin extends Plugin {
 			},
 		});
 
-		// コンテキストメニュー登録（モバイルの長押しメニュー＆PCの右クリックメニュー）
+		// エディタコンテキストメニュー（デスクトップの右クリック / モバイルの長押しメニュー）
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
 				const target = getTargetText(editor);
@@ -83,17 +83,30 @@ export default class FormatConvertPlugin extends Plugin {
 			})
 		);
 
-		// リボンアイコンのセットアップ
+		// リボンアイコンの登録（設定で有効な場合のみ）
 		this.refreshRibbonIcon();
 
 		// 設定画面タブの追加
 		this.addSettingTab(new FormatConvertSettingTab(this.app, this));
 	}
 
+	onunload() {
+		// プラグイン無効化・アップデート時にリボンアイコン要素を確実にDOMからクリーンアップ
+		this.removeRibbonIcon();
+	}
+
+	removeRibbonIcon() {
+		if (this.ribbonIconEl) {
+			this.ribbonIconEl.remove();
+			this.ribbonIconEl = null;
+		}
+	}
+
 	refreshRibbonIcon() {
 		if (this.settings.showRibbonIcon) {
 			if (!this.ribbonIconEl) {
-				this.ribbonIconEl = this.addRibbonIcon("share-2", "形式を選択してコピー", (evt: MouseEvent) => {
+				const ribbonTitle = Platform.isMobile ? "形式を選択してコピー" : "Format Convert";
+				this.ribbonIconEl = this.addRibbonIcon("share-2", ribbonTitle, (evt: MouseEvent) => {
 					const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 					const editor = activeView?.editor;
 					const target = getTargetText(editor);
@@ -135,10 +148,7 @@ export default class FormatConvertPlugin extends Plugin {
 				});
 			}
 		} else {
-			if (this.ribbonIconEl) {
-				this.ribbonIconEl.remove();
-				this.ribbonIconEl = null;
-			}
+			this.removeRibbonIcon();
 		}
 	}
 

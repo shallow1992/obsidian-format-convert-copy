@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Platform, PluginSettingTab, Setting } from "obsidian";
 import type FormatConvertPlugin from "./main";
 
 export class FormatConvertSettingTab extends PluginSettingTab {
@@ -15,9 +15,13 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h2", { text: "Format Convert Settings" });
 
+		const ribbonDesc = Platform.isMobile
+			? "モバイルのナビゲーションバー（リボンメニュー）に「形式を選択してコピー」アイコンを追加します。タップすると選択シートが表示されます。"
+			: "画面左のリボン領域にアイコンを追加します。クリックすると形式選択メニューが表示されます。";
+
 		new Setting(containerEl)
 			.setName("リボンアイコンを表示")
-			.setDesc("画面左（モバイルではナビゲーションバー）に「形式を選択してコピー」のリボンアイコンを追加します。タップすると選択メニューが表示されます。")
+			.setDesc(ribbonDesc)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRibbonIcon).onChange(async (value) => {
 					this.plugin.settings.showRibbonIcon = value;
@@ -28,7 +32,11 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Slack形式をメニューに表示")
-			.setDesc("エディタのメニューおよびリボンメニューに「Slack形式でコピー」を表示します。")
+			.setDesc(
+				Platform.isMobile
+					? "エディタ選択メニューおよびリボン選択シートに「Slack形式でコピー」を表示します。"
+					: "エディタ右クリックメニューおよびリボンメニューに「Slack形式でコピー」を表示します。"
+			)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showSlackInMenu).onChange(async (value) => {
 					this.plugin.settings.showSlackInMenu = value;
@@ -38,7 +46,11 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Discord形式をメニューに表示")
-			.setDesc("エディタのメニューおよびリボンメニューに「Discord形式でコピー」を表示します。")
+			.setDesc(
+				Platform.isMobile
+					? "エディタ選択メニューおよびリボン選択シートに「Discord形式でコピー」を表示します。"
+					: "エディタ右クリックメニューおよびリボンメニューに「Discord形式でコピー」を表示します。"
+			)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showDiscordInMenu).onChange(async (value) => {
 					this.plugin.settings.showDiscordInMenu = value;
@@ -48,7 +60,11 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Markdownのままコピーをメニューに表示")
-			.setDesc("エディタのメニューおよびリボンメニューに「Markdownのままコピー」を表示します。")
+			.setDesc(
+				Platform.isMobile
+					? "エディタ選択メニューおよびリボン選択シートに「Markdownのままコピー」を表示します。"
+					: "エディタ右クリックメニューおよびリボンメニューに「Markdownのままコピー」を表示します。"
+			)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRawInMenu).onChange(async (value) => {
 					this.plugin.settings.showRawInMenu = value;
