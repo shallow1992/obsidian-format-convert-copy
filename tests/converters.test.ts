@@ -128,8 +128,16 @@ describe("slack converter", () => {
 		expect(converted).toContain("| Val1");
 	});
 
+	it("protects LaTeX math blocks and inline formulas in Slack", () => {
+		const md = "Formula $x_1 * y_1$ and block:\n$$\nE = mc^2\n$$\nCurrency: $10.00 and $20.00";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("`$x_1 * y_1$`");
+		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
+		expect(converted).toContain("Currency: $10.00 and $20.00");
+	});
+
 	it("generates valid Slack HTML with link sanitization and table pre/code", () => {
-		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**\n[Safe](https://example.com)\n[Evil](javascript:alert(1))\n\n| H1 | H2 |\n|---|---|\n| D1 | D2 |";
+		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**\n[Safe](https://example.com)\n[Evil](javascript:alert(1))\n\n| H1 | H2 |\n|---|---|\n| D1 | D2 |\n\nFormula $a_b$";
 		const html = convertToSlackHtml(md);
 		expect(html).toContain("☐ Task 1");
 		expect(html).toContain("☑ <s>Task 2</s>");
@@ -138,6 +146,7 @@ describe("slack converter", () => {
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
 		expect(html).toContain("<pre><code>| H1");
+		expect(html).toContain("<code>$a_b$</code>");
 	});
 });
 
@@ -164,6 +173,13 @@ describe("discord converter", () => {
 		const converted = convertToDiscord(md);
 		expect(converted).toContain("```\n| A");
 		expect(converted).toContain("def __init__(self):");
+	});
+
+	it("protects LaTeX math in Discord", () => {
+		const md = "Formula $x_1 * y_1$ and $$\nE = mc^2\n$$";
+		const converted = convertToDiscord(md);
+		expect(converted).toContain("`$x_1 * y_1$`");
+		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
 	});
 });
 
@@ -193,6 +209,13 @@ describe("whatsapp converter", () => {
 		const converted = convertToWhatsApp(md);
 		expect(converted).toContain("```\n| Col1");
 		expect(converted).toContain("| Val1");
+	});
+
+	it("protects LaTeX math in WhatsApp", () => {
+		const md = "Formula $x_1 * y_1$ and $$\nE = mc^2\n$$";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("`$x_1 * y_1$`");
+		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
 	});
 
 	it("converts task list checkboxes", () => {

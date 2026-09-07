@@ -239,5 +239,6 @@ export function convertToSlackHtml(md: string): string {
 		}
 	}
 
+	result = restoreCodeBlocks(result, codeBlocks);
 	return result.trim();
 }
