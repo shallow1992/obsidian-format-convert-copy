@@ -364,11 +364,15 @@ import { noticeInstances } from "./__mocks__/obsidian";
 describe("copyToClipboard silent mode", () => {
 	beforeEach(() => {
 		noticeInstances.length = 0;
-		(global as any).navigator = {
-			clipboard: {
-				writeText: vi.fn().mockResolvedValue(undefined),
+		Object.defineProperty(globalThis, "navigator", {
+			value: {
+				clipboard: {
+					writeText: vi.fn().mockResolvedValue(undefined),
+				},
 			},
-		};
+			configurable: true,
+			writable: true,
+		});
 	});
 
 	it("shows Notice when silent is false (default)", async () => {
