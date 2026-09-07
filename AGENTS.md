@@ -1,6 +1,6 @@
 # AI Agent Guidelines (AGENTS.md)
 
-Guidelines and operational principles for AI coding agents and human contributors working on **Format Convert Copy** (`obsidian-format-convert`).
+Guidelines and operational principles for AI coding agents and human contributors working on **Format Convert Copy** (`obsidian-format-convert-copy`).
 
 ---
 

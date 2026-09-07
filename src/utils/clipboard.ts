@@ -43,7 +43,7 @@ export async function copyToClipboard(
 				return true;
 			}
 		} catch (clipboardItemError) {
-			console.warn("format-convert: ClipboardItem write failed, fallback to plain text", clipboardItemError);
+			console.warn("format-convert-copy: ClipboardItem write failed, fallback to plain text", clipboardItemError);
 		}
 	}
 
@@ -55,7 +55,7 @@ export async function copyToClipboard(
 			return true;
 		}
 	} catch (error) {
-		console.warn("format-convert: writeText failed, attempting execCommand fallback", error);
+		console.warn("format-convert-copy: writeText failed, attempting execCommand fallback", error);
 	}
 
 	// 最終フォールバック（iOS WebViewなどで古いexecCommandが効く場合）
@@ -75,7 +75,7 @@ export async function copyToClipboard(
 			return true;
 		}
 	} catch (execError) {
-		console.error("format-convert: execCommand fallback failed", execError);
+		console.error("format-convert-copy: execCommand fallback failed", execError);
 	}
 
 	new Notice("クリップボードへのコピーに失敗しました");
