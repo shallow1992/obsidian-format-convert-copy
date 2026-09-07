@@ -1,6 +1,6 @@
 {
   "name": "obsidian-format-convert",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "選択したMarkdownをSlack・Discord形式に変換、またはMarkdownのままクリップボードにコピーするObsidianプラグイン",
   "main": "main.js",
   "scripts": {
