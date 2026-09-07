@@ -10,8 +10,12 @@ export const Platform = {
 	isAndroidApp: false,
 };
 
+export const noticeInstances: string[] = [];
+
 export class Notice {
-	constructor(public message: string, public timeout?: number) {}
+	constructor(public message: string, public timeout?: number) {
+		noticeInstances.push(message);
+	}
 }
 
 export class TFile {
