@@ -14,10 +14,18 @@ export class Notice {
 	constructor(public message: string, public timeout?: number) {}
 }
 
+export class TFile {
+	extension: string = "md";
+	path: string = "test.md";
+}
+
 export class App {
 	workspace = {
 		getActiveViewOfType: vi.fn(),
 		on: vi.fn(),
+	};
+	vault = {
+		cachedRead: vi.fn().mockResolvedValue("test content"),
 	};
 }
 

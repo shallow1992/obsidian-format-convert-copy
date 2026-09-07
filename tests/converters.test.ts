@@ -79,3 +79,34 @@ describe("discord converter", () => {
 		expect(convertToDiscord(md)).toBe("> **[Important info]**");
 	});
 });
+
+import { convertToWhatsApp } from "../src/converters/whatsapp";
+
+describe("whatsapp converter", () => {
+	it("converts bold, italic, and strikethrough", () => {
+		const md = "**Bold** and *Italic* and ~~Deleted~~";
+		expect(convertToWhatsApp(md)).toBe("*Bold* and _Italic_ and ~Deleted~");
+	});
+
+	it("converts headings to bold", () => {
+		const md = "# Heading 1\n## Heading 2";
+		expect(convertToWhatsApp(md)).toBe("*Heading 1*\n*Heading 2*");
+	});
+
+	it("converts markdown links to text (url)", () => {
+		const md = "[Google](https://google.com)";
+		expect(convertToWhatsApp(md)).toBe("Google (https://google.com)");
+	});
+
+	it("converts task list checkboxes", () => {
+		const md = "- [ ] Todo task\n- [x] Done task";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("☐ Todo task");
+		expect(converted).toContain("☑ Done task");
+	});
+
+	it("converts callouts to bold quote", () => {
+		const md = "> [!NOTE] This is a note";
+		expect(convertToWhatsApp(md)).toBe("> *[This is a note]*");
+	});
+});
