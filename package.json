@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-format-convert",
+  "name": "obsidian-format-convert-copy",
   "version": "0.2.3",
   "description": "Obsidian plugin to convert Markdown into Slack, Discord, and WhatsApp formats, or copy as raw Markdown with one tap.",
   "main": "main.js",
