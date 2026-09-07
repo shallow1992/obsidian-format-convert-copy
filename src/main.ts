@@ -52,18 +52,18 @@ export default class FormatConvertPlugin extends Plugin {
 	// ----------------------------------------------------
 
 	private registerCommands(): void {
-		const commands: { id: string; name: string; type: FormatType }[] = [
-			{ id: "convert-slack", name: "Slack形式に変換してコピー", type: "slack" },
-			{ id: "convert-discord", name: "Discord形式に変換してコピー", type: "discord" },
-			{ id: "convert-whatsapp", name: "WhatsApp形式に変換してコピー", type: "whatsapp" },
-			{ id: "copy-raw-markdown", name: "Markdownのままコピー", type: "raw" },
+		const commands: { id: string; name: string; type: FormatType; icon: string }[] = [
+			{ id: "convert-slack", name: "Slack形式に変換してコピー", type: "slack", icon: "share-2" },
+			{ id: "convert-discord", name: "Discord形式に変換してコピー", type: "discord", icon: "message-square" },
+			{ id: "convert-whatsapp", name: "WhatsApp形式に変換してコピー", type: "whatsapp", icon: "message-circle" },
+			{ id: "copy-raw-markdown", name: "Markdownのままコピー", type: "raw", icon: "file-text" },
 		];
 
 		for (const cmd of commands) {
 			this.addCommand({
 				id: cmd.id,
 				name: cmd.name,
-				icon: "clipboard-copy",
+				icon: cmd.icon,
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
 					const result = convertMarkdown(target, cmd.type);
@@ -71,6 +71,24 @@ export default class FormatConvertPlugin extends Plugin {
 				},
 			});
 		}
+
+		// 形式選択メニュー表示コマンド（モバイルキーボードツールバーやコマンドパレットから1タップで選択シートを表示）
+		this.addCommand({
+			id: "convert-select-menu",
+			name: "形式を選択してコピー（メニュー表示）",
+			icon: "copy",
+			editorCallback: (editor: Editor) => {
+				const target = this.getTargetText(editor);
+				if (!target) return;
+				this.showFormatSelectMenu(
+					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 } as any,
+					(type) => {
+						const result = convertMarkdown(target, type);
+						copyToClipboard(result.text, result.label, result.html);
+					}
+				);
+			},
+		});
 	}
 
 	private registerEditorMenu(): void {

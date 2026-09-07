@@ -302,6 +302,19 @@ describe("convertMarkdown dispatcher", () => {
 	});
 });
 
+import { FORMAT_ITEMS } from "../src/types";
+
+describe("FORMAT_ITEMS mobile toolbar icons", () => {
+	it("has distinct, valid icons for each format item", () => {
+		const icons = FORMAT_ITEMS.map((item) => item.icon);
+		const uniqueIcons = new Set(icons);
+		expect(uniqueIcons.size).toBe(FORMAT_ITEMS.length);
+		for (const item of FORMAT_ITEMS) {
+			expect(item.icon).toBeTruthy();
+		}
+	});
+});
+
 import { getTargetText } from "../src/main";
 
 describe("getTargetText selection behavior", () => {
