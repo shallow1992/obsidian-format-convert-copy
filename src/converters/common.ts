@@ -7,11 +7,49 @@ export interface CodeExtraction {
 	blocks: string[];
 }
 
+const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "avif", "ico"]);
+const AUDIO_VIDEO_EXTENSIONS = new Set(["mp3", "wav", "m4a", "ogg", "mp4", "webm", "mov", "mkv"]);
+
 /**
- * Wikilink ([[リンク名|エイリアス]] や [[リンク名]]) をプレーンテキスト表現に解決する
+ * 埋め込みリンク (![[...]])、画像記法 (![alt](url))、および Wikilink ([[...]]) を解決する
  */
 export function resolveWikilinks(md: string): string {
-	return md.replace(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, name, alias) => alias || name);
+	// 1. 埋め込み Wikilink (![[ファイル名|エイリアス/サイズ]])
+	let text = md.replace(/!\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, rawName, rawAlias) => {
+		const name = rawName.trim();
+		const alias = rawAlias ? rawAlias.trim() : "";
+		const hasExt = name.includes(".");
+		const ext = hasExt ? name.split(".").pop()?.toLowerCase() ?? "" : "";
+
+		// サイズ指定 (例: |300, |300x200) はエイリアスではなくサイズなので除外
+		const isDimension = /^\d+(x\d+)?$/i.test(alias);
+		const displayLabel = alias && !isDimension ? alias : name;
+
+		if (IMAGE_EXTENSIONS.has(ext)) {
+			return `[image: ${displayLabel}]`;
+		}
+		if (AUDIO_VIDEO_EXTENSIONS.has(ext)) {
+			return `[media: ${displayLabel}]`;
+		}
+		if (ext && ext !== "md") {
+			return `[attachment: ${displayLabel}]`;
+		}
+		return `[embedded: ${displayLabel}]`;
+	});
+
+	// 2. 標準 Markdown画像 (![alt](url)) を [image: alt](url) に正規化
+	text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, url) => {
+		const cleanAlt = alt.trim();
+		const label = cleanAlt ? `image: ${cleanAlt}` : "image";
+		return `[${label}](${url})`;
+	});
+
+	// 3. 通常の Wikilink ([[ノート名|エイリアス]])
+	text = text.replace(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, name, alias) => {
+		return alias || name;
+	});
+
+	return text;
 }
 
 /**

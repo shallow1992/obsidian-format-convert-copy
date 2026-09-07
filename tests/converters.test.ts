@@ -22,6 +22,25 @@ describe("common - resolveWikilinks", () => {
 		expect(resolveWikilinks("See [[Note 1#Heading]]")).toBe("See Note 1");
 		expect(resolveWikilinks("See [[Note 1#Heading|Custom]]")).toBe("See Custom");
 	});
+
+	it("resolves image and media wikilink embeds", () => {
+		expect(resolveWikilinks("![[photo.png]]")).toBe("[image: photo.png]");
+		expect(resolveWikilinks("![[photo.png|300]]")).toBe("[image: photo.png]");
+		expect(resolveWikilinks("![[photo.png|300x200]]")).toBe("[image: photo.png]");
+		expect(resolveWikilinks("![[photo.png|Hero Image]]")).toBe("[image: Hero Image]");
+		expect(resolveWikilinks("![[audio.mp3]]")).toBe("[media: audio.mp3]");
+		expect(resolveWikilinks("![[document.pdf]]")).toBe("[attachment: document.pdf]");
+		expect(resolveWikilinks("![[Sub Note]]")).toBe("[embedded: Sub Note]");
+	});
+
+	it("normalizes standard markdown images", () => {
+		expect(resolveWikilinks("![Alt](https://example.com/pic.png)")).toBe(
+			"[image: Alt](https://example.com/pic.png)"
+		);
+		expect(resolveWikilinks("![](https://example.com/pic.png)")).toBe(
+			"[image](https://example.com/pic.png)"
+		);
+	});
 });
 
 describe("common - table formatting", () => {
@@ -148,6 +167,13 @@ describe("slack converter", () => {
 		expect(html).toContain("<pre><code>| H1");
 		expect(html).toContain("<code>$a_b$</code>");
 	});
+
+	it("converts image embeds in Slack", () => {
+		const md = "![[chart.png|300]]\n![Dashboard](https://example.com/dash.png)";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("[image: chart.png]");
+		expect(converted).toContain("<https://example.com/dash.png|image: Dashboard>");
+	});
 });
 
 describe("discord converter", () => {
@@ -180,6 +206,13 @@ describe("discord converter", () => {
 		const converted = convertToDiscord(md);
 		expect(converted).toContain("`$x_1 * y_1$`");
 		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
+	});
+
+	it("converts image embeds in Discord", () => {
+		const md = "![[chart.png]]\n![Alt](https://example.com/pic.png)";
+		const converted = convertToDiscord(md);
+		expect(converted).toContain("[image: chart.png]");
+		expect(converted).toContain("[image: Alt](https://example.com/pic.png)");
 	});
 });
 
@@ -216,6 +249,13 @@ describe("whatsapp converter", () => {
 		const converted = convertToWhatsApp(md);
 		expect(converted).toContain("`$x_1 * y_1$`");
 		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
+	});
+
+	it("converts image embeds in WhatsApp", () => {
+		const md = "![[chart.png]]\n![Alt](https://example.com/pic.png)";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("[image: chart.png]");
+		expect(converted).toContain("image: Alt (https://example.com/pic.png)");
 	});
 
 	it("converts task list checkboxes", () => {
