@@ -4,6 +4,7 @@ import {
 	UNDERLINE_MARK,
 	escapeHtml,
 	extractCodeBlocks,
+	isSafeUrl,
 	resolveWikilinks,
 	restoreCodeBlocks,
 } from "./common";
@@ -30,7 +31,13 @@ function formatInlineSlackHtml(line: string): string {
 	text = text.replace(/(\*\*|__)(.+?)\1/g, "<b>$2</b>");
 	text = text.replace(/(\*|_)(.+?)\1/g, "<i>$2</i>");
 	text = text.replace(/~~(.+?)~~/g, "<s>$1</s>");
-	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
+		const cleanUrl = url.trim();
+		if (isSafeUrl(cleanUrl)) {
+			return `<a href="${cleanUrl}">${title}</a>`;
+		}
+		return title;
+	});
 
 	const underlinePattern = new RegExp(`${UNDERLINE_MARK}(\\d+)${UNDERLINE_MARK}`, "g");
 	text = text.replace(underlinePattern, (_match, i) => `<u>${escapeHtml(underlineBlocks[Number(i)])}</u>`);
@@ -129,7 +136,13 @@ export function convertToSlack(md: string): string {
 
 	// 打消し線、リンク、箇条書き
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
-	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "<$2|$1>");
+	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
+		const cleanUrl = url.trim();
+		if (isSafeUrl(cleanUrl)) {
+			return `<${cleanUrl}|${title}>`;
+		}
+		return title;
+	});
 	text = text.replace(/^[-*+]\s+/gm, "• ");
 
 	text = restoreCodeBlocks(text, codeBlocks);
