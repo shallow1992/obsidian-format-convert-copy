@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Menu, Platform, Plugin } from "obsidian";
+import { Editor, MarkdownView, Menu, Notice, Plugin } from "obsidian";
 import { convertToDiscord } from "./converters/discord";
 import { convertToSlack, convertToSlackHtml } from "./converters/slack";
 import { FormatConvertSettingTab } from "./settings";
@@ -54,7 +54,7 @@ export default class FormatConvertPlugin extends Plugin {
 			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
 				const target = getTargetText(editor);
 
-				if (Platform.isMobile || this.settings.showSlackInMenu) {
+				if (this.settings.showSlackInMenu) {
 					menu.addItem((item) =>
 						item
 							.setTitle("Slack形式でコピー")
@@ -63,7 +63,7 @@ export default class FormatConvertPlugin extends Plugin {
 					);
 				}
 
-				if (Platform.isMobile || this.settings.showDiscordInMenu) {
+				if (this.settings.showDiscordInMenu) {
 					menu.addItem((item) =>
 						item
 							.setTitle("Discord形式でコピー")
@@ -72,7 +72,7 @@ export default class FormatConvertPlugin extends Plugin {
 					);
 				}
 
-				if (Platform.isMobile || this.settings.showRawInMenu) {
+				if (this.settings.showRawInMenu) {
 					menu.addItem((item) =>
 						item
 							.setTitle("Markdownのままコピー")
@@ -93,12 +93,45 @@ export default class FormatConvertPlugin extends Plugin {
 	refreshRibbonIcon() {
 		if (this.settings.showRibbonIcon) {
 			if (!this.ribbonIconEl) {
-				this.ribbonIconEl = this.addRibbonIcon("share-2", "Slack形式でコピー", () => {
+				this.ribbonIconEl = this.addRibbonIcon("share-2", "形式を選択してコピー", (evt: MouseEvent) => {
 					const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 					const editor = activeView?.editor;
 					const target = getTargetText(editor);
-					if (!target) return;
-					copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target));
+					if (!target) {
+						new Notice("アクティブなノートまたは選択テキストがありません");
+						return;
+					}
+
+					const menu = new Menu();
+
+					if (this.settings.showSlackInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Slack形式でコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
+						);
+					}
+
+					if (this.settings.showDiscordInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Discord形式でコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
+						);
+					}
+
+					if (this.settings.showRawInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Markdownのままコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(target, "Markdown"))
+						);
+					}
+
+					menu.showAtMouseEvent(evt);
 				});
 			}
 		} else {

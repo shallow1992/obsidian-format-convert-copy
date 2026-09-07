@@ -14,13 +14,22 @@ export class Notice {
 	constructor(public message: string, public timeout?: number) {}
 }
 
-export class App {}
+export class App {
+	workspace = {
+		getActiveViewOfType: vi.fn(),
+		on: vi.fn(),
+	};
+}
+
+export class MarkdownView {
+	editor: any;
+}
 
 export class Plugin {
 	app: any;
 	manifest: any;
 	constructor(app?: any, manifest?: any) {
-		this.app = app;
+		this.app = app || new App();
 		this.manifest = manifest;
 	}
 	addCommand() {}
@@ -64,4 +73,5 @@ export class Menu {
 		});
 		return this;
 	}
+	showAtMouseEvent(_evt: any) {}
 }
