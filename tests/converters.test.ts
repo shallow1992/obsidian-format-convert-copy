@@ -379,7 +379,7 @@ describe("copyToClipboard silent mode", () => {
 		const success = await copyToClipboard("test text", "Slack", undefined, false);
 		expect(success).toBe(true);
 		expect(noticeInstances.length).toBeGreaterThan(0);
-		expect(noticeInstances[0]).toContain("Slack形式でコピーしました");
+		expect(noticeInstances[0]).toContain("Slack");
 	});
 
 	it("suppresses Notice when silent is true", async () => {

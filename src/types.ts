@@ -54,15 +54,26 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	silentMode: false,
 };
 
+import { t } from "./i18n";
+
 export interface FormatItemConfig {
 	id: FormatType;
 	label: string;
 	icon: string;
 }
 
+export function getFormatItems(): FormatItemConfig[] {
+	return [
+		{ id: "slack", label: t("actionCopySlack"), icon: "share-2" },
+		{ id: "discord", label: t("actionCopyDiscord"), icon: "message-square" },
+		{ id: "whatsapp", label: t("actionCopyWhatsApp"), icon: "message-circle" },
+		{ id: "raw", label: t("actionCopyRaw"), icon: "file-text" },
+	];
+}
+
 export const FORMAT_ITEMS: FormatItemConfig[] = [
-	{ id: "slack", label: "Slack形式でコピー", icon: "share-2" },
-	{ id: "discord", label: "Discord形式でコピー", icon: "message-square" },
-	{ id: "whatsapp", label: "WhatsApp形式でコピー", icon: "message-circle" },
-	{ id: "raw", label: "Markdownのままコピー", icon: "file-text" },
+	{ id: "slack", label: "Copy for Slack", icon: "share-2" },
+	{ id: "discord", label: "Copy for Discord", icon: "message-square" },
+	{ id: "whatsapp", label: "Copy for WhatsApp", icon: "message-circle" },
+	{ id: "raw", label: "Copy as raw Markdown", icon: "file-text" },
 ];

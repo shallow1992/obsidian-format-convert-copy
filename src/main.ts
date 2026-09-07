@@ -1,8 +1,9 @@
 import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obsidian";
 import { convertMarkdown } from "./converters";
 import { FormatConvertSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType } from "./types";
+import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
+import { t } from "./i18n";
 
 export function getTargetText(
 	editor?: Editor | null,
@@ -53,10 +54,10 @@ export default class FormatConvertPlugin extends Plugin {
 
 	private registerCommands(): void {
 		const commands: { id: string; name: string; type: FormatType; icon: string }[] = [
-			{ id: "convert-slack", name: "Slack形式に変換してコピー", type: "slack", icon: "share-2" },
-			{ id: "convert-discord", name: "Discord形式に変換してコピー", type: "discord", icon: "message-square" },
-			{ id: "convert-whatsapp", name: "WhatsApp形式に変換してコピー", type: "whatsapp", icon: "message-circle" },
-			{ id: "copy-raw-markdown", name: "Markdownのままコピー", type: "raw", icon: "file-text" },
+			{ id: "convert-slack", name: t("cmdSlack"), type: "slack", icon: "share-2" },
+			{ id: "convert-discord", name: t("cmdDiscord"), type: "discord", icon: "message-square" },
+			{ id: "convert-whatsapp", name: t("cmdWhatsApp"), type: "whatsapp", icon: "message-circle" },
+			{ id: "copy-raw-markdown", name: t("cmdRaw"), type: "raw", icon: "file-text" },
 		];
 
 		for (const cmd of commands) {
@@ -75,7 +76,7 @@ export default class FormatConvertPlugin extends Plugin {
 		// 形式選択メニュー表示コマンド（モバイルキーボードツールバーやコマンドパレットから1タップで選択シートを表示）
 		this.addCommand({
 			id: "convert-select-menu",
-			name: "形式を選択してコピー（メニュー表示）",
+			name: t("cmdMenu"),
 			icon: "copy",
 			editorCallback: (editor: Editor) => {
 				const target = this.getTargetText(editor);
@@ -97,10 +98,10 @@ export default class FormatConvertPlugin extends Plugin {
 				const target = this.getTargetText(editor);
 
 				const menuConfigs: { enabled: boolean; type: FormatType; title: string }[] = [
-					{ enabled: this.settings.showSlackInMenu, type: "slack", title: "Slack形式でコピー" },
-					{ enabled: this.settings.showDiscordInMenu, type: "discord", title: "Discord形式でコピー" },
-					{ enabled: this.settings.showWhatsAppInMenu, type: "whatsapp", title: "WhatsApp形式でコピー" },
-					{ enabled: this.settings.showRawInMenu, type: "raw", title: "Markdownのままコピー" },
+					{ enabled: this.settings.showSlackInMenu, type: "slack", title: t("actionCopySlack") },
+					{ enabled: this.settings.showDiscordInMenu, type: "discord", title: t("actionCopyDiscord") },
+					{ enabled: this.settings.showWhatsAppInMenu, type: "whatsapp", title: t("actionCopyWhatsApp") },
+					{ enabled: this.settings.showRawInMenu, type: "raw", title: t("actionCopyRaw") },
 				];
 
 				for (const item of menuConfigs) {
@@ -133,16 +134,16 @@ export default class FormatConvertPlugin extends Plugin {
 						const result = convertMarkdown(content, type);
 						await this.copyResult(result.text, result.label, result.html);
 					} catch (_e) {
-						new Notice("クリップボードへのコピーに失敗しました");
+						new Notice(t("noticeFailed"));
 					}
 				};
 
 				// 直接コピー項目の登録
 				const directItems: { enabled: boolean; type: FormatType; title: string }[] = [
-					{ enabled: this.settings.showFileSlackItem, type: "slack", title: "Slack形式でコピー" },
-					{ enabled: this.settings.showFileDiscordItem, type: "discord", title: "Discord形式でコピー" },
-					{ enabled: this.settings.showFileWhatsAppItem, type: "whatsapp", title: "WhatsApp形式でコピー" },
-					{ enabled: this.settings.showFileRawItem, type: "raw", title: "Markdownのままコピー" },
+					{ enabled: this.settings.showFileSlackItem, type: "slack", title: t("actionCopySlack") },
+					{ enabled: this.settings.showFileDiscordItem, type: "discord", title: t("actionCopyDiscord") },
+					{ enabled: this.settings.showFileWhatsAppItem, type: "whatsapp", title: t("actionCopyWhatsApp") },
+					{ enabled: this.settings.showFileRawItem, type: "raw", title: t("actionCopyRaw") },
 				];
 
 				for (const item of directItems) {
@@ -160,7 +161,7 @@ export default class FormatConvertPlugin extends Plugin {
 				if (this.settings.showFileMenuItem) {
 					menu.addItem((item) =>
 						item
-							.setTitle("形式を選択してコピー")
+							.setTitle(t("actionChooseMenu"))
 							.setIcon("copy")
 							.onClick((evt: MouseEvent | KeyboardEvent) => {
 								this.showFormatSelectMenu(evt, (type) => copyFileContent(type));
@@ -185,35 +186,35 @@ export default class FormatConvertPlugin extends Plugin {
 		// 1. Slack直接
 		if (this.settings.showRibbonSlackIcon) {
 			this.ribbonIconEls.push(
-				this.addRibbonIcon("share-2", "Slack形式でコピー", () => activeCopy("slack"))
+				this.addRibbonIcon("share-2", t("actionCopySlack"), () => activeCopy("slack"))
 			);
 		}
 
 		// 2. Discord直接
 		if (this.settings.showRibbonDiscordIcon) {
 			this.ribbonIconEls.push(
-				this.addRibbonIcon("message-square", "Discord形式でコピー", () => activeCopy("discord"))
+				this.addRibbonIcon("message-square", t("actionCopyDiscord"), () => activeCopy("discord"))
 			);
 		}
 
 		// 3. WhatsApp直接
 		if (this.settings.showRibbonWhatsAppIcon) {
 			this.ribbonIconEls.push(
-				this.addRibbonIcon("message-circle", "WhatsApp形式でコピー", () => activeCopy("whatsapp"))
+				this.addRibbonIcon("message-circle", t("actionCopyWhatsApp"), () => activeCopy("whatsapp"))
 			);
 		}
 
 		// 4. Markdown直接
 		if (this.settings.showRibbonRawIcon) {
 			this.ribbonIconEls.push(
-				this.addRibbonIcon("file-text", "Markdownのままコピー", () => activeCopy("raw"))
+				this.addRibbonIcon("file-text", t("actionCopyRaw"), () => activeCopy("raw"))
 			);
 		}
 
 		// 5. 全形式選択メニュー
 		if (this.settings.showRibbonMenuIcon) {
 			this.ribbonIconEls.push(
-				this.addRibbonIcon("copy", "形式を選択してコピー", (evt: MouseEvent) => {
+				this.addRibbonIcon("copy", t("actionChooseMenu"), (evt: MouseEvent) => {
 					if (!this.getActiveTargetText()) return;
 					this.showFormatSelectMenu(evt, (type) => activeCopy(type));
 				})
@@ -234,7 +235,7 @@ export default class FormatConvertPlugin extends Plugin {
 	): void {
 		const formatMenu = new Menu();
 
-		for (const item of FORMAT_ITEMS) {
+		for (const item of getFormatItems()) {
 			formatMenu.addItem((subItem) =>
 				subItem
 					.setTitle(item.label)
