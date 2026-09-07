@@ -106,7 +106,7 @@ export default class FormatConvertPlugin extends Plugin {
 		}
 
 		// ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile共通)
-		// リボンの考え方に統一し、「形式を選択してコピー」1項目から全形式を選べるUIを提供
+		// リボンと同じく「直接コピー項目」と「形式選択メニュー」を自由に組み合わせ可能
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
 				if (!(file instanceof TFile) || file.extension !== "md") {
@@ -123,56 +123,107 @@ export default class FormatConvertPlugin extends Plugin {
 					}
 				};
 
-				menu.addItem((item) =>
-					item
-						.setTitle("形式を選択してコピー")
-						.setIcon("copy")
-						.onClick((evt: MouseEvent | KeyboardEvent) => {
-							const formatMenu = new Menu();
+				// 1. 直接コピー: Slack
+				if (this.settings.showFileSlackItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Slack形式でコピー")
+							.setIcon("clipboard-copy")
+							.onClick(() =>
+								readFileAndCopy(
+									(content) => ({
+										text: convertToSlack(content),
+										html: convertToSlackHtml(content),
+									}),
+									"Slack"
+								)
+							)
+					);
+				}
 
-							formatMenu.addItem((subItem) =>
-								subItem
-									.setTitle("Slack形式でコピー")
-									.setIcon("clipboard-copy")
-									.onClick(() =>
-										readFileAndCopy(
-											(content) => ({
-												text: convertToSlack(content),
-												html: convertToSlackHtml(content),
-											}),
-											"Slack"
+				// 2. 直接コピー: Discord
+				if (this.settings.showFileDiscordItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Discord形式でコピー")
+							.setIcon("clipboard-copy")
+							.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
+					);
+				}
+
+				// 3. 直接コピー: WhatsApp
+				if (this.settings.showFileWhatsAppItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle("WhatsApp形式でコピー")
+							.setIcon("clipboard-copy")
+							.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
+					);
+				}
+
+				// 4. 直接コピー: Markdown
+				if (this.settings.showFileRawItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Markdownのままコピー")
+							.setIcon("clipboard-copy")
+							.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
+					);
+				}
+
+				// 5. 選択メニュー: 形式を選択してコピー
+				if (this.settings.showFileMenuItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle("形式を選択してコピー")
+							.setIcon("copy")
+							.onClick((evt: MouseEvent | KeyboardEvent) => {
+								const formatMenu = new Menu();
+
+								formatMenu.addItem((subItem) =>
+									subItem
+										.setTitle("Slack形式でコピー")
+										.setIcon("clipboard-copy")
+										.onClick(() =>
+											readFileAndCopy(
+												(content) => ({
+													text: convertToSlack(content),
+													html: convertToSlackHtml(content),
+												}),
+												"Slack"
+											)
 										)
-									)
-							);
+								);
 
-							formatMenu.addItem((subItem) =>
-								subItem
-									.setTitle("Discord形式でコピー")
-									.setIcon("clipboard-copy")
-									.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
-							);
+								formatMenu.addItem((subItem) =>
+									subItem
+										.setTitle("Discord形式でコピー")
+										.setIcon("clipboard-copy")
+										.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
+								);
 
-							formatMenu.addItem((subItem) =>
-								subItem
-									.setTitle("WhatsApp形式でコピー")
-									.setIcon("clipboard-copy")
-									.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
-							);
+								formatMenu.addItem((subItem) =>
+									subItem
+										.setTitle("WhatsApp形式でコピー")
+										.setIcon("clipboard-copy")
+										.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
+								);
 
-							formatMenu.addItem((subItem) =>
-								subItem
-									.setTitle("Markdownのままコピー")
-									.setIcon("clipboard-copy")
-									.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
-							);
+								formatMenu.addItem((subItem) =>
+									subItem
+										.setTitle("Markdownのままコピー")
+										.setIcon("clipboard-copy")
+										.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
+								);
 
-							if ("clientX" in evt && "clientY" in evt) {
-								formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
-							} else {
-								formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-							}
-						})
-				);
+								if ("clientX" in evt && "clientY" in evt) {
+									formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+								} else {
+									formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+								}
+							})
+					);
+				}
 			})
 		);
 

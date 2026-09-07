@@ -17,12 +17,17 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		const ribbonAreaName = Platform.isMobile ? "ナビゲーションバー（モバイル）" : "画面左リボン（デスクトップ）";
 
-		// --- ナビゲーションバー / リボン設定 ---
-		containerEl.createEl("h3", { text: `${ribbonAreaName}（直接コピー / メニュー）` });
+		// ==========================================
+		// 1. ナビゲーションバー / リボン設定
+		// ==========================================
+		containerEl.createEl("h3", { text: `${ribbonAreaName}` });
+		containerEl.createEl("p", {
+			text: "ワンタップで即座にコピーする直接アイコンや、全形式から選べるメニューアイコンを自由に配置できます。",
+		});
 
 		new Setting(containerEl)
 			.setName("「Slack形式でコピー」を直接配置")
-			.setDesc(`${ribbonAreaName}にSlack直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.setDesc(`${ribbonAreaName}にSlack直接コピーのアイコンを追加します。`)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRibbonSlackIcon).onChange(async (value) => {
 					this.plugin.settings.showRibbonSlackIcon = value;
@@ -33,7 +38,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("「Discord形式でコピー」を直接配置")
-			.setDesc(`${ribbonAreaName}にDiscord直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.setDesc(`${ribbonAreaName}にDiscord直接コピーのアイコンを追加します。`)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRibbonDiscordIcon).onChange(async (value) => {
 					this.plugin.settings.showRibbonDiscordIcon = value;
@@ -44,7 +49,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("「WhatsApp形式でコピー」を直接配置")
-			.setDesc(`${ribbonAreaName}にWhatsApp直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.setDesc(`${ribbonAreaName}にWhatsApp直接コピーのアイコンを追加します。`)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRibbonWhatsAppIcon).onChange(async (value) => {
 					this.plugin.settings.showRibbonWhatsAppIcon = value;
@@ -55,7 +60,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("「Markdownのままコピー」を直接配置")
-			.setDesc(`${ribbonAreaName}にMarkdown直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.setDesc(`${ribbonAreaName}にMarkdown直接コピーのアイコンを追加します。`)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRibbonRawIcon).onChange(async (value) => {
 					this.plugin.settings.showRibbonRawIcon = value;
@@ -75,7 +80,67 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 				})
 			);
 
-		// --- デスクトップ版のみエディタ右クリックメニュー設定を表示 ---
+		// ==========================================
+		// 2. ファイルエクスプローラメニュー設定（長押し / 右クリック）
+		// ==========================================
+		containerEl.createEl("h3", { text: "ファイルエクスプローラメニュー（長押し / 右クリック）" });
+		containerEl.createEl("p", {
+			text: "ファイル一覧でノートを長押し（PCでは右クリック）した際に表示する直接コピー項目や選択メニューを個別に設定できます。",
+		});
+
+		new Setting(containerEl)
+			.setName("「Slack形式でコピー」を直接表示")
+			.setDesc("ファイルメニューにSlack直接コピーを表示します。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileSlackItem).onChange(async (value) => {
+					this.plugin.settings.showFileSlackItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「Discord形式でコピー」を直接表示")
+			.setDesc("ファイルメニューにDiscord直接コピーを表示します。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileDiscordItem).onChange(async (value) => {
+					this.plugin.settings.showFileDiscordItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「WhatsApp形式でコピー」を直接表示")
+			.setDesc("ファイルメニューにWhatsApp直接コピーを表示します。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileWhatsAppItem).onChange(async (value) => {
+					this.plugin.settings.showFileWhatsAppItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「Markdownのままコピー」を直接表示")
+			.setDesc("ファイルメニューにMarkdown直接コピーを表示します。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileRawItem).onChange(async (value) => {
+					this.plugin.settings.showFileRawItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「形式を選択してコピー」メニューを表示")
+			.setDesc("ファイルメニューに選択メニュー項目を表示します（タップすると全形式から選べるシートを表示）。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileMenuItem).onChange(async (value) => {
+					this.plugin.settings.showFileMenuItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		// ==========================================
+		// 3. デスクトップ版エディタ右クリックメニュー設定
+		// ==========================================
 		if (!Platform.isMobile) {
 			containerEl.createEl("h3", { text: "エディタ右クリックメニュー（デスクトップ）" });
 
