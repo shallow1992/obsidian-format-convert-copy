@@ -1,13 +1,21 @@
 import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obsidian";
 import { convertMarkdown } from "./converters";
 import { FormatConvertSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, FORMAT_ITEMS, FormatConvertSettings, FormatType } from "./types";
+import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
 
-function getTargetText(editor?: Editor | null): string {
+export function getTargetText(
+	editor?: Editor | null,
+	behavior: EmptySelectionBehavior = "document"
+): string {
 	if (!editor) return "";
 	const selection = editor.getSelection();
-	return selection.trim().length > 0 ? selection : editor.getValue();
+	if (selection.trim().length > 0) return selection;
+	if (behavior === "currentLine") {
+		const cursor = editor.getCursor();
+		return editor.getLine(cursor.line);
+	}
+	return editor.getValue();
 }
 
 export default class FormatConvertPlugin extends Plugin {
@@ -57,7 +65,7 @@ export default class FormatConvertPlugin extends Plugin {
 				name: cmd.name,
 				icon: "clipboard-copy",
 				editorCallback: (editor: Editor) => {
-					const target = getTargetText(editor);
+					const target = this.getTargetText(editor);
 					const result = convertMarkdown(target, cmd.type);
 					copyToClipboard(result.text, result.label, result.html);
 				},
@@ -68,7 +76,7 @@ export default class FormatConvertPlugin extends Plugin {
 	private registerEditorMenu(): void {
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
-				const target = getTargetText(editor);
+				const target = this.getTargetText(editor);
 
 				const menuConfigs: { enabled: boolean; type: FormatType; title: string }[] = [
 					{ enabled: this.settings.showSlackInMenu, type: "slack", title: "Slack形式でコピー" },
@@ -224,10 +232,14 @@ export default class FormatConvertPlugin extends Plugin {
 		}
 	}
 
+	getTargetText(editor?: Editor | null): string {
+		return getTargetText(editor, this.settings.emptySelectionBehavior);
+	}
+
 	getActiveTargetText(): string | null {
 		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 		const editor = activeView?.editor;
-		const target = getTargetText(editor);
+		const target = this.getTargetText(editor);
 		if (!target) {
 			new Notice("アクティブなノートまたは選択テキストがありません");
 			return null;

@@ -20,7 +20,12 @@ export interface FormatConvertSettings {
 	showDiscordInMenu: boolean;
 	showWhatsAppInMenu: boolean;
 	showRawInMenu: boolean;
+
+	// コピー動作設定
+	emptySelectionBehavior: EmptySelectionBehavior;
 }
+
+export type EmptySelectionBehavior = "document" | "currentLine";
 
 export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	// ナビゲーションバー / リボン初期値
@@ -42,6 +47,9 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	showDiscordInMenu: true,
 	showWhatsAppInMenu: true,
 	showRawInMenu: true,
+
+	// コピー動作設定初期値
+	emptySelectionBehavior: "document",
 };
 
 export interface FormatItemConfig {

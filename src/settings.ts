@@ -184,5 +184,26 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 					})
 				);
 		}
+
+		// ==========================================
+		// 4. コピー動作設定
+		// ==========================================
+		new Setting(containerEl)
+			.setName("コピー動作設定")
+			.setHeading();
+
+		new Setting(containerEl)
+			.setName("未選択時のコピー対象")
+			.setDesc("エディタ内でテキストを選択していない場合に、何をコピーするかを選択します。")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("document", "ノート全体（全文）")
+					.addOption("currentLine", "カーソル行（現在の1行）")
+					.setValue(this.plugin.settings.emptySelectionBehavior)
+					.onChange(async (value) => {
+						this.plugin.settings.emptySelectionBehavior = value as "document" | "currentLine";
+						await this.plugin.saveSettings();
+					})
+			);
 	}
 }
