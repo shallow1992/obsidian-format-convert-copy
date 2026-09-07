@@ -301,3 +301,46 @@ describe("convertMarkdown dispatcher", () => {
 		expect(res.text).toBe(sample);
 	});
 });
+
+import { getTargetText } from "../src/main";
+
+describe("getTargetText selection behavior", () => {
+	it("returns selected text when selection is non-empty regardless of setting", () => {
+		const mockEditor = {
+			getSelection: () => "Selected snippet",
+			getValue: () => "Full document content",
+			getCursor: () => ({ line: 1, ch: 0 }),
+			getLine: () => "Line 2 content",
+		} as any;
+
+		expect(getTargetText(mockEditor, "document")).toBe("Selected snippet");
+		expect(getTargetText(mockEditor, "currentLine")).toBe("Selected snippet");
+	});
+
+	it("returns full document when selection is empty and behavior is document", () => {
+		const mockEditor = {
+			getSelection: () => "   ",
+			getValue: () => "Full document content",
+			getCursor: () => ({ line: 1, ch: 0 }),
+			getLine: () => "Line 2 content",
+		} as any;
+
+		expect(getTargetText(mockEditor, "document")).toBe("Full document content");
+	});
+
+	it("returns current cursor line when selection is empty and behavior is currentLine", () => {
+		const mockEditor = {
+			getSelection: () => "",
+			getValue: () => "Line 1\nLine 2 content\nLine 3",
+			getCursor: () => ({ line: 1, ch: 0 }),
+			getLine: (line: number) => (line === 1 ? "Line 2 content" : ""),
+		} as any;
+
+		expect(getTargetText(mockEditor, "currentLine")).toBe("Line 2 content");
+	});
+
+	it("returns empty string when editor is null or undefined", () => {
+		expect(getTargetText(null)).toBe("");
+		expect(getTargetText(undefined)).toBe("");
+	});
+});

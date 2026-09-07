@@ -69,12 +69,23 @@ export class Setting {
 		cb({ setValue: () => ({ onChange: () => {} }) });
 		return this;
 	}
+	addDropdown(cb: (d: any) => any) {
+		cb({
+			addOption: function () {
+				return this;
+			},
+			setValue: () => ({ onChange: () => {} }),
+		});
+		return this;
+	}
 	addButton() { return this; }
 }
 
 export class Editor {
 	getSelection(): string { return ""; }
 	getValue(): string { return ""; }
+	getCursor(): { line: number; ch: number } { return { line: 0, ch: 0 }; }
+	getLine(_line: number): string { return ""; }
 }
 
 export class Menu {
