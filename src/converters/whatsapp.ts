@@ -2,6 +2,7 @@ import {
 	BOLD_MARK,
 	CODE_MARK,
 	extractCodeBlocks,
+	isSafeUrl,
 	resolveWikilinks,
 	restoreCodeBlocks,
 } from "./common";
@@ -74,10 +75,14 @@ export function convertToWhatsApp(md: string): string {
 	// 打消し線 (~~)
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
 
-	// リンク [title](url) -> title (url) または url
+	// リンク [title](url) -> title (url) または url (安全なURLのみ)
 	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
-		if (title.trim() === url.trim()) return url;
-		return `${title} (${url})`;
+		const cleanUrl = url.trim();
+		if (!isSafeUrl(cleanUrl)) {
+			return title;
+		}
+		if (title.trim() === cleanUrl) return cleanUrl;
+		return `${title} (${cleanUrl})`;
 	});
 
 	text = restoreCodeBlocks(text, codeBlocks);

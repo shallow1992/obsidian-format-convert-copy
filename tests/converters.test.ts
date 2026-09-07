@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveWikilinks } from "../src/converters/common";
+import { escapeHtml, isSafeUrl, resolveWikilinks } from "../src/converters/common";
 import { convertToDiscord } from "../src/converters/discord";
 import { convertToSlack, convertToSlackHtml } from "../src/converters/slack";
 
@@ -18,6 +18,32 @@ describe("common - resolveWikilinks", () => {
 	});
 });
 
+describe("common - security sanitizers", () => {
+	it("escapes html characters including quotes", () => {
+		expect(escapeHtml(`"hello" & 'world' <tag>`)).toBe(
+			"&quot;hello&quot; &amp; &#39;world&#39; &lt;tag&gt;"
+		);
+	});
+
+	it("validates safe URLs", () => {
+		expect(isSafeUrl("https://example.com")).toBe(true);
+		expect(isSafeUrl("http://example.com/path?a=1&b=2")).toBe(true);
+		expect(isSafeUrl("mailto:test@example.com")).toBe(true);
+		expect(isSafeUrl("tel:+1234567890")).toBe(true);
+		expect(isSafeUrl("obsidian://open?vault=test")).toBe(true);
+		expect(isSafeUrl("#section-anchor")).toBe(true);
+	});
+
+	it("rejects unsafe URLs", () => {
+		expect(isSafeUrl("javascript:alert(1)")).toBe(false);
+		expect(isSafeUrl("  javascript:alert(1)  ")).toBe(false);
+		expect(isSafeUrl("JAVASCRIPT:alert(1)")).toBe(false);
+		expect(isSafeUrl("data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==")).toBe(false);
+		expect(isSafeUrl("vbscript:MsgBox(1)")).toBe(false);
+		expect(isSafeUrl("file:///etc/passwd")).toBe(false);
+	});
+});
+
 describe("slack converter", () => {
 	it("converts bold, italic, and strikethrough", () => {
 		const md = "**Bold** and *Italic* and ~~Deleted~~";
@@ -29,9 +55,13 @@ describe("slack converter", () => {
 		expect(convertToSlack(md)).toBe("*Heading 1*\n*Heading 2*");
 	});
 
-	it("converts links to Slack format <url|text>", () => {
-		const md = "[Google](https://google.com)";
-		expect(convertToSlack(md)).toBe("<https://google.com|Google>");
+	it("converts links to Slack format <url|text> and sanitizes unsafe schemes", () => {
+		const md = "[Google](https://google.com)\n[Evil](javascript:alert(1))\n[Mail](mailto:test@example.com)";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("<https://google.com|Google>");
+		expect(converted).toContain("<mailto:test@example.com|Mail>");
+		expect(converted).not.toContain("javascript:");
+		expect(converted).toContain("Evil");
 	});
 
 	it("converts task list checkboxes", () => {
@@ -52,12 +82,15 @@ describe("slack converter", () => {
 		expect(converted).toContain("const a = **not bold**;");
 	});
 
-	it("generates valid Slack HTML", () => {
-		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**";
+	it("generates valid Slack HTML with link sanitization", () => {
+		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**\n[Safe](https://example.com)\n[Evil](javascript:alert(1))";
 		const html = convertToSlackHtml(md);
 		expect(html).toContain("☐ Task 1");
 		expect(html).toContain("☑ <s>Task 2</s>");
 		expect(html).toContain("<b>Bold Text</b>");
+		expect(html).toContain('<a href="https://example.com">Safe</a>');
+		expect(html).not.toContain("javascript:");
+		expect(html).toContain("Evil");
 	});
 });
 
@@ -93,9 +126,12 @@ describe("whatsapp converter", () => {
 		expect(convertToWhatsApp(md)).toBe("*Heading 1*\n*Heading 2*");
 	});
 
-	it("converts markdown links to text (url)", () => {
-		const md = "[Google](https://google.com)";
-		expect(convertToWhatsApp(md)).toBe("Google (https://google.com)");
+	it("converts markdown links to text (url) and sanitizes unsafe links", () => {
+		const md = "[Google](https://google.com)\n[Evil](javascript:alert(1))";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("Google (https://google.com)");
+		expect(converted).toContain("Evil");
+		expect(converted).not.toContain("javascript:");
 	});
 
 	it("converts task list checkboxes", () => {

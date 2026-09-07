@@ -18,7 +18,29 @@ export function resolveWikilinks(md: string): string {
  * HTML特殊文字をエスケープする
  */
 export function escapeHtml(text: string): string {
-	return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	return text
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+}
+
+/**
+ * URLスキームの安全性を検証する。
+ * http, https, mailto, tel, obsidian などの安全なスキーム、またはページ内アンカー(#)のみ許可する。
+ * javascript: や data: などの危険なスキームを遮断する。
+ */
+export function isSafeUrl(rawUrl: string): boolean {
+	const trimmed = rawUrl.trim();
+	if (trimmed.startsWith("#")) {
+		return true;
+	}
+	// コントロール文字（ASCII 0-31, 127）を拒否
+	if (/[\x00-\x1F\x7F]/.test(trimmed)) {
+		return false;
+	}
+	return /^(https?|mailto|tel|obsidian):/i.test(trimmed);
 }
 
 /**
