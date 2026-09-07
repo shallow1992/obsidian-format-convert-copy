@@ -1,0 +1,91 @@
+name: 🐛 Bug Report
+description: Report a reproducible bug or unexpected behavior
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please check existing issues before submitting to avoid duplicates.
+
+  - type: input
+    id: version
+    attributes:
+      label: Plugin Version
+      description: What version of Format Convert Copy are you running? (e.g., 0.2.3, 0.3.0)
+      placeholder: e.g. 0.3.0
+    validations:
+      required: true
+
+  - type: input
+    id: obsidian_version
+    attributes:
+      label: Obsidian Version
+      description: What version of Obsidian are you using?
+      placeholder: e.g. 1.6.7
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Operating System / Platform
+      description: Which platform did you encounter the issue on?
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - iOS
+        - Android
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_format
+    attributes:
+      label: Target Format
+      description: Which conversion format was involved?
+      options:
+        - Slack
+        - Discord
+        - WhatsApp
+        - Raw Markdown
+        - General / Settings / UI
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. In Obsidian, write markdown text: ...
+        2. Select the text and execute command "Format Convert Copy: Copy for Slack"
+        3. Paste into Slack
+        4. Notice the error / unexpected formatting
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Screenshots or Console Logs
+      description: Please paste any relevant error logs (Developer Tools console: Ctrl/Cmd + Shift + I) or upload screenshots.
+    validations:
+      required: false
