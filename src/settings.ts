@@ -15,7 +15,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h2", { text: "Format Convert Settings" });
 
-		const ribbonAreaName = Platform.isMobile ? "ナビゲーションバー" : "画面左リボン";
+		const ribbonAreaName = Platform.isMobile ? "ナビゲーションバー（モバイル）" : "画面左リボン（デスクトップ）";
 
 		// --- ナビゲーションバー / リボン設定 ---
 		containerEl.createEl("h3", { text: `${ribbonAreaName}（直接コピー / メニュー）` });
@@ -64,37 +64,39 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 				})
 			);
 
-		// --- エディタコンテキストメニュー設定 ---
-		containerEl.createEl("h3", { text: "エディタ選択メニュー（右クリック / 長押し）" });
+		// --- デスクトップ版のみエディタ右クリックメニュー設定を表示 ---
+		if (!Platform.isMobile) {
+			containerEl.createEl("h3", { text: "エディタ右クリックメニュー（デスクトップ）" });
 
-		new Setting(containerEl)
-			.setName("Slack形式を表示")
-			.setDesc("エディタの選択メニューに「Slack形式でコピー」を表示します。")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showSlackInMenu).onChange(async (value) => {
-					this.plugin.settings.showSlackInMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
+			new Setting(containerEl)
+				.setName("Slack形式を表示")
+				.setDesc("エディタ右クリックメニューに「Slack形式でコピー」を表示します。")
+				.addToggle((toggle) =>
+					toggle.setValue(this.plugin.settings.showSlackInMenu).onChange(async (value) => {
+						this.plugin.settings.showSlackInMenu = value;
+						await this.plugin.saveSettings();
+					})
+				);
 
-		new Setting(containerEl)
-			.setName("Discord形式を表示")
-			.setDesc("エディタの選択メニューに「Discord形式でコピー」を表示します。")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showDiscordInMenu).onChange(async (value) => {
-					this.plugin.settings.showDiscordInMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
+			new Setting(containerEl)
+				.setName("Discord形式を表示")
+				.setDesc("エディタ右クリックメニューに「Discord形式でコピー」を表示します。")
+				.addToggle((toggle) =>
+					toggle.setValue(this.plugin.settings.showDiscordInMenu).onChange(async (value) => {
+						this.plugin.settings.showDiscordInMenu = value;
+						await this.plugin.saveSettings();
+					})
+				);
 
-		new Setting(containerEl)
-			.setName("Markdownのままコピーを表示")
-			.setDesc("エディタの選択メニューに「Markdownのままコピー」を表示します。")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRawInMenu).onChange(async (value) => {
-					this.plugin.settings.showRawInMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
+			new Setting(containerEl)
+				.setName("Markdownのままコピーを表示")
+				.setDesc("エディタ右クリックメニューに「Markdownのままコピー」を表示します。")
+				.addToggle((toggle) =>
+					toggle.setValue(this.plugin.settings.showRawInMenu).onChange(async (value) => {
+						this.plugin.settings.showRawInMenu = value;
+						await this.plugin.saveSettings();
+					})
+				);
+		}
 	}
 }

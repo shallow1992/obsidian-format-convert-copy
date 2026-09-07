@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Menu, Notice, Plugin } from "obsidian";
+import { Editor, MarkdownView, Menu, Notice, Platform, Plugin } from "obsidian";
 import { convertToDiscord } from "./converters/discord";
 import { convertToSlack, convertToSlackHtml } from "./converters/slack";
 import { FormatConvertSettingTab } from "./settings";
@@ -49,39 +49,42 @@ export default class FormatConvertPlugin extends Plugin {
 			},
 		});
 
-		// エディタコンテキストメニュー（デスクトップの右クリック / モバイルの長押しメニュー）
-		this.registerEvent(
-			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
-				const target = getTargetText(editor);
+		// デスクトップ版（PC）のみ右クリックコンテキストメニューを登録する
+		// （iOS等のモバイル版ではコンテキストメニューを出さず、ナビゲーションバー/リボンアイコンで操作する）
+		if (!Platform.isMobile) {
+			this.registerEvent(
+				this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
+					const target = getTargetText(editor);
 
-				if (this.settings.showSlackInMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Slack形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
-					);
-				}
+					if (this.settings.showSlackInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Slack形式でコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
+						);
+					}
 
-				if (this.settings.showDiscordInMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Discord形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
-					);
-				}
+					if (this.settings.showDiscordInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Discord形式でコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
+						);
+					}
 
-				if (this.settings.showRawInMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Markdownのままコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => copyToClipboard(target, "Markdown"))
-					);
-				}
-			})
-		);
+					if (this.settings.showRawInMenu) {
+						menu.addItem((item) =>
+							item
+								.setTitle("Markdownのままコピー")
+								.setIcon("clipboard-copy")
+								.onClick(() => copyToClipboard(target, "Markdown"))
+						);
+					}
+				})
+			);
+		}
 
 		// ナビゲーションバー / リボンアイコンの初期化
 		this.refreshRibbonIcons();
