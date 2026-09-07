@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { escapeHtml, isSafeUrl, resolveWikilinks } from "../src/converters/common";
+import {
+	escapeHtml,
+	formatAlignedTable,
+	isSafeUrl,
+	isTableSeparatorRow,
+	resolveWikilinks,
+} from "../src/converters/common";
 import { convertToDiscord } from "../src/converters/discord";
 import { convertToSlack, convertToSlackHtml } from "../src/converters/slack";
 
@@ -15,6 +21,39 @@ describe("common - resolveWikilinks", () => {
 	it("resolves wikilinks with header anchor", () => {
 		expect(resolveWikilinks("See [[Note 1#Heading]]")).toBe("See Note 1");
 		expect(resolveWikilinks("See [[Note 1#Heading|Custom]]")).toBe("See Custom");
+	});
+});
+
+describe("common - table formatting", () => {
+	it("detects table separator rows", () => {
+		expect(isTableSeparatorRow("| --- | --- |")).toBe(true);
+		expect(isTableSeparatorRow("|:---|:---:|---:|")).toBe(true);
+		expect(isTableSeparatorRow("--- | ---")).toBe(true);
+		expect(isTableSeparatorRow("| not | sep |")).toBe(false);
+	});
+
+	it("aligns unaligned markdown tables", () => {
+		const unaligned = [
+			"| A | Long Header |",
+			"|---|---|",
+			"| 1 | 2 |",
+		];
+		const aligned = formatAlignedTable(unaligned);
+		expect(aligned).toBe(
+			"| A   | Long Header |\n" +
+			"|:----|:------------|\n" +
+			"| 1   | 2           |"
+		);
+	});
+
+	it("supports center and right alignments", () => {
+		const table = [
+			"| Left | Center | Right |",
+			"| :--- | :---: | ---: |",
+			"| L | C | R |",
+		];
+		const aligned = formatAlignedTable(table);
+		expect(aligned).toContain("|:-----|:------:|------:|");
 	});
 });
 
@@ -82,8 +121,15 @@ describe("slack converter", () => {
 		expect(converted).toContain("const a = **not bold**;");
 	});
 
-	it("generates valid Slack HTML with link sanitization", () => {
-		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**\n[Safe](https://example.com)\n[Evil](javascript:alert(1))";
+	it("formats markdown tables into monospace code blocks", () => {
+		const md = "| Col1 | Col2 |\n|---|---|\n| Val1 | Val2 |";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("```\n| Col1");
+		expect(converted).toContain("| Val1");
+	});
+
+	it("generates valid Slack HTML with link sanitization and table pre/code", () => {
+		const md = "- [ ] Task 1\n- [x] Task 2\n\n**Bold Text**\n[Safe](https://example.com)\n[Evil](javascript:alert(1))\n\n| H1 | H2 |\n|---|---|\n| D1 | D2 |";
 		const html = convertToSlackHtml(md);
 		expect(html).toContain("☐ Task 1");
 		expect(html).toContain("☑ <s>Task 2</s>");
@@ -91,6 +137,7 @@ describe("slack converter", () => {
 		expect(html).toContain('<a href="https://example.com">Safe</a>');
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
+		expect(html).toContain("<pre><code>| H1");
 	});
 });
 
@@ -110,6 +157,13 @@ describe("discord converter", () => {
 	it("converts callouts to bold quote", () => {
 		const md = "> [!INFO] Important info";
 		expect(convertToDiscord(md)).toBe("> **[Important info]**");
+	});
+
+	it("formats tables into code blocks and protects code block syntax", () => {
+		const md = "| A | B |\n|---|---|\n| 1 | 2 |\n\n```python\ndef __init__(self):\n    pass\n```";
+		const converted = convertToDiscord(md);
+		expect(converted).toContain("```\n| A");
+		expect(converted).toContain("def __init__(self):");
 	});
 });
 
@@ -132,6 +186,13 @@ describe("whatsapp converter", () => {
 		expect(converted).toContain("Google (https://google.com)");
 		expect(converted).toContain("Evil");
 		expect(converted).not.toContain("javascript:");
+	});
+
+	it("formats markdown tables into monospace code blocks", () => {
+		const md = "| Col1 | Col2 |\n|---|---|\n| Val1 | Val2 |";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("```\n| Col1");
+		expect(converted).toContain("| Val1");
 	});
 
 	it("converts task list checkboxes", () => {

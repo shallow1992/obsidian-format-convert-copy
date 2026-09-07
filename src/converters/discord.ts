@@ -1,10 +1,19 @@
-import { resolveWikilinks } from "./common";
+import { extractCodeBlocks, resolveWikilinks, restoreCodeBlocks } from "./common";
 
 /**
  * MarkdownをDiscord形式に変換する
  */
 export function convertToDiscord(md: string): string {
 	let text = resolveWikilinks(md);
+
+	// コードブロック・テーブルの抽出・保護
+	const extraction = extractCodeBlocks(
+		text,
+		(code) => "```\n" + code + "\n```",
+		(code) => "`" + code + "`"
+	);
+	text = extraction.text;
+	const codeBlocks = extraction.blocks;
 
 	// Discordでは __text__ は下線なので、標準Markdownの太字 __text__ は **text** に統一する
 	text = text.replace(/__(.+?)__/g, "**$1**");
@@ -23,5 +32,8 @@ export function convertToDiscord(md: string): string {
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+(.*)$/gm, "$1☐ $2");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+(.*)$/gm, "$1☑ ~~$2~~");
 
+	text = restoreCodeBlocks(text, codeBlocks);
+
 	return text.trim();
 }
+
