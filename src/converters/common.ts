@@ -89,8 +89,25 @@ export function extractCodeBlocks(
 		i++;
 	}
 
-	// テーブル構文の抽出・整列（コードブロックの外側にあるテーブル）
-	const intermediateText = outputLines.join("\n");
+	let intermediateText = outputLines.join("\n");
+
+	// 1. ブロック数式 ($$...$$) の抽出・保護
+	intermediateText = intermediateText.replace(/(?<!\\)\$\$([\s\S]+?)\$\$/g, (_match, math) => {
+		const trimmedMath = math.trim();
+		blocks.push(wrapBlock(`$$\n${trimmedMath}\n$$`));
+		return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
+	});
+
+	// 2. インライン数式 ($...$) の抽出・保護（通貨記号 $100 等の誤検知を防止）
+	intermediateText = intermediateText.replace(
+		/(?<!\\|\$)\$([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)/g,
+		(_match, math) => {
+			blocks.push(wrapInline(`$${math}$`));
+			return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
+		}
+	);
+
+	// 3. テーブル構文の抽出・整列（コードブロックの外側にあるテーブル）
 	const processedText = extractTables(intermediateText, blocks, wrapBlock);
 
 	return { text: processedText, blocks };
