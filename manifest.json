@@ -1,10 +1,10 @@
 {
 	"id": "format-convert",
-	"name": "Format Convert",
+	"name": "Format Convert Copy",
 	"version": "0.2.3",
 	"minAppVersion": "0.15.0",
-	"description": "選択したMarkdownテキストをSlack・Discord形式に変換、またはMarkdownのままクリップボードにコピーする。",
+	"description": "Convert selected Markdown text or active notes into Slack, Discord, and WhatsApp formats, or copy as raw Markdown with one tap.",
 	"author": "Shallow",
-	"authorUrl": "",
+	"authorUrl": "https://github.com/shallow1992",
 	"isDesktopOnly": false
 }
