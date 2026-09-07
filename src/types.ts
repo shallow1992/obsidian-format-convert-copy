@@ -23,6 +23,7 @@ export interface FormatConvertSettings {
 
 	// コピー動作設定
 	emptySelectionBehavior: EmptySelectionBehavior;
+	silentMode: boolean;
 }
 
 export type EmptySelectionBehavior = "document" | "currentLine";
@@ -50,6 +51,7 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 
 	// コピー動作設定初期値
 	emptySelectionBehavior: "document",
+	silentMode: false,
 };
 
 export interface FormatItemConfig {

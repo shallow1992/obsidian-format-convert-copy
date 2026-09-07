@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	escapeHtml,
 	formatAlignedTable,
@@ -355,5 +355,32 @@ describe("getTargetText selection behavior", () => {
 	it("returns empty string when editor is null or undefined", () => {
 		expect(getTargetText(null)).toBe("");
 		expect(getTargetText(undefined)).toBe("");
+	});
+});
+
+import { copyToClipboard } from "../src/utils/clipboard";
+import { noticeInstances } from "./__mocks__/obsidian";
+
+describe("copyToClipboard silent mode", () => {
+	beforeEach(() => {
+		noticeInstances.length = 0;
+		(global as any).navigator = {
+			clipboard: {
+				writeText: vi.fn().mockResolvedValue(undefined),
+			},
+		};
+	});
+
+	it("shows Notice when silent is false (default)", async () => {
+		const success = await copyToClipboard("test text", "Slack", undefined, false);
+		expect(success).toBe(true);
+		expect(noticeInstances.length).toBeGreaterThan(0);
+		expect(noticeInstances[0]).toContain("Slack形式でコピーしました");
+	});
+
+	it("suppresses Notice when silent is true", async () => {
+		const success = await copyToClipboard("test text", "Slack", undefined, true);
+		expect(success).toBe(true);
+		expect(noticeInstances.length).toBe(0);
 	});
 });

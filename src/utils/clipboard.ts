@@ -4,7 +4,18 @@ import { Notice, Platform } from "obsidian";
  * テキスト（および利用可能な環境ではHTML）をOSクリップボードにコピーする。
  * モバイル（iOS / Android）環境とデスクトップ環境で最適なフォールバック処理を行う。
  */
-export async function copyToClipboard(text: string, label: string, html?: string): Promise<boolean> {
+export async function copyToClipboard(
+	text: string,
+	label: string,
+	html?: string,
+	silent: boolean = false
+): Promise<boolean> {
+	const notifySuccess = (message: string) => {
+		if (!silent) {
+			new Notice(message);
+		}
+	};
+
 	// モバイル(特にiOSのWebView)はクリップボード書き込みに厳格なユーザー操作の有効期限があり、
 	// 失敗するとその後のフォールバックも巻き添えになるため、モバイルではプレーンテキストで確実に書き込む
 	if (html && !Platform.isMobile) {
@@ -14,7 +25,7 @@ export async function copyToClipboard(text: string, label: string, html?: string
 			const electron = require("electron");
 			if (electron && electron.clipboard) {
 				electron.clipboard.write({ text, html });
-				new Notice(`${label}形式でコピーしました`);
+				notifySuccess(`${label}形式でコピーしました`);
 				return true;
 			}
 		} catch (_electronError) {
@@ -28,7 +39,7 @@ export async function copyToClipboard(text: string, label: string, html?: string
 					"text/html": new Blob([html], { type: "text/html" }),
 				});
 				await navigator.clipboard.write([item]);
-				new Notice(`${label}形式でコピーしました`);
+				notifySuccess(`${label}形式でコピーしました`);
 				return true;
 			}
 		} catch (clipboardItemError) {
@@ -40,7 +51,7 @@ export async function copyToClipboard(text: string, label: string, html?: string
 	try {
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
-			new Notice(html && !Platform.isMobile ? `${label}形式でコピーしました（簡易版）` : `${label}形式でコピーしました`);
+			notifySuccess(html && !Platform.isMobile ? `${label}形式でコピーしました（簡易版）` : `${label}形式でコピーしました`);
 			return true;
 		}
 	} catch (error) {
@@ -60,7 +71,7 @@ export async function copyToClipboard(text: string, label: string, html?: string
 		const successful = document.execCommand("copy");
 		document.body.removeChild(textArea);
 		if (successful) {
-			new Notice(`${label}形式でコピーしました`);
+			notifySuccess(`${label}形式でコピーしました`);
 			return true;
 		}
 	} catch (execError) {

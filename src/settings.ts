@@ -205,5 +205,15 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+		new Setting(containerEl)
+			.setName("サイレントモード（完了通知を非表示）")
+			.setDesc("コピー成功時に画面上部に表示される通知トースト（Notice）を非表示にします。頻繁にコピーする際の中断を防止できます（エラー時は通知されます）。")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.silentMode).onChange(async (value) => {
+					this.plugin.settings.silentMode = value;
+					await this.plugin.saveSettings();
+				})
+			);
 	}
 }

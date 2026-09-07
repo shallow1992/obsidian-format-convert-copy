@@ -67,7 +67,7 @@ export default class FormatConvertPlugin extends Plugin {
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
 					const result = convertMarkdown(target, cmd.type);
-					copyToClipboard(result.text, result.label, result.html);
+					this.copyResult(result.text, result.label, result.html);
 				},
 			});
 		}
@@ -84,7 +84,7 @@ export default class FormatConvertPlugin extends Plugin {
 					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 } as any,
 					(type) => {
 						const result = convertMarkdown(target, type);
-						copyToClipboard(result.text, result.label, result.html);
+						this.copyResult(result.text, result.label, result.html);
 					}
 				);
 			},
@@ -111,7 +111,7 @@ export default class FormatConvertPlugin extends Plugin {
 								.setIcon("clipboard-copy")
 								.onClick(() => {
 									const result = convertMarkdown(target, item.type);
-									copyToClipboard(result.text, result.label, result.html);
+									this.copyResult(result.text, result.label, result.html);
 								})
 						);
 					}
@@ -131,7 +131,7 @@ export default class FormatConvertPlugin extends Plugin {
 					try {
 						const content = await this.app.vault.cachedRead(file);
 						const result = convertMarkdown(content, type);
-						await copyToClipboard(result.text, result.label, result.html);
+						await this.copyResult(result.text, result.label, result.html);
 					} catch (_e) {
 						new Notice("クリップボードへのコピーに失敗しました");
 					}
@@ -178,7 +178,7 @@ export default class FormatConvertPlugin extends Plugin {
 			const target = this.getActiveTargetText();
 			if (target) {
 				const result = convertMarkdown(target, type);
-				copyToClipboard(result.text, result.label, result.html);
+				this.copyResult(result.text, result.label, result.html);
 			}
 		};
 
@@ -248,6 +248,10 @@ export default class FormatConvertPlugin extends Plugin {
 		} else {
 			formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 		}
+	}
+
+	async copyResult(text: string, label: string, html?: string): Promise<boolean> {
+		return copyToClipboard(text, label, html, this.settings.silentMode);
 	}
 
 	getTargetText(editor?: Editor | null): string {
