@@ -11,11 +11,31 @@
     "test:coverage": "vitest run --coverage",
     "version": "node version-bump.mjs"
   },
+  "keywords": [
+    "obsidian",
+    "obsidian-md",
+    "obsidian-plugin",
+    "markdown",
+    "slack",
+    "discord",
+    "whatsapp",
+    "clipboard",
+    "formatter"
+  ],
+  "author": "Shallow",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shallow1992/obsidian-format-convert-copy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shallow1992/obsidian-format-convert-copy/issues"
+  },
+  "homepage": "https://github.com/shallow1992/obsidian-format-convert-copy#readme",
   "devDependencies": {
     "@types/node": "^20.0.0",
     "builtin-modules": "^3.3.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.28.2",
     "obsidian": "latest",
     "tslib": "^2.6.0",
     "typescript": "^5.4.0",
