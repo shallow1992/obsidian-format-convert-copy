@@ -1,7 +1,7 @@
 {
 	"id": "format-convert",
 	"name": "Format Convert",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minAppVersion": "0.15.0",
 	"description": "選択したMarkdownテキストをSlack・Discord形式に変換、またはMarkdownのままクリップボードにコピーする。",
 	"author": "Shallow",
