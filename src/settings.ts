@@ -75,55 +75,6 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 				})
 			);
 
-		// --- ファイルエクスプローラ長押し / 右クリックメニュー設定 ---
-		containerEl.createEl("h3", { text: "ファイルエクスプローラメニュー（長押し / 右クリック）" });
-
-		new Setting(containerEl)
-			.setName("ファイルメニュー機能を有効化")
-			.setDesc("ノートファイルの長押し／右クリック時に形式コピー項目を表示します。")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileMenu).onChange(async (value) => {
-					this.plugin.settings.showFileMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName("Slack形式をファイルメニューに表示")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showSlackInFileMenu).onChange(async (value) => {
-					this.plugin.settings.showSlackInFileMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName("Discord形式をファイルメニューに表示")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showDiscordInFileMenu).onChange(async (value) => {
-					this.plugin.settings.showDiscordInFileMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName("WhatsApp形式をファイルメニューに表示")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showWhatsAppInFileMenu).onChange(async (value) => {
-					this.plugin.settings.showWhatsAppInFileMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName("Markdownのままコピーをファイルメニューに表示")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRawInFileMenu).onChange(async (value) => {
-					this.plugin.settings.showRawInFileMenu = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
 		// --- デスクトップ版のみエディタ右クリックメニュー設定を表示 ---
 		if (!Platform.isMobile) {
 			containerEl.createEl("h3", { text: "エディタ右クリックメニュー（デスクトップ）" });

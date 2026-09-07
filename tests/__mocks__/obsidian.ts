@@ -84,4 +84,5 @@ export class Menu {
 		return this;
 	}
 	showAtMouseEvent(_evt: any) {}
+	showAtPosition(_pos: any) {}
 }

@@ -105,10 +105,11 @@ export default class FormatConvertPlugin extends Plugin {
 			);
 		}
 
-		// ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile対応)
+		// ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile共通)
+		// リボンの考え方に統一し、「形式を選択してコピー」1項目から全形式を選べるUIを提供
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
-				if (!this.settings.showFileMenu || !(file instanceof TFile) || file.extension !== "md") {
+				if (!(file instanceof TFile) || file.extension !== "md") {
 					return;
 				}
 
@@ -122,49 +123,56 @@ export default class FormatConvertPlugin extends Plugin {
 					}
 				};
 
-				if (this.settings.showSlackInFileMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Slack形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() =>
-								readFileAndCopy(
-									(content) => ({
-										text: convertToSlack(content),
-										html: convertToSlackHtml(content),
-									}),
-									"Slack"
-								)
-							)
-					);
-				}
+				menu.addItem((item) =>
+					item
+						.setTitle("形式を選択してコピー")
+						.setIcon("copy")
+						.onClick((evt: MouseEvent | KeyboardEvent) => {
+							const formatMenu = new Menu();
 
-				if (this.settings.showDiscordInFileMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Discord形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
-					);
-				}
+							formatMenu.addItem((subItem) =>
+								subItem
+									.setTitle("Slack形式でコピー")
+									.setIcon("clipboard-copy")
+									.onClick(() =>
+										readFileAndCopy(
+											(content) => ({
+												text: convertToSlack(content),
+												html: convertToSlackHtml(content),
+											}),
+											"Slack"
+										)
+									)
+							);
 
-				if (this.settings.showWhatsAppInFileMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("WhatsApp形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
-					);
-				}
+							formatMenu.addItem((subItem) =>
+								subItem
+									.setTitle("Discord形式でコピー")
+									.setIcon("clipboard-copy")
+									.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
+							);
 
-				if (this.settings.showRawInFileMenu) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Markdownのままコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
-					);
-				}
+							formatMenu.addItem((subItem) =>
+								subItem
+									.setTitle("WhatsApp形式でコピー")
+									.setIcon("clipboard-copy")
+									.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
+							);
+
+							formatMenu.addItem((subItem) =>
+								subItem
+									.setTitle("Markdownのままコピー")
+									.setIcon("clipboard-copy")
+									.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
+							);
+
+							if ("clientX" in evt && "clientY" in evt) {
+								formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+							} else {
+								formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+							}
+						})
+				);
 			})
 		);
 
