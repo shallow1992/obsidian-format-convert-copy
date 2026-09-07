@@ -1,4 +1,5 @@
 import { Notice, Platform } from "obsidian";
+import { t } from "../i18n";
 
 /**
  * テキスト（および利用可能な環境ではHTML）をOSクリップボードにコピーする。
@@ -25,7 +26,7 @@ export async function copyToClipboard(
 			const electron = require("electron");
 			if (electron && electron.clipboard) {
 				electron.clipboard.write({ text, html });
-				notifySuccess(`${label}形式でコピーしました`);
+				notifySuccess(t("noticeCopied", { format: label }));
 				return true;
 			}
 		} catch (_electronError) {
@@ -39,7 +40,7 @@ export async function copyToClipboard(
 					"text/html": new Blob([html], { type: "text/html" }),
 				});
 				await navigator.clipboard.write([item]);
-				notifySuccess(`${label}形式でコピーしました`);
+				notifySuccess(t("noticeCopied", { format: label }));
 				return true;
 			}
 		} catch (clipboardItemError) {
@@ -51,7 +52,11 @@ export async function copyToClipboard(
 	try {
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
-			notifySuccess(html && !Platform.isMobile ? `${label}形式でコピーしました（簡易版）` : `${label}形式でコピーしました`);
+			notifySuccess(
+				html && !Platform.isMobile
+					? t("noticeCopiedSimple", { format: label })
+					: t("noticeCopied", { format: label })
+			);
 			return true;
 		}
 	} catch (error) {
@@ -71,13 +76,13 @@ export async function copyToClipboard(
 		const successful = document.execCommand("copy");
 		document.body.removeChild(textArea);
 		if (successful) {
-			notifySuccess(`${label}形式でコピーしました`);
+			notifySuccess(t("noticeCopied", { format: label }));
 			return true;
 		}
 	} catch (execError) {
 		console.error("format-convert-copy: execCommand fallback failed", execError);
 	}
 
-	new Notice("クリップボードへのコピーに失敗しました");
+	new Notice(t("noticeFailed"));
 	return false;
 }

@@ -1,5 +1,13 @@
 import { vi } from "vitest";
 
+let currentLocale = "en";
+export const moment = {
+	locale: (loc?: string) => {
+		if (loc) currentLocale = loc;
+		return currentLocale;
+	},
+};
+
 export const Platform = {
 	isMobile: false,
 	isDesktop: true,
