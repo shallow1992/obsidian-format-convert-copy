@@ -93,13 +93,13 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 ### Via BRAT (Beta Testing)
 1. Install the [Obsidian42 - BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin.
 2. Go to **Settings > BRAT > Add Beta plugin**.
-3. Enter `shallow1992/obsidian-format-convert`.
+3. Enter `shallow1992/obsidian-format-convert-copy`.
 4. BRAT will automatically download the latest release and keep it updated.
 
 ### Manual Installation
-1. Download `main.js`, `manifest.json`, and `styles.css` from the [Latest Release](https://github.com/shallow1992/obsidian-format-convert/releases).
-2. Create a folder named `format-convert` in your vault's `.obsidian/plugins/` directory:
-   `<Vault>/.obsidian/plugins/format-convert/`
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [Latest Release](https://github.com/shallow1992/obsidian-format-convert-copy/releases).
+2. Create a folder named `format-convert-copy` in your vault's `.obsidian/plugins/` directory:
+   `<Vault>/.obsidian/plugins/format-convert-copy/`
 3. Copy the downloaded files into that folder.
 4. Reload Obsidian and enable **Format Convert Copy** under **Settings > Community plugins**.
 
