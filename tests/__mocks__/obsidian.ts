@@ -33,7 +33,9 @@ export class Plugin {
 		this.manifest = manifest;
 	}
 	addCommand() {}
-	addRibbonIcon() {}
+	addRibbonIcon() {
+		return { remove: vi.fn() };
+	}
 	addSettingTab() {}
 	registerEvent() {}
 	loadData() {

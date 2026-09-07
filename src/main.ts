@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Menu, Notice, Platform, Plugin } from "obsidian";
+import { Editor, MarkdownView, Menu, Notice, Plugin } from "obsidian";
 import { convertToDiscord } from "./converters/discord";
 import { convertToSlack, convertToSlackHtml } from "./converters/slack";
 import { FormatConvertSettingTab } from "./settings";
@@ -13,7 +13,7 @@ function getTargetText(editor?: Editor | null): string {
 
 export default class FormatConvertPlugin extends Plugin {
 	settings!: FormatConvertSettings;
-	ribbonIconEl: HTMLElement | null = null;
+	ribbonIconEls: HTMLElement[] = [];
 
 	async onload() {
 		await this.loadSettings();
@@ -83,72 +83,103 @@ export default class FormatConvertPlugin extends Plugin {
 			})
 		);
 
-		// リボンアイコンの登録（設定で有効な場合のみ）
-		this.refreshRibbonIcon();
+		// ナビゲーションバー / リボンアイコンの初期化
+		this.refreshRibbonIcons();
 
 		// 設定画面タブの追加
 		this.addSettingTab(new FormatConvertSettingTab(this.app, this));
 	}
 
 	onunload() {
-		// プラグイン無効化・アップデート時にリボンアイコン要素を確実にDOMからクリーンアップ
-		this.removeRibbonIcon();
+		this.removeAllRibbonIcons();
 	}
 
-	removeRibbonIcon() {
-		if (this.ribbonIconEl) {
-			this.ribbonIconEl.remove();
-			this.ribbonIconEl = null;
+	removeAllRibbonIcons() {
+		for (const el of this.ribbonIconEls) {
+			el.remove();
 		}
+		this.ribbonIconEls = [];
 	}
 
-	refreshRibbonIcon() {
-		if (this.settings.showRibbonIcon) {
-			if (!this.ribbonIconEl) {
-				const ribbonTitle = Platform.isMobile ? "形式を選択してコピー" : "Format Convert";
-				this.ribbonIconEl = this.addRibbonIcon("share-2", ribbonTitle, (evt: MouseEvent) => {
-					const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-					const editor = activeView?.editor;
-					const target = getTargetText(editor);
-					if (!target) {
-						new Notice("アクティブなノートまたは選択テキストがありません");
-						return;
-					}
+	getActiveTargetText(): string | null {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		const editor = activeView?.editor;
+		const target = getTargetText(editor);
+		if (!target) {
+			new Notice("アクティブなノートまたは選択テキストがありません");
+			return null;
+		}
+		return target;
+	}
 
-					const menu = new Menu();
+	refreshRibbonIcons() {
+		this.removeAllRibbonIcons();
 
-					if (this.settings.showSlackInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Slack形式でコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
-						);
-					}
+		// 1. Slack直接コピーアイコン
+		if (this.settings.showRibbonSlackIcon) {
+			const el = this.addRibbonIcon("share-2", "Slack形式でコピー", () => {
+				const target = this.getActiveTargetText();
+				if (target) {
+					copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target));
+				}
+			});
+			this.ribbonIconEls.push(el);
+		}
 
-					if (this.settings.showDiscordInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Discord形式でコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
-						);
-					}
+		// 2. Discord直接コピーアイコン
+		if (this.settings.showRibbonDiscordIcon) {
+			const el = this.addRibbonIcon("message-square", "Discord形式でコピー", () => {
+				const target = this.getActiveTargetText();
+				if (target) {
+					copyToClipboard(convertToDiscord(target), "Discord");
+				}
+			});
+			this.ribbonIconEls.push(el);
+		}
 
-					if (this.settings.showRawInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Markdownのままコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(target, "Markdown"))
-						);
-					}
+		// 3. Markdown直接コピーアイコン
+		if (this.settings.showRibbonRawIcon) {
+			const el = this.addRibbonIcon("file-text", "Markdownのままコピー", () => {
+				const target = this.getActiveTargetText();
+				if (target) {
+					copyToClipboard(target, "Markdown");
+				}
+			});
+			this.ribbonIconEls.push(el);
+		}
 
-					menu.showAtMouseEvent(evt);
-				});
-			}
-		} else {
-			this.removeRibbonIcon();
+		// 4. 全形式選択メニューアイコン（全形式を一覧表示）
+		if (this.settings.showRibbonMenuIcon) {
+			const el = this.addRibbonIcon("copy", "形式を選択してコピー", (evt: MouseEvent) => {
+				const target = this.getActiveTargetText();
+				if (!target) return;
+
+				const menu = new Menu();
+
+				menu.addItem((item) =>
+					item
+						.setTitle("Slack形式でコピー")
+						.setIcon("clipboard-copy")
+						.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
+				);
+
+				menu.addItem((item) =>
+					item
+						.setTitle("Discord形式でコピー")
+						.setIcon("clipboard-copy")
+						.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
+				);
+
+				menu.addItem((item) =>
+					item
+						.setTitle("Markdownのままコピー")
+						.setIcon("clipboard-copy")
+						.onClick(() => copyToClipboard(target, "Markdown"))
+				);
+
+				menu.showAtMouseEvent(evt);
+			});
+			this.ribbonIconEls.push(el);
 		}
 	}
 

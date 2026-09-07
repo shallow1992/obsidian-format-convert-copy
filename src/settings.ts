@@ -15,28 +15,61 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h2", { text: "Format Convert Settings" });
 
-		const ribbonDesc = Platform.isMobile
-			? "モバイルのナビゲーションバー（リボンメニュー）に「形式を選択してコピー」アイコンを追加します。タップすると選択シートが表示されます。"
-			: "画面左のリボン領域にアイコンを追加します。クリックすると形式選択メニューが表示されます。";
+		const ribbonAreaName = Platform.isMobile ? "ナビゲーションバー" : "画面左リボン";
+
+		// --- ナビゲーションバー / リボン設定 ---
+		containerEl.createEl("h3", { text: `${ribbonAreaName}（直接コピー / メニュー）` });
 
 		new Setting(containerEl)
-			.setName("リボンアイコンを表示")
-			.setDesc(ribbonDesc)
+			.setName("「Slack形式でコピー」を直接配置")
+			.setDesc(`${ribbonAreaName}にSlack直接コピーのアイコンを追加します（ワンタップでコピー）。`)
 			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonIcon = value;
+				toggle.setValue(this.plugin.settings.showRibbonSlackIcon).onChange(async (value) => {
+					this.plugin.settings.showRibbonSlackIcon = value;
 					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcon();
+					this.plugin.refreshRibbonIcons();
 				})
 			);
 
 		new Setting(containerEl)
-			.setName("Slack形式をメニューに表示")
-			.setDesc(
-				Platform.isMobile
-					? "エディタ選択メニューおよびリボン選択シートに「Slack形式でコピー」を表示します。"
-					: "エディタ右クリックメニューおよびリボンメニューに「Slack形式でコピー」を表示します。"
-			)
+			.setName("「Discord形式でコピー」を直接配置")
+			.setDesc(`${ribbonAreaName}にDiscord直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showRibbonDiscordIcon).onChange(async (value) => {
+					this.plugin.settings.showRibbonDiscordIcon = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshRibbonIcons();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「Markdownのままコピー」を直接配置")
+			.setDesc(`${ribbonAreaName}にMarkdown直接コピーのアイコンを追加します（ワンタップでコピー）。`)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showRibbonRawIcon).onChange(async (value) => {
+					this.plugin.settings.showRibbonRawIcon = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshRibbonIcons();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName("「形式を選択してコピー」メニューを配置")
+			.setDesc(`${ribbonAreaName}に選択メニュー表示のアイコンを追加します（タップすると全形式から選べるシートを表示）。`)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showRibbonMenuIcon).onChange(async (value) => {
+					this.plugin.settings.showRibbonMenuIcon = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshRibbonIcons();
+				})
+			);
+
+		// --- エディタコンテキストメニュー設定 ---
+		containerEl.createEl("h3", { text: "エディタ選択メニュー（右クリック / 長押し）" });
+
+		new Setting(containerEl)
+			.setName("Slack形式を表示")
+			.setDesc("エディタの選択メニューに「Slack形式でコピー」を表示します。")
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showSlackInMenu).onChange(async (value) => {
 					this.plugin.settings.showSlackInMenu = value;
@@ -45,12 +78,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Discord形式をメニューに表示")
-			.setDesc(
-				Platform.isMobile
-					? "エディタ選択メニューおよびリボン選択シートに「Discord形式でコピー」を表示します。"
-					: "エディタ右クリックメニューおよびリボンメニューに「Discord形式でコピー」を表示します。"
-			)
+			.setName("Discord形式を表示")
+			.setDesc("エディタの選択メニューに「Discord形式でコピー」を表示します。")
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showDiscordInMenu).onChange(async (value) => {
 					this.plugin.settings.showDiscordInMenu = value;
@@ -59,12 +88,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Markdownのままコピーをメニューに表示")
-			.setDesc(
-				Platform.isMobile
-					? "エディタ選択メニューおよびリボン選択シートに「Markdownのままコピー」を表示します。"
-					: "エディタ右クリックメニューおよびリボンメニューに「Markdownのままコピー」を表示します。"
-			)
+			.setName("Markdownのままコピーを表示")
+			.setDesc("エディタの選択メニューに「Markdownのままコピー」を表示します。")
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showRawInMenu).onChange(async (value) => {
 					this.plugin.settings.showRawInMenu = value;
