@@ -64,6 +64,7 @@ export class Setting {
 	constructor(public containerEl: any) {}
 	setName() { return this; }
 	setDesc() { return this; }
+	setHeading() { return this; }
 	addToggle(cb: (t: any) => any) {
 		cb({ setValue: () => ({ onChange: () => {} }) });
 		return this;

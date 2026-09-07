@@ -13,17 +13,15 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "Format Convert Settings" });
-
 		const ribbonAreaName = Platform.isMobile ? "ナビゲーションバー（モバイル）" : "画面左リボン（デスクトップ）";
 
 		// ==========================================
 		// 1. ナビゲーションバー / リボン設定
 		// ==========================================
-		containerEl.createEl("h3", { text: `${ribbonAreaName}` });
-		containerEl.createEl("p", {
-			text: "ワンタップで即座にコピーする直接アイコンや、全形式から選べるメニューアイコンを自由に配置できます。",
-		});
+		new Setting(containerEl)
+			.setName(`${ribbonAreaName}`)
+			.setHeading()
+			.setDesc("ワンタップで即座にコピーする直接アイコンや、全形式から選べるメニューアイコンを自由に配置できます。");
 
 		new Setting(containerEl)
 			.setName("「Slack形式でコピー」を直接配置")
@@ -83,10 +81,10 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 2. ファイルエクスプローラメニュー設定（長押し / 右クリック）
 		// ==========================================
-		containerEl.createEl("h3", { text: "ファイルエクスプローラメニュー（長押し / 右クリック）" });
-		containerEl.createEl("p", {
-			text: "ファイル一覧でノートを長押し（PCでは右クリック）した際に表示する直接コピー項目や選択メニューを個別に設定できます。",
-		});
+		new Setting(containerEl)
+			.setName("ファイルエクスプローラメニュー（長押し / 右クリック）")
+			.setHeading()
+			.setDesc("ファイル一覧でノートを長押し（PCでは右クリック）した際に表示する直接コピー項目や選択メニューを個別に設定できます。");
 
 		new Setting(containerEl)
 			.setName("「Slack形式でコピー」を直接表示")
@@ -142,7 +140,9 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// 3. デスクトップ版エディタ右クリックメニュー設定
 		// ==========================================
 		if (!Platform.isMobile) {
-			containerEl.createEl("h3", { text: "エディタ右クリックメニュー（デスクトップ）" });
+			new Setting(containerEl)
+				.setName("エディタ右クリックメニュー（デスクトップ）")
+				.setHeading();
 
 			new Setting(containerEl)
 				.setName("Slack形式を表示")

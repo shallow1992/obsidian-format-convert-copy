@@ -1,9 +1,7 @@
 import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obsidian";
-import { convertToDiscord } from "./converters/discord";
-import { convertToSlack, convertToSlackHtml } from "./converters/slack";
-import { convertToWhatsApp } from "./converters/whatsapp";
+import { convertMarkdown } from "./converters";
 import { FormatConvertSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, FormatConvertSettings } from "./types";
+import { DEFAULT_SETTINGS, FORMAT_ITEMS, FormatConvertSettings, FormatType } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
 
 function getTargetText(editor?: Editor | null): string {
@@ -16,233 +14,214 @@ export default class FormatConvertPlugin extends Plugin {
 	settings!: FormatConvertSettings;
 	ribbonIconEls: HTMLElement[] = [];
 
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// コマンドパレット・ショートカット（PC・モバイル共通）
-		this.addCommand({
-			id: "convert-slack",
-			name: "Slack形式に変換してコピー",
-			icon: "clipboard-copy",
-			editorCallback: (editor: Editor) => {
-				const target = getTargetText(editor);
-				copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target));
-			},
-		});
+		// 1. コマンドパレット・ショートカット（PC・モバイル共通）
+		this.registerCommands();
 
-		this.addCommand({
-			id: "convert-discord",
-			name: "Discord形式に変換してコピー",
-			icon: "clipboard-copy",
-			editorCallback: (editor: Editor) => {
-				const target = getTargetText(editor);
-				copyToClipboard(convertToDiscord(target), "Discord");
-			},
-		});
-
-		this.addCommand({
-			id: "convert-whatsapp",
-			name: "WhatsApp形式に変換してコピー",
-			icon: "clipboard-copy",
-			editorCallback: (editor: Editor) => {
-				const target = getTargetText(editor);
-				copyToClipboard(convertToWhatsApp(target), "WhatsApp");
-			},
-		});
-
-		this.addCommand({
-			id: "copy-raw-markdown",
-			name: "Markdownのままコピー",
-			icon: "clipboard-copy",
-			editorCallback: (editor: Editor) => {
-				const target = getTargetText(editor);
-				copyToClipboard(target, "Markdown");
-			},
-		});
-
-		// デスクトップ版（PC）のみエディタ右クリックコンテキストメニューを登録する
+		// 2. エディタコンテキストメニュー（デスクトップ版PCのみ）
 		if (!Platform.isMobile) {
-			this.registerEvent(
-				this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
-					const target = getTargetText(editor);
-
-					if (this.settings.showSlackInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Slack形式でコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
-						);
-					}
-
-					if (this.settings.showDiscordInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Discord形式でコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
-						);
-					}
-
-					if (this.settings.showWhatsAppInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("WhatsApp形式でコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(convertToWhatsApp(target), "WhatsApp"))
-						);
-					}
-
-					if (this.settings.showRawInMenu) {
-						menu.addItem((item) =>
-							item
-								.setTitle("Markdownのままコピー")
-								.setIcon("clipboard-copy")
-								.onClick(() => copyToClipboard(target, "Markdown"))
-						);
-					}
-				})
-			);
+			this.registerEditorMenu();
 		}
 
-		// ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile共通)
-		// リボンと同じく「直接コピー項目」と「形式選択メニュー」を自由に組み合わせ可能
+		// 3. ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile共通)
+		this.registerFileMenu();
+
+		// 4. ナビゲーションバー / リボンアイコンの初期化
+		this.refreshRibbonIcons();
+
+		// 5. 設定画面タブの追加
+		this.addSettingTab(new FormatConvertSettingTab(this.app, this));
+	}
+
+	onunload(): void {
+		this.removeAllRibbonIcons();
+	}
+
+	// ----------------------------------------------------
+	// 登録処理 (Commands, Menus, Ribbons)
+	// ----------------------------------------------------
+
+	private registerCommands(): void {
+		const commands: { id: string; name: string; type: FormatType }[] = [
+			{ id: "convert-slack", name: "Slack形式に変換してコピー", type: "slack" },
+			{ id: "convert-discord", name: "Discord形式に変換してコピー", type: "discord" },
+			{ id: "convert-whatsapp", name: "WhatsApp形式に変換してコピー", type: "whatsapp" },
+			{ id: "copy-raw-markdown", name: "Markdownのままコピー", type: "raw" },
+		];
+
+		for (const cmd of commands) {
+			this.addCommand({
+				id: cmd.id,
+				name: cmd.name,
+				icon: "clipboard-copy",
+				editorCallback: (editor: Editor) => {
+					const target = getTargetText(editor);
+					const result = convertMarkdown(target, cmd.type);
+					copyToClipboard(result.text, result.label, result.html);
+				},
+			});
+		}
+	}
+
+	private registerEditorMenu(): void {
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
+				const target = getTargetText(editor);
+
+				const menuConfigs: { enabled: boolean; type: FormatType; title: string }[] = [
+					{ enabled: this.settings.showSlackInMenu, type: "slack", title: "Slack形式でコピー" },
+					{ enabled: this.settings.showDiscordInMenu, type: "discord", title: "Discord形式でコピー" },
+					{ enabled: this.settings.showWhatsAppInMenu, type: "whatsapp", title: "WhatsApp形式でコピー" },
+					{ enabled: this.settings.showRawInMenu, type: "raw", title: "Markdownのままコピー" },
+				];
+
+				for (const item of menuConfigs) {
+					if (item.enabled) {
+						menu.addItem((menuItem) =>
+							menuItem
+								.setTitle(item.title)
+								.setIcon("clipboard-copy")
+								.onClick(() => {
+									const result = convertMarkdown(target, item.type);
+									copyToClipboard(result.text, result.label, result.html);
+								})
+						);
+					}
+				}
+			})
+		);
+	}
+
+	private registerFileMenu(): void {
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
 				if (!(file instanceof TFile) || file.extension !== "md") {
 					return;
 				}
 
-				const readFileAndCopy = async (converter: (content: string) => { text: string; html?: string }, label: string) => {
+				const copyFileContent = async (type: FormatType) => {
 					try {
 						const content = await this.app.vault.cachedRead(file);
-						const result = converter(content);
-						await copyToClipboard(result.text, label, result.html);
-					} catch (e) {
-						new Notice(`${label}形式のコピーに失敗しました`);
+						const result = convertMarkdown(content, type);
+						await copyToClipboard(result.text, result.label, result.html);
+					} catch (_e) {
+						new Notice("クリップボードへのコピーに失敗しました");
 					}
 				};
 
-				// 1. 直接コピー: Slack
-				if (this.settings.showFileSlackItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Slack形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() =>
-								readFileAndCopy(
-									(content) => ({
-										text: convertToSlack(content),
-										html: convertToSlackHtml(content),
-									}),
-									"Slack"
-								)
-							)
-					);
+				// 直接コピー項目の登録
+				const directItems: { enabled: boolean; type: FormatType; title: string }[] = [
+					{ enabled: this.settings.showFileSlackItem, type: "slack", title: "Slack形式でコピー" },
+					{ enabled: this.settings.showFileDiscordItem, type: "discord", title: "Discord形式でコピー" },
+					{ enabled: this.settings.showFileWhatsAppItem, type: "whatsapp", title: "WhatsApp形式でコピー" },
+					{ enabled: this.settings.showFileRawItem, type: "raw", title: "Markdownのままコピー" },
+				];
+
+				for (const item of directItems) {
+					if (item.enabled) {
+						menu.addItem((menuItem) =>
+							menuItem
+								.setTitle(item.title)
+								.setIcon("clipboard-copy")
+								.onClick(() => copyFileContent(item.type))
+						);
+					}
 				}
 
-				// 2. 直接コピー: Discord
-				if (this.settings.showFileDiscordItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Discord形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
-					);
-				}
-
-				// 3. 直接コピー: WhatsApp
-				if (this.settings.showFileWhatsAppItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle("WhatsApp形式でコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
-					);
-				}
-
-				// 4. 直接コピー: Markdown
-				if (this.settings.showFileRawItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle("Markdownのままコピー")
-							.setIcon("clipboard-copy")
-							.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
-					);
-				}
-
-				// 5. 選択メニュー: 形式を選択してコピー
+				// 形式選択メニュー項目の登録
 				if (this.settings.showFileMenuItem) {
 					menu.addItem((item) =>
 						item
 							.setTitle("形式を選択してコピー")
 							.setIcon("copy")
 							.onClick((evt: MouseEvent | KeyboardEvent) => {
-								const formatMenu = new Menu();
-
-								formatMenu.addItem((subItem) =>
-									subItem
-										.setTitle("Slack形式でコピー")
-										.setIcon("clipboard-copy")
-										.onClick(() =>
-											readFileAndCopy(
-												(content) => ({
-													text: convertToSlack(content),
-													html: convertToSlackHtml(content),
-												}),
-												"Slack"
-											)
-										)
-								);
-
-								formatMenu.addItem((subItem) =>
-									subItem
-										.setTitle("Discord形式でコピー")
-										.setIcon("clipboard-copy")
-										.onClick(() => readFileAndCopy((content) => ({ text: convertToDiscord(content) }), "Discord"))
-								);
-
-								formatMenu.addItem((subItem) =>
-									subItem
-										.setTitle("WhatsApp形式でコピー")
-										.setIcon("clipboard-copy")
-										.onClick(() => readFileAndCopy((content) => ({ text: convertToWhatsApp(content) }), "WhatsApp"))
-								);
-
-								formatMenu.addItem((subItem) =>
-									subItem
-										.setTitle("Markdownのままコピー")
-										.setIcon("clipboard-copy")
-										.onClick(() => readFileAndCopy((content) => ({ text: content }), "Markdown"))
-								);
-
-								if ("clientX" in evt && "clientY" in evt) {
-									formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
-								} else {
-									formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-								}
+								this.showFormatSelectMenu(evt, (type) => copyFileContent(type));
 							})
 					);
 				}
 			})
 		);
-
-		// ナビゲーションバー / リボンアイコンの初期化
-		this.refreshRibbonIcons();
-
-		// 設定画面タブの追加
-		this.addSettingTab(new FormatConvertSettingTab(this.app, this));
 	}
 
-	onunload() {
+	refreshRibbonIcons(): void {
 		this.removeAllRibbonIcons();
+
+		const activeCopy = (type: FormatType) => {
+			const target = this.getActiveTargetText();
+			if (target) {
+				const result = convertMarkdown(target, type);
+				copyToClipboard(result.text, result.label, result.html);
+			}
+		};
+
+		// 1. Slack直接
+		if (this.settings.showRibbonSlackIcon) {
+			this.ribbonIconEls.push(
+				this.addRibbonIcon("share-2", "Slack形式でコピー", () => activeCopy("slack"))
+			);
+		}
+
+		// 2. Discord直接
+		if (this.settings.showRibbonDiscordIcon) {
+			this.ribbonIconEls.push(
+				this.addRibbonIcon("message-square", "Discord形式でコピー", () => activeCopy("discord"))
+			);
+		}
+
+		// 3. WhatsApp直接
+		if (this.settings.showRibbonWhatsAppIcon) {
+			this.ribbonIconEls.push(
+				this.addRibbonIcon("message-circle", "WhatsApp形式でコピー", () => activeCopy("whatsapp"))
+			);
+		}
+
+		// 4. Markdown直接
+		if (this.settings.showRibbonRawIcon) {
+			this.ribbonIconEls.push(
+				this.addRibbonIcon("file-text", "Markdownのままコピー", () => activeCopy("raw"))
+			);
+		}
+
+		// 5. 全形式選択メニュー
+		if (this.settings.showRibbonMenuIcon) {
+			this.ribbonIconEls.push(
+				this.addRibbonIcon("copy", "形式を選択してコピー", (evt: MouseEvent) => {
+					if (!this.getActiveTargetText()) return;
+					this.showFormatSelectMenu(evt, (type) => activeCopy(type));
+				})
+			);
+		}
 	}
 
-	removeAllRibbonIcons() {
+	removeAllRibbonIcons(): void {
 		for (const el of this.ribbonIconEls) {
 			el.remove();
 		}
 		this.ribbonIconEls = [];
+	}
+
+	private showFormatSelectMenu(
+		evt: MouseEvent | KeyboardEvent,
+		onSelect: (type: FormatType) => void
+	): void {
+		const formatMenu = new Menu();
+
+		for (const item of FORMAT_ITEMS) {
+			formatMenu.addItem((subItem) =>
+				subItem
+					.setTitle(item.label)
+					.setIcon(item.icon)
+					.onClick(() => onSelect(item.id))
+			);
+		}
+
+		if ("clientX" in evt && "clientY" in evt) {
+			formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+		} else {
+			formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+		}
 	}
 
 	getActiveTargetText(): string | null {
@@ -256,100 +235,19 @@ export default class FormatConvertPlugin extends Plugin {
 		return target;
 	}
 
-	refreshRibbonIcons() {
-		this.removeAllRibbonIcons();
+	// ----------------------------------------------------
+	// 設定の永続化 (Deep Merge パターン)
+	// ----------------------------------------------------
 
-		// 1. Slack直接コピーアイコン
-		if (this.settings.showRibbonSlackIcon) {
-			const el = this.addRibbonIcon("share-2", "Slack形式でコピー", () => {
-				const target = this.getActiveTargetText();
-				if (target) {
-					copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target));
-				}
-			});
-			this.ribbonIconEls.push(el);
-		}
-
-		// 2. Discord直接コピーアイコン
-		if (this.settings.showRibbonDiscordIcon) {
-			const el = this.addRibbonIcon("message-square", "Discord形式でコピー", () => {
-				const target = this.getActiveTargetText();
-				if (target) {
-					copyToClipboard(convertToDiscord(target), "Discord");
-				}
-			});
-			this.ribbonIconEls.push(el);
-		}
-
-		// 3. WhatsApp直接コピーアイコン
-		if (this.settings.showRibbonWhatsAppIcon) {
-			const el = this.addRibbonIcon("message-circle", "WhatsApp形式でコピー", () => {
-				const target = this.getActiveTargetText();
-				if (target) {
-					copyToClipboard(convertToWhatsApp(target), "WhatsApp");
-				}
-			});
-			this.ribbonIconEls.push(el);
-		}
-
-		// 4. Markdown直接コピーアイコン
-		if (this.settings.showRibbonRawIcon) {
-			const el = this.addRibbonIcon("file-text", "Markdownのままコピー", () => {
-				const target = this.getActiveTargetText();
-				if (target) {
-					copyToClipboard(target, "Markdown");
-				}
-			});
-			this.ribbonIconEls.push(el);
-		}
-
-		// 5. 全形式選択メニューアイコン（全形式を一覧表示）
-		if (this.settings.showRibbonMenuIcon) {
-			const el = this.addRibbonIcon("copy", "形式を選択してコピー", (evt: MouseEvent) => {
-				const target = this.getActiveTargetText();
-				if (!target) return;
-
-				const menu = new Menu();
-
-				menu.addItem((item) =>
-					item
-						.setTitle("Slack形式でコピー")
-						.setIcon("clipboard-copy")
-						.onClick(() => copyToClipboard(convertToSlack(target), "Slack", convertToSlackHtml(target)))
-				);
-
-				menu.addItem((item) =>
-					item
-						.setTitle("Discord形式でコピー")
-						.setIcon("clipboard-copy")
-						.onClick(() => copyToClipboard(convertToDiscord(target), "Discord"))
-				);
-
-				menu.addItem((item) =>
-					item
-						.setTitle("WhatsApp形式でコピー")
-						.setIcon("clipboard-copy")
-						.onClick(() => copyToClipboard(convertToWhatsApp(target), "WhatsApp"))
-				);
-
-				menu.addItem((item) =>
-					item
-						.setTitle("Markdownのままコピー")
-						.setIcon("clipboard-copy")
-						.onClick(() => copyToClipboard(target, "Markdown"))
-				);
-
-				menu.showAtMouseEvent(evt);
-			});
-			this.ribbonIconEls.push(el);
-		}
+	async loadSettings(): Promise<void> {
+		const loadedData = await this.loadData();
+		this.settings = {
+			...DEFAULT_SETTINGS,
+			...loadedData,
+		};
 	}
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 }

@@ -110,3 +110,34 @@ describe("whatsapp converter", () => {
 		expect(convertToWhatsApp(md)).toBe("> *[This is a note]*");
 	});
 });
+
+import { convertMarkdown } from "../src/converters";
+
+describe("convertMarkdown dispatcher", () => {
+	const sample = "# Hello\n- [ ] Task";
+
+	it("dispatches slack format", () => {
+		const res = convertMarkdown(sample, "slack");
+		expect(res.label).toBe("Slack");
+		expect(res.text).toContain("*Hello*");
+		expect(res.html).toBeDefined();
+	});
+
+	it("dispatches discord format", () => {
+		const res = convertMarkdown(sample, "discord");
+		expect(res.label).toBe("Discord");
+		expect(res.text).toContain("☐ Task");
+	});
+
+	it("dispatches whatsapp format", () => {
+		const res = convertMarkdown(sample, "whatsapp");
+		expect(res.label).toBe("WhatsApp");
+		expect(res.text).toContain("*Hello*");
+	});
+
+	it("dispatches raw format", () => {
+		const res = convertMarkdown(sample, "raw");
+		expect(res.label).toBe("Markdown");
+		expect(res.text).toBe(sample);
+	});
+});

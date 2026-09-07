@@ -1,3 +1,5 @@
+export type FormatType = "slack" | "discord" | "whatsapp" | "raw";
+
 export interface FormatConvertSettings {
 	// ナビゲーションバー / リボンアイコン（直接コピー & 選択メニュー）
 	showRibbonSlackIcon: boolean;
@@ -41,3 +43,16 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	showWhatsAppInMenu: true,
 	showRawInMenu: true,
 };
+
+export interface FormatItemConfig {
+	id: FormatType;
+	label: string;
+	icon: string;
+}
+
+export const FORMAT_ITEMS: FormatItemConfig[] = [
+	{ id: "slack", label: "Slack形式でコピー", icon: "clipboard-copy" },
+	{ id: "discord", label: "Discord形式でコピー", icon: "clipboard-copy" },
+	{ id: "whatsapp", label: "WhatsApp形式でコピー", icon: "clipboard-copy" },
+	{ id: "raw", label: "Markdownのままコピー", icon: "clipboard-copy" },
+];
