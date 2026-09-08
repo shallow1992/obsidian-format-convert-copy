@@ -140,6 +140,28 @@ describe("slack converter", () => {
 		expect(converted).toContain("const a = **not bold**;");
 	});
 
+	it("preserves tilde code blocks (~~~ and ~~~~)", () => {
+		const md = "~~~python\ndef calc(x, y):\n    return x * y + __secret__\n~~~";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("return x * y + __secret__");
+		const discordConverted = convertToDiscord(md);
+		expect(discordConverted).toContain("return x * y + __secret__");
+		const waConverted = convertToWhatsApp(md);
+		expect(waConverted).toContain("return x * y + __secret__");
+		const html = convertToSlackHtml(md);
+		expect(html).toContain("return x * y + __secret__");
+	});
+
+	it("preserves multi-length backtick blocks (```` ````) with nested backticks", () => {
+		const md = "````markdown\nHere is code:\n```js\nconst str = `hello ${name}`;\n```\n````";
+		const converted = convertToSlack(md);
+		expect(converted).toContain("const str = `hello ${name}`;");
+		const discordConverted = convertToDiscord(md);
+		expect(discordConverted).toContain("const str = `hello ${name}`;");
+		const waConverted = convertToWhatsApp(md);
+		expect(waConverted).toContain("const str = `hello ${name}`;");
+	});
+
 	it("formats markdown tables into monospace code blocks", () => {
 		const md = "| Col1 | Col2 |\n|---|---|\n| Val1 | Val2 |";
 		const converted = convertToSlack(md);

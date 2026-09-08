@@ -82,7 +82,7 @@ export function isSafeUrl(rawUrl: string): boolean {
 }
 
 /**
- * Safely extracts code fences and inline code line-by-line / syntax-by-syntax
+ * Safely extracts code fences (``` or ~~~ of 3+ length), inline code, LaTeX math, and tables
  * and stashes them into placeholders.
  */
 export function extractCodeBlocks(
@@ -97,24 +97,40 @@ export function extractCodeBlocks(
 
 	while (i < lines.length) {
 		const line = lines[i];
-		const fenceOpen = line.match(/^```([^`]*)$/);
+		// Match opening code fence: 3 or more backticks or tildes, optionally preceded by up to 3 spaces
+		const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
 
-		if (fenceOpen) {
-			const lang = fenceOpen[1].trim();
-			const codeLines: string[] = [];
-			let j = i + 1;
-			while (j < lines.length && lines[j].trim() !== "```") {
-				codeLines.push(lines[j]);
-				j++;
+		if (fenceMatch) {
+			const fenceStr = fenceMatch[1];
+			const fenceChar = fenceStr[0];
+			const fenceLen = fenceStr.length;
+			const lang = fenceMatch[2].trim();
+
+			// For backtick fences, the info string / lang cannot contain backticks per CommonMark
+			if (!(fenceChar === "`" && lang.includes("`"))) {
+				const codeLines: string[] = [];
+				let j = i + 1;
+				let closed = false;
+
+				while (j < lines.length) {
+					const closeMatch = lines[j].match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+					if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLen) {
+						closed = true;
+						break;
+					}
+					codeLines.push(lines[j]);
+					j++;
+				}
+
+				blocks.push(wrapBlock(codeLines.join("\n"), lang));
+				outputLines.push(`${CODE_MARK}${blocks.length - 1}${CODE_MARK}`);
+				i = closed ? j + 1 : lines.length;
+				continue;
 			}
-			blocks.push(wrapBlock(codeLines.join("\n"), lang));
-			outputLines.push(`${CODE_MARK}${blocks.length - 1}${CODE_MARK}`);
-			i = j + 1;
-			continue;
 		}
 
-		if (line.includes("```")) {
-			const replaced = line.replace(/```([^`]*?)```/g, (_match, code) => {
+		if (line.includes("`")) {
+			const replaced = line.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_match, _ticks, code) => {
 				blocks.push(wrapInline(code));
 				return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
 			});
