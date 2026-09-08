@@ -17,7 +17,7 @@ Designed from the ground up for seamless cross-platform usage across **Desktop (
 
 - 🌐 **Multilingual Support (i18n)**: Automatically detects Obsidian's UI language to provide a native interface in English (default) and Japanese.
 - 🚀 **One-Tap Multi-Platform Copy**:
-  - **Slack**: Generates rich text HTML for desktop Slack with clean mrkdwn fallback (`*bold*`, `_italic_`, `~strike~`, `<url|text>`, blockquotes, nested lists).
+  - **Slack**: Synthesizes Slack's internal Quill Delta format (`slack/texty`) on Desktop for native code blocks, 5-level nested lists, blockquotes, and formatting, with clean mrkdwn fallback for mobile.
   - **Discord**: Full Discord Markdown conversion (`**bold**`, `*italic*`, `__underline__`, `~~strike~~`, code fences).
   - **WhatsApp**: WhatsApp-specific formatting (`*bold*`, `_italic_`, `~strike~`, expanded link syntax).
   - **Raw Markdown**: Cleanly copy active note or selection without formatting modifications.
@@ -173,6 +173,13 @@ ObsidianのMarkdown記法が、コピー時に各アプリ向けにどのよう�
 2. **モバイルキーボードツールバー**: Obsidianの「設定 > モバイル > ツールバーのオプション」から各形式のコマンドを登録すれば、キーボード上の専用アイコンから即座にコピー可能。
 3. **ファイル一覧メニュー**: ファイル一覧でノートを長押し（モバイル）または右クリック（PC）して、ノートを開かずに直接好きな形式でコピー。
 4. **コマンドパレット & ショートカット**: `Ctrl/Cmd + P` から「Slack形式に変換してコピー」などを検索して実行可能。
+
+---
+
+## Technical Documentation & Testing
+
+- 📖 [Slack Internal Clipboard Specification (`slack/texty`)](./docs/slack-clipboard-spec.md): Technical deep-dive into Slack's proprietary Quill Delta clipboard format, block attributes, list nesting constraints, and reverse-engineered architecture.
+- 🧪 [Comprehensive Manual Test Suite](./tests/manual/slack-comprehensive-test.md): Full Markdown test fixture covering all syntax variations (headings, 5-level nested lists, tables, callouts, code blocks, task lists, and math) for manual verification in any Obsidian vault.
 
 ---
 

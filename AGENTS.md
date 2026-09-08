@@ -27,8 +27,9 @@ Format Convert Copy strictly supports both Desktop (macOS, Windows, Linux) and M
 
 ## 3. Format Conversion Principles
 
-- **Slack (`convertToSlack` / `convertToSlackHtml`)**:
-  - Support mrkdwn plain text (`*bold*`, `_italic_`, `~strike~`, `• bullet`) and rich HTML (`<b>`, `<i>`, `<s>`, `<ul>/<li>`).
+- **Slack (`convertToSlackTexty` / `convertToSlack` / `convertToSlackHtml`)**:
+  - **Native Quill Delta (`slack/texty`)**: Primary clipboard format for Desktop. Synthesizes Slack's internal Quill Delta format directly to avoid HTML parsing bugs (broken codeblocks and flattened lists). Refer to the full specification in [`docs/slack-clipboard-spec.md`](./docs/slack-clipboard-spec.md).
+  - **mrkdwn & HTML fallbacks**: Plain text fallback (`*bold*`, `_italic_`, `~strike~`, `• bullet`) for mobile WebViews.
   - Convert Obsidian callouts (`> [!NOTE]`) and task list checkboxes (`- [ ]` -> `☐`, `- [x]` -> `☑`).
   - Sanitize URLs and protect code fences (` ``` `).
 - **Discord (`convertToDiscord`)**:
@@ -62,3 +63,12 @@ For in-depth Obsidian API guidelines, Keychain storage, and UI patterns, refer t
   - Mobile compatibility: `references/mobile-compatibility.md`
   - Security & Keychain: `references/security-and-keychain.md`
   - UI & Design system: `references/ui-and-design-system.md`
+
+---
+
+## 6. Manual Testing Suite & Protocol
+
+To ensure manual verification is consistent across varying environments:
+- **Repository Test Suite**: Maintain a comprehensive Markdown test note in the repository at [`tests/manual/slack-comprehensive-test.md`](./tests/manual/slack-comprehensive-test.md). This file covers headings, inline formatting, 5-level nested lists, tables, callouts, blockquotes, code blocks, task lists, and edge cases.
+- **Protocol for Impacted Code**: Whenever changes affect conversion or clipboard logic, identify and present the specific test items from the test suite to the user/tester.
+- **No Forced Placement**: Testers work with different vault structures, OS platforms, and cloud sync solutions. Never enforce or assume a fixed file placement on the tester's machine; provide the test note in the repo so testers can copy, import, or place it wherever convenient in their own vaults.
