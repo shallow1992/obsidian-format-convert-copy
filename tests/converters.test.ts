@@ -165,7 +165,7 @@ describe("slack converter", () => {
 	it("formats markdown tables into monospace code blocks", () => {
 		const md = "| Col1 | Col2 |\n|---|---|\n| Val1 | Val2 |";
 		const converted = convertToSlack(md);
-		expect(converted).toContain("| Col1");
+		expect(converted).toContain("```\n| Col1");
 		expect(converted).toContain("| Val1");
 	});
 
@@ -173,7 +173,7 @@ describe("slack converter", () => {
 		const md = "Formula $x_1 * y_1$ and block:\n$$\nE = mc^2\n$$\nCurrency: $10.00 and $20.00";
 		const converted = convertToSlack(md);
 		expect(converted).toContain("`$x_1 * y_1$`");
-		expect(converted).toContain("$$\nE = mc^2\n$$");
+		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
 		expect(converted).toContain("Currency: $10.00 and $20.00");
 	});
 
@@ -186,21 +186,19 @@ describe("slack converter", () => {
 		expect(html).toContain('<a href="https://example.com">Safe</a>');
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
-		expect(html).toContain("AppleSystemUIFontMonospaced");
+		expect(html).toContain("<p>```<br>| H1");
 		expect(html).toContain("<code>$a_b$</code>");
 	});
 
-	it("generates exact native Slack code block paragraph structure", () => {
+	it("generates plain markdown paragraph structure for code blocks in Slack HTML", () => {
 		const md = "```typescript\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```";
 		const html = convertToSlackHtml(md);
 		expect(html).toBe(
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">function greet(name: string): string {</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">}</span></p>`
+			"<p>```<br>function greet(name: string): string {<br>&nbsp;&nbsp;&nbsp;&nbsp;return `Hello, ${name}!`;<br>}<br>```</p>"
 		);
 		const plain = convertToSlack(md);
 		expect(plain).toBe(
-			"function greet(name: string): string {\n    return `Hello, ${name}!`;\n}"
+			"```\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```"
 		);
 	});
 
