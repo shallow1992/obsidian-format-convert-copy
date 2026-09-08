@@ -179,7 +179,10 @@ ObsidianのMarkdown記法が、コピー時に各アプリ向けにどのよう�
 ## Technical Documentation & Testing
 
 - 📖 [Slack Internal Clipboard Specification (`slack/texty`)](./docs/slack-clipboard-spec.md): Technical deep-dive into Slack's proprietary Quill Delta clipboard format, block attributes, list nesting constraints, and reverse-engineered architecture.
-- 🧪 [Comprehensive Manual Test Suite](./tests/manual/slack-comprehensive-test.md): Full Markdown test fixture covering all syntax variations (headings, 5-level nested lists, tables, callouts, code blocks, task lists, and math) for manual verification in any Obsidian vault.
+- 🧪 **Manual Verification Test Suites**:
+  - [Slack Comprehensive Test Suite](./tests/manual/slack-comprehensive-test.md): Full test fixture for Slack native Quill Delta format (headings, 5-level nested lists, tables, callouts, code blocks, task lists).
+  - [Discord Comprehensive Test Suite](./tests/manual/discord-comprehensive-test.md): Full test fixture for Discord Markdown (native headings `#..###`, underline `__text__`, spoiler `||spoiler||`, task strikethroughs).
+  - [WhatsApp Comprehensive Test Suite](./tests/manual/whatsapp-comprehensive-test.md): Full test fixture for WhatsApp syntax (`*bold*`, `_italic_`, `~strike~`, heading bolding, auto-expanded links `title (url)`).
 
 ---
 
