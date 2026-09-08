@@ -150,6 +150,22 @@ export function convertToSlack(md: string): string {
 	return text.trim();
 }
 
+function formatSlackCodeBlockHtml(code: string): string {
+	const lines = code.split("\n");
+	return lines
+		.map((line) => {
+			let content = escapeHtml(line);
+			content = content.replace(/^( +)/, (_match, spaces) => {
+				return `<span class="Apple-converted-space">${"&nbsp;".repeat(spaces.length)}</span>`;
+			});
+			if (!content) {
+				content = "&nbsp;";
+			}
+			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced', monospace;"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">${content}</span></p>`;
+		})
+		.join("");
+}
+
 /**
  * Converts Markdown to Slack rich-text HTML.
  */
@@ -168,14 +184,7 @@ export function convertToSlackHtml(md: string): string {
 
 	const extraction = extractCodeBlocks(
 		text,
-		(code) =>
-			code
-				.split("\n")
-				.map(
-					(line) =>
-						`<p style="margin: 0.0px; font-family: monospace;"><span style="font-family: monospace;">${escapeHtml(line) || "&nbsp;"}</span></p>`
-				)
-				.join(""),
+		(code) => formatSlackCodeBlockHtml(code),
 		(code) => `<code>${escapeHtml(code)}</code>`
 	);
 	text = extraction.text;
