@@ -2,14 +2,15 @@ import { Notice, Platform } from "obsidian";
 import { t } from "../i18n";
 
 /**
- * Copies text (and HTML where supported) to the OS clipboard.
+ * Copies text (and HTML / custom MIME types where supported) to the OS clipboard.
  * Performs optimal fallback handling across mobile (iOS / Android) and desktop environments.
  */
 export async function copyToClipboard(
 	text: string,
 	label: string,
 	html?: string,
-	silent: boolean = false
+	silent: boolean = false,
+	customMimeTypes?: Record<string, string>
 ): Promise<boolean> {
 	const notifySuccess = (message: string) => {
 		if (!silent) {
@@ -17,7 +18,42 @@ export async function copyToClipboard(
 		}
 	};
 
-	// 1. Rich text write (HTML + Plain Text) for Slack and other rich-text editors
+	// 1. If custom MIME types (e.g., slack/texty) are present, use synchronous DOM copy event first.
+	// This avoids ClipboardItem type whitelist rejection in modern browsers and writes all types atomically.
+	if (customMimeTypes && Object.keys(customMimeTypes).length > 0) {
+		try {
+			let copiedCustom = false;
+			const copyListener = (event: ClipboardEvent) => {
+				event.preventDefault();
+				if (event.clipboardData) {
+					event.clipboardData.clearData();
+					event.clipboardData.setData("text/plain", text);
+					if (html) {
+						event.clipboardData.setData("text/html", html);
+					}
+					for (const [mime, content] of Object.entries(customMimeTypes)) {
+						if (content !== undefined && content !== null) {
+							event.clipboardData.setData(mime, content);
+						}
+					}
+					copiedCustom = true;
+				}
+			};
+
+			document.addEventListener("copy", copyListener, { once: true });
+			const execSuccess = document.execCommand("copy");
+			document.removeEventListener("copy", copyListener);
+
+			if (execSuccess && copiedCustom) {
+				notifySuccess(t("noticeCopied", { format: label }));
+				return true;
+			}
+		} catch (domCustomError) {
+			console.warn("format-convert-copy: Custom MIME DOM copy failed, trying fallbacks", domCustomError);
+		}
+	}
+
+	// 2. Rich text write (HTML + Plain Text) for Slack and other rich-text editors
 	if (html) {
 		// Method A: Desktop Electron clipboard (synchronous rich write)
 		if (!Platform.isMobile) {
@@ -81,7 +117,7 @@ export async function copyToClipboard(
 		}
 	}
 
-	// 2. Plain text fallback (for plain text formats like raw Markdown or when rich text write fails)
+	// 3. Plain text fallback (for plain text formats like raw Markdown or when rich text write fails)
 	try {
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
@@ -96,7 +132,7 @@ export async function copyToClipboard(
 		console.warn("format-convert-copy: writeText failed, attempting execCommand fallback", error);
 	}
 
-	// 3. Final legacy textarea fallback
+	// 4. Final legacy textarea fallback
 	try {
 		const textArea = document.createElement("textarea");
 		textArea.value = text;
