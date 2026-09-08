@@ -156,14 +156,18 @@ function formatSlackCodeBlockHtml(code: string): string {
 		.map((line) => {
 			let content = escapeHtml(line);
 			content = content.replace(/^( +)/, (_match, spaces) => {
-				return `<span class="Apple-converted-space">${"&nbsp;".repeat(spaces.length)}</span>`;
+				let converted = "";
+				for (let s = 0; s < spaces.length; s++) {
+					converted += s % 2 === 0 ? "&nbsp;" : " ";
+				}
+				return `<span class="Apple-converted-space">${converted}</span>`;
 			});
 			if (!content) {
 				content = "&nbsp;";
 			}
-			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced', monospace;"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">${content}</span></p>`;
+			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">${content}</span></p>`;
 		})
-		.join("");
+		.join("\n");
 }
 
 /**

@@ -62,8 +62,8 @@ export async function copyToClipboard(
 				event.preventDefault();
 				if (event.clipboardData) {
 					event.clipboardData.clearData();
-					event.clipboardData.setData("text/html", html);
 					event.clipboardData.setData("text/plain", text);
+					event.clipboardData.setData("text/html", html);
 					copiedWithHtml = true;
 				}
 			};
