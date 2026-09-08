@@ -31,8 +31,10 @@ describe("i18n localization", () => {
 		expect(t("cmdSlack")).toBe("Slack形式に変換してコピー");
 		expect(t("cmdDiscord")).toBe("Discord形式に変換してコピー");
 		expect(t("cmdWhatsApp")).toBe("WhatsApp形式に変換してコピー");
-		expect(t("cmdRaw")).toBe("Markdownのままコピー");
-		expect(t("cmdMenu")).toBe("形式を選択してコピー（メニュー表示）");
+		expect(t("cmdRaw")).toBe("Markdown形式でコピー");
+		expect(t("cmdMenu")).toBe("形式を選択してコピー");
+		expect(t("actionCopyRaw")).toBe("Markdown形式でコピー");
+		expect(t("actionChooseMenu")).toBe("形式を選択してコピー");
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Slack形式でコピーしました");
 		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Slack形式でコピーしました（簡易版）");
 		expect(t("noticeFailed")).toBe("クリップボードへのコピーに失敗しました");
