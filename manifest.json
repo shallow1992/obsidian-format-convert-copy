@@ -1,7 +1,7 @@
 {
 	"id": "format-convert-copy",
 	"name": "Format Convert Copy",
-	"version": "0.3.2",
+	"version": "0.3.3",
 	"minAppVersion": "0.15.0",
 	"description": "Convert selected Markdown text or active notes into Slack, Discord, and WhatsApp formats, or copy as raw Markdown with one tap.",
 	"author": "Shallow",
