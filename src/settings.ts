@@ -19,7 +19,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			: t("settingsRibbonHeadingDesktop");
 
 		// ==========================================
-		// 1. ナビゲーションバー / リボン設定
+		// 1. Navigation bar / ribbon settings
 		// ==========================================
 		new Setting(containerEl)
 			.setName(ribbonAreaName)
@@ -82,7 +82,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			);
 
 		// ==========================================
-		// 2. ファイルエクスプローラメニュー設定
+		// 2. File explorer menu settings
 		// ==========================================
 		new Setting(containerEl)
 			.setName(t("settingsFileHeading"))
@@ -140,7 +140,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			);
 
 		// ==========================================
-		// 3. デスクトップ版エディタ右クリックメニュー設定
+		// 3. Desktop editor context menu settings
 		// ==========================================
 		if (!Platform.isMobile) {
 			new Setting(containerEl)
@@ -186,7 +186,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		}
 
 		// ==========================================
-		// 4. コピー動作・通知設定
+		// 4. Copy behavior and notification settings
 		// ==========================================
 		new Setting(containerEl)
 			.setName(t("settingsBehaviorHeading"))
