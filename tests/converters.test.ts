@@ -310,11 +310,12 @@ import { convertMarkdown } from "../src/converters";
 describe("convertMarkdown dispatcher", () => {
 	const sample = "# Hello\n- [ ] Task";
 
-	it("dispatches slack format", () => {
+	it("dispatches slack format with native slack/texty custom MIME types", () => {
 		const res = convertMarkdown(sample, "slack");
 		expect(res.label).toBe("Slack");
 		expect(res.text).toContain("*Hello*");
-		expect(res.html).toBeDefined();
+		expect(res.customMimeTypes?.["slack/texty"]).toBeDefined();
+		expect(res.customMimeTypes?.["text/markdown"]).toBeDefined();
 	});
 
 	it("dispatches discord format", () => {

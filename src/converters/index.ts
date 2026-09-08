@@ -1,5 +1,6 @@
 import { convertToDiscord } from "./discord";
 import { convertToSlack, convertToSlackHtml } from "./slack";
+import { convertToSlackTexty } from "./slackTexty";
 import { convertToWhatsApp } from "./whatsapp";
 import { FormatType } from "../types";
 
@@ -7,6 +8,7 @@ export interface ConvertedResult {
 	text: string;
 	html?: string;
 	label: string;
+	customMimeTypes?: Record<string, string>;
 }
 
 /**
@@ -14,12 +16,17 @@ export interface ConvertedResult {
  */
 export function convertMarkdown(content: string, type: FormatType): ConvertedResult {
 	switch (type) {
-		case "slack":
+		case "slack": {
+			const res = convertToSlackTexty(content);
 			return {
-				text: convertToSlack(content),
-				html: convertToSlackHtml(content),
+				text: res.plain,
 				label: "Slack",
+				customMimeTypes: {
+					"slack/texty": res.texty,
+					"text/markdown": res.markdown,
+				},
 			};
+		}
 		case "discord":
 			return {
 				text: convertToDiscord(content),
@@ -40,4 +47,5 @@ export function convertMarkdown(content: string, type: FormatType): ConvertedRes
 
 export { convertToDiscord } from "./discord";
 export { convertToSlack, convertToSlackHtml } from "./slack";
+export { convertToSlackTexty } from "./slackTexty";
 export { convertToWhatsApp } from "./whatsapp";

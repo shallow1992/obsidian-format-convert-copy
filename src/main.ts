@@ -3,7 +3,6 @@ import { convertMarkdown } from "./converters";
 import { FormatConvertSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
-import { convertToSlackTexty } from "./converters/slackTexty";
 import { t } from "./i18n";
 
 export function getTargetText(
@@ -69,7 +68,7 @@ export default class FormatConvertPlugin extends Plugin {
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
 					const result = convertMarkdown(target, cmd.type);
-					this.copyResult(result.text, result.label, result.html);
+					this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 				},
 			});
 		}
@@ -86,29 +85,7 @@ export default class FormatConvertPlugin extends Plugin {
 					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 } as any,
 					(type) => {
 						const result = convertMarkdown(target, type);
-						this.copyResult(result.text, result.label, result.html);
-					}
-				);
-			},
-		});
-
-		// POC command for testing native Slack clipboard formats (slack/texty)
-		this.addCommand({
-			id: "copy-slack-texty-poc",
-			name: "Format Convert: Copy as Slack (slack/texty POC)",
-			icon: "zap",
-			editorCallback: async (editor: Editor) => {
-				const target = this.getTargetText(editor);
-				if (!target) return;
-				const res = convertToSlackTexty(target);
-				await copyToClipboard(
-					res.plain,
-					"Slack (slack/texty POC)",
-					undefined,
-					false,
-					{
-						"slack/texty": res.texty,
-						"text/markdown": res.markdown,
+						this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 					}
 				);
 			},
@@ -135,7 +112,7 @@ export default class FormatConvertPlugin extends Plugin {
 								.setIcon("clipboard-copy")
 								.onClick(() => {
 									const result = convertMarkdown(target, item.type);
-									this.copyResult(result.text, result.label, result.html);
+									this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 								})
 						);
 					}
@@ -155,7 +132,7 @@ export default class FormatConvertPlugin extends Plugin {
 					try {
 						const content = await this.app.vault.cachedRead(file);
 						const result = convertMarkdown(content, type);
-						await this.copyResult(result.text, result.label, result.html);
+						await this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 					} catch (_e) {
 						new Notice(t("noticeFailed"));
 					}
@@ -202,7 +179,7 @@ export default class FormatConvertPlugin extends Plugin {
 			const target = this.getActiveTargetText();
 			if (target) {
 				const result = convertMarkdown(target, type);
-				this.copyResult(result.text, result.label, result.html);
+				this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 			}
 		};
 
@@ -274,8 +251,13 @@ export default class FormatConvertPlugin extends Plugin {
 		}
 	}
 
-	async copyResult(text: string, label: string, html?: string): Promise<boolean> {
-		return copyToClipboard(text, label, html, this.settings.silentMode);
+	async copyResult(
+		text: string,
+		label: string,
+		html?: string,
+		customMimeTypes?: Record<string, string>
+	): Promise<boolean> {
+		return copyToClipboard(text, label, html, this.settings.silentMode, customMimeTypes);
 	}
 
 	getTargetText(editor?: Editor | null): string {
