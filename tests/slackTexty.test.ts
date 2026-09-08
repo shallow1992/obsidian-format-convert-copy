@@ -89,4 +89,51 @@ describe("convertToSlackTexty", () => {
 		expect(parsed.ops[2]).toEqual({ insert: "中見出し", attributes: { bold: true } });
 		expect(parsed.ops[3]).toEqual({ insert: "\n" });
 	});
+
+	it("correctly handles 3-space indentation up to 5 levels (indent: 0 to 4)", () => {
+		const md = "1. レベル 1\n   1. レベル 2\n      1. レベル 3\n         1. レベル 4\n            1. レベル 5\n2. レベル 1 復帰";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+
+		// Level 1: no indent
+		expect(parsed.ops[1]).toEqual({ insert: "\n", attributes: { list: "ordered" } });
+		// Level 2: indent 1
+		expect(parsed.ops[3]).toEqual({ insert: "\n", attributes: { list: "ordered", indent: 1 } });
+		// Level 3: indent 2
+		expect(parsed.ops[5]).toEqual({ insert: "\n", attributes: { list: "ordered", indent: 2 } });
+		// Level 4: indent 3
+		expect(parsed.ops[7]).toEqual({ insert: "\n", attributes: { list: "ordered", indent: 3 } });
+		// Level 5: indent 4
+		expect(parsed.ops[9]).toEqual({ insert: "\n", attributes: { list: "ordered", indent: 4 } });
+		// Level 1 return: no indent
+		expect(parsed.ops[11]).toEqual({ insert: "\n", attributes: { list: "ordered" } });
+	});
+
+	it("caps indentation at Slack maximum depth (indent: 4) when nesting is deeper than 5 levels", () => {
+		const md = "- L1\n  - L2\n    - L3\n      - L4\n        - L5\n          - L6\n            - L7";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+
+		const listOps = parsed.ops.filter((op: any) => op.attributes?.list);
+		for (const op of listOps) {
+			if (op.attributes.indent !== undefined) {
+				expect(op.attributes.indent).toBeLessThanOrEqual(4);
+			}
+		}
+	});
+
+	it("formats tables as aligned code blocks with East Asian full-width character support", () => {
+		const md = "| 機能 | 配置 |\n| :--- | ---: |\n| 見出し | 右寄せ |";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+
+		const codeBlockOps = parsed.ops.filter((op: any) => op.attributes?.["code-block"]);
+		expect(codeBlockOps.length).toBe(3); // header, separator, data row
+		// Line 1: Header row padded according to full-width widths
+		expect(parsed.ops[0].insert).toBe("| 機能   |   配置 |");
+		// Line 2: Separator row with alignments
+		expect(parsed.ops[2].insert).toBe("|:-------|-------:|");
+		// Line 3: Data row padded correctly
+		expect(parsed.ops[4].insert).toBe("| 見出し | 右寄せ |");
+	});
 });
