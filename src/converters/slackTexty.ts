@@ -104,11 +104,39 @@ export function parseInlineToOps(text: string, currentAttrs: InlineAttr = {}): D
 }
 
 /**
- * Calculates indentation level for list items (0, 1, 2, ...).
+ * Tracks relative indentation across consecutive list items and caps at Slack's maximum depth (indent: 4).
+ * Works uniformly whether users indent using 2 spaces, 3 spaces, 4 spaces, or tabs.
  */
-function getIndentLevel(indentStr: string): number {
-	const expanded = indentStr.replace(/\t/g, "    ");
-	return Math.floor(expanded.length / 2);
+export class IndentTracker {
+	private stack: number[] = [0];
+
+	reset(): void {
+		this.stack = [0];
+	}
+
+	getLevel(rawIndentStr: string): number {
+		const w = rawIndentStr.replace(/\t/g, "    ").length;
+		if (w === 0) {
+			this.stack = [0];
+			return 0;
+		}
+
+		const last = this.stack[this.stack.length - 1];
+		if (w > last) {
+			this.stack.push(w);
+		} else if (w < last) {
+			while (this.stack.length > 1 && w < this.stack[this.stack.length - 1]) {
+				this.stack.pop();
+			}
+			if (w > this.stack[this.stack.length - 1]) {
+				this.stack.push(w);
+			}
+		}
+
+		// Slack supports up to indent: 4 (5 levels: indent: 0, 1, 2, 3, 4)
+		const level = this.stack.length - 1;
+		return Math.min(4, Math.max(0, level));
+	}
 }
 
 /**
@@ -154,6 +182,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 	const resolvedSource = resolveWikilinks(source);
 	const lines = resolvedSource.split("\n");
 	const rawOps: DeltaOp[] = [];
+	const indentTracker = new IndentTracker();
 	let i = 0;
 
 	while (i < lines.length) {
@@ -162,6 +191,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		// 1. Code Block Fence
 		const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
 		if (fenceMatch) {
+			indentTracker.reset();
 			const fenceChar = fenceMatch[1][0];
 			const fenceLen = fenceMatch[1].length;
 			const lang = fenceMatch[2].trim();
@@ -195,10 +225,11 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		}
 
 		// 2. Table Block (render as aligned code block for perfect column alignment)
-		if (line.trim().startsWith("|") && i + 1 < lines.length && isTableSeparatorRow(lines[i + 1])) {
+		if (line.includes("|") && i + 1 < lines.length && isTableSeparatorRow(lines[i + 1])) {
+			indentTracker.reset();
 			const tableLines: string[] = [];
 			let j = i;
-			while (j < lines.length && lines[j].trim().startsWith("|")) {
+			while (j < lines.length && lines[j].trim().includes("|") && lines[j].trim() !== "") {
 				tableLines.push(lines[j]);
 				j++;
 			}
@@ -216,6 +247,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 
 		// 3. Callout / Blockquote
 		if (line.match(/^>\s?/)) {
+			indentTracker.reset();
 			// Check for Callout header on the first quote line
 			const calloutMatch = line.match(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/);
 			if (calloutMatch) {
@@ -239,7 +271,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		// 4. Task List (Checkbox: - [ ] or - [x])
 		const taskMatch = line.match(/^(\s*)[-*+]\s+\[([ xX])\]\s+(.*)$/);
 		if (taskMatch) {
-			const indent = getIndentLevel(taskMatch[1]);
+			const indent = indentTracker.getLevel(taskMatch[1]);
 			const isChecked = taskMatch[2].toLowerCase() === "x";
 			const symbol = isChecked ? "☑ " : "☐ ";
 			const text = taskMatch[3];
@@ -261,7 +293,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		// 5. Bullet List (- item, * item, + item)
 		const bulletMatch = line.match(/^(\s*)[-*+]\s+(.*)$/);
 		if (bulletMatch) {
-			const indent = getIndentLevel(bulletMatch[1]);
+			const indent = indentTracker.getLevel(bulletMatch[1]);
 			const text = bulletMatch[2];
 
 			rawOps.push(...parseInlineToOps(text));
@@ -275,7 +307,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		// 6. Ordered List (1. item)
 		const orderedMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
 		if (orderedMatch) {
-			const indent = getIndentLevel(orderedMatch[1]);
+			const indent = indentTracker.getLevel(orderedMatch[1]);
 			const text = orderedMatch[2];
 
 			rawOps.push(...parseInlineToOps(text));
@@ -289,6 +321,7 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		// 7. Heading (# H1 ... ###### H6)
 		const headingMatch = line.match(/^#{1,6}\s+(.*)$/);
 		if (headingMatch) {
+			indentTracker.reset();
 			rawOps.push(...parseInlineToOps(headingMatch[1], { bold: true }));
 			rawOps.push({ insert: "\n" });
 			i++;
@@ -297,12 +330,14 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 
 		// 8. Horizontal Rule
 		if (/^(?:---+|\*\*\*+|___+)\s*$/.test(line)) {
+			indentTracker.reset();
 			rawOps.push({ insert: "───\n" });
 			i++;
 			continue;
 		}
 
 		// 9. Standard Paragraph Line
+		indentTracker.reset();
 		if (line.length === 0) {
 			rawOps.push({ insert: "\n" });
 		} else {
