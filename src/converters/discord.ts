@@ -4,7 +4,13 @@ import { extractCodeBlocks, resolveWikilinks, restoreCodeBlocks } from "./common
  * Converts Markdown to Discord format.
  */
 export function convertToDiscord(md: string): string {
-	let text = resolveWikilinks(md);
+	// Normalize CRLF to LF
+	let text = md.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+	text = resolveWikilinks(text);
+
+	// Normalize Setext headings (e.g. Title\n=== or Title\n---)
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n={2,}\s*$/gm, "# $1");
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n-{2,}\s*$/gm, "## $1");
 
 	// Extract and protect code blocks & tables
 	const extraction = extractCodeBlocks(

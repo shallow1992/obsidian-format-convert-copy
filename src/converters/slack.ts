@@ -84,10 +84,16 @@ function buildNestedListHtml(lines: ListLine[], startIndex: number, minIndent: n
  * Converts Markdown to Slack mrkdwn plain text.
  */
 export function convertToSlack(md: string): string {
-	let text = resolveWikilinks(md);
+	// Normalize CRLF to LF
+	let text = md.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+	text = resolveWikilinks(text);
 
 	// Remove <u>...</u> HTML tags
 	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, "$1");
+
+	// Normalize Setext headings (e.g. Title\n=== or Title\n---)
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n={2,}\s*$/gm, "# $1");
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n-{2,}\s*$/gm, "## $1");
 
 	// Convert checkboxes (task lists)
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
@@ -118,12 +124,21 @@ export function convertToSlack(md: string): string {
 		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
-		boldTargets.push(content);
+	// Stash ATX headings (with optional 1-3 leading spaces and trailing closing hashes)
+	text = text.replace(/^[ \t]*#{1,6}\s+(.*?)(?:\s+#+)?\s*$/gm, (_match, content) => {
+		let clean = content.trim().replace(/^(\*\*|__)(.+?)\1$/, "$2");
+		clean = clean.replace(/(\*|_)(.+?)\1/g, "_$2_");
+		clean = clean.replace(/~~(.+?)~~/g, "~$1~");
+		boldTargets.push(clean);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
+
+	// Stash standard bold (**/__)
 	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match, _marker, content) => {
-		boldTargets.push(content);
+		let clean = content.trim();
+		clean = clean.replace(/(\*|_)(.+?)\1/g, "_$2_");
+		clean = clean.replace(/~~(.+?)~~/g, "~$1~");
+		boldTargets.push(clean);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
@@ -154,7 +169,13 @@ export function convertToSlack(md: string): string {
  * Converts Markdown to Slack rich-text HTML.
  */
 export function convertToSlackHtml(md: string): string {
-	let text = resolveWikilinks(md);
+	// Normalize CRLF to LF
+	let text = md.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+	text = resolveWikilinks(text);
+
+	// Normalize Setext headings (e.g. Title\n=== or Title\n---)
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n={2,}\s*$/gm, "# $1");
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n-{2,}\s*$/gm, "## $1");
 
 	// Callout (e.g. > [!NOTE] content)
 	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
@@ -182,7 +203,7 @@ export function convertToSlackHtml(md: string): string {
 	while (i < lines.length) {
 		const line = lines[i];
 		const codePlaceholder = line.match(new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`));
-		const heading = line.match(/^#{1,6}\s+(.*)$/);
+		const heading = line.match(/^[ \t]*#{1,6}\s+(.*?)(?:\s+#+)?\s*$/);
 		const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
 		const quoteMatch = line.match(/^>\s?(.*)$/);
 
@@ -190,7 +211,8 @@ export function convertToSlackHtml(md: string): string {
 			htmlParts.push({ html: codeBlocks[Number(codePlaceholder[1])], kind: "code" });
 			i++;
 		} else if (heading) {
-			htmlParts.push({ html: `<b>${formatInlineSlackHtml(heading[1])}</b>`, kind: "inline" });
+			const cleanContent = heading[1].trim().replace(/^(\*\*|__)(.+?)\1$/, "$2");
+			htmlParts.push({ html: `<b>${formatInlineSlackHtml(cleanContent)}</b>`, kind: "inline" });
 			i++;
 		} else if (quoteMatch) {
 			const quoteLines: string[] = [];
