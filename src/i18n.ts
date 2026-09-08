@@ -23,7 +23,7 @@ const en = {
 
 	// Notices
 	noticeCopied: "Copied for {format}",
-	noticeCopiedSimple: "Copied for {format} (plain text)",
+	noticeCopiedSimple: "Failed to copy for {format}. Copied as Markdown instead.",
 	noticeFailed: "Failed to copy to clipboard",
 	noticeNoActiveNote: "No active note to copy",
 	noticeReadFailed: "Failed to read note content",
@@ -98,7 +98,7 @@ const ja: typeof en = {
 
 	// Notices
 	noticeCopied: "{format}形式でコピーしました",
-	noticeCopiedSimple: "{format}形式でコピーしました（簡易版）",
+	noticeCopiedSimple: "{format}形式のコピーに失敗したため、Markdown形式でコピーしました",
 	noticeFailed: "クリップボードへのコピーに失敗しました",
 	noticeNoActiveNote: "対象のノートが開かれていません",
 	noticeReadFailed: "ノートの読み込みに失敗しました",
