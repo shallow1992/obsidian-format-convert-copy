@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { convertToSlackTexty } from "../src/converters/slackTexty";
+import { assertSlackDeltaValid } from "./helpers/validateSlackDelta";
 
 describe("convertToSlackTexty", () => {
 	it("converts codeblock with language into Slack native format", () => {
@@ -135,5 +136,59 @@ describe("convertToSlackTexty", () => {
 		expect(parsed.ops[2].insert).toBe("|:-------|-------:|");
 		// Line 3: Data row padded correctly
 		expect(parsed.ops[4].insert).toBe("| 見出し | 右寄せ |");
+	});
+
+	it("handles 10-level deep nesting cleanly capped at indent 4 without breaking", () => {
+		const lines = [];
+		for (let i = 1; i <= 10; i++) {
+			lines.push(" ".repeat((i - 1) * 2) + `1. Level ${i}`);
+		}
+		const md = lines.join("\n");
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+		assertSlackDeltaValid(parsed);
+
+		const listOps = parsed.ops.filter((op: any) => op.attributes?.list);
+		expect(listOps).toHaveLength(10);
+		expect(listOps[0].attributes.indent).toBeUndefined(); // Level 1 (indent 0)
+		expect(listOps[1].attributes.indent).toBe(1); // Level 2
+		expect(listOps[2].attributes.indent).toBe(2); // Level 3
+		expect(listOps[3].attributes.indent).toBe(3); // Level 4
+		expect(listOps[4].attributes.indent).toBe(4); // Level 5
+		expect(listOps[5].attributes.indent).toBe(4); // Level 6 clamped
+		expect(listOps[9].attributes.indent).toBe(4); // Level 10 clamped
+	});
+
+	it("handles mixed tab and space indentation seamlessly", () => {
+		const md = "- Root\n\t- Tab nested\n\t  - Tab plus spaces nested\n- Back to root";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+		assertSlackDeltaValid(parsed);
+
+		const listOps = parsed.ops.filter((op: any) => op.attributes?.list);
+		expect(listOps[0].attributes.indent).toBeUndefined();
+		expect(listOps[1].attributes.indent).toBe(1);
+		expect(listOps[2].attributes.indent).toBe(2);
+		expect(listOps[3].attributes.indent).toBeUndefined();
+	});
+
+	it("handles tables with irregular columns and empty cells without crashing", () => {
+		const md = "| Col A | Col B | Col C |\n| --- | --- | --- |\n| Cell 1 |\n| Cell 2 | Cell 3 | Cell 4 | Cell 5 |";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+		assertSlackDeltaValid(parsed);
+
+		const codeOps = parsed.ops.filter((op: any) => op.attributes?.["code-block"]);
+		expect(codeOps.length).toBeGreaterThanOrEqual(3);
+	});
+
+	it("handles code blocks containing markdown syntax without interpreting them", () => {
+		const md = "```markdown\n# Not a heading\n- Not a list\n| Not | A | Table |\n```";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+		assertSlackDeltaValid(parsed);
+
+		const listOps = parsed.ops.filter((op: any) => op.attributes?.list);
+		expect(listOps).toHaveLength(0);
 	});
 });
