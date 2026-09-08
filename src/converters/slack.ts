@@ -81,19 +81,19 @@ function buildNestedListHtml(lines: ListLine[], startIndex: number, minIndent: n
 }
 
 /**
- * MarkdownをSlackプレーンテキスト(mrkdwn)に変換する
+ * Converts Markdown to Slack mrkdwn plain text.
  */
 export function convertToSlack(md: string): string {
 	let text = resolveWikilinks(md);
 
-	// <u>...</u> のHTMLタグを外す
+	// Remove <u>...</u> HTML tags
 	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, "$1");
 
-	// チェックボックス (タスクリスト) の変換
+	// Convert checkboxes (task lists)
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+/gm, "$1☑ ");
 
-	// コードブロックの抽出
+	// Extract code blocks
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => "```\n" + code + "\n```",
@@ -102,16 +102,16 @@ export function convertToSlack(md: string): string {
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
 
-	// 残りのインラインコードを退避
+	// Stash remaining inline code
 	text = text.replace(/`([^`]+)`/g, (match) => {
 		codeBlocks.push(match);
 		return `${CODE_MARK}${codeBlocks.length - 1}${CODE_MARK}`;
 	});
 
-	// 見出し・太字（**/__）・Calloutタイトルを退避
+	// Stash headings, bold (**/__), and Callout titles
 	const boldTargets: string[] = [];
 
-	// Callout (e.g. > [!NOTE] 内容) を退避
+	// Stash Callouts (e.g. > [!NOTE] content)
 	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		boldTargets.push(`[${label}]`);
@@ -127,14 +127,14 @@ export function convertToSlack(md: string): string {
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// 斜体（* / _）
+	// Italics (* / _)
 	text = text.replace(/(\*|_)(.+?)\1/g, "_$2_");
 
-	// 太字をSlackの *text* に戻す
+	// Restore bold to Slack *text* format
 	const boldPattern = new RegExp(`${BOLD_MARK}(\\d+)${BOLD_MARK}`, "g");
 	text = text.replace(boldPattern, (_match, i) => `*${boldTargets[Number(i)]}*`);
 
-	// 打消し線、リンク、箇条書き
+	// Strikethrough, links, and bullet points
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
 	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
 		const cleanUrl = url.trim();
@@ -151,18 +151,18 @@ export function convertToSlack(md: string): string {
 }
 
 /**
- * MarkdownをSlack用リッチテキストHTMLに変換する
+ * Converts Markdown to Slack rich-text HTML.
  */
 export function convertToSlackHtml(md: string): string {
 	let text = resolveWikilinks(md);
 
-	// Callout (e.g. > [!NOTE] 内容)
+	// Callout (e.g. > [!NOTE] content)
 	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});
 
-	// チェックボックス (タスクリスト) のMarkdown表現を調整
+	// Adjust Markdown task list syntax for HTML conversion
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+(.*)$/gm, "$1- ☐ $2");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+(.*)$/gm, "$1- ☑ ~~$2~~");
 

@@ -26,21 +26,21 @@ export default class FormatConvertPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// 1. コマンドパレット・ショートカット（PC・モバイル共通）
+		// 1. Command palette & shortcuts (desktop & mobile)
 		this.registerCommands();
 
-		// 2. エディタコンテキストメニュー（デスクトップ版PCのみ）
+		// 2. Editor context menu (desktop only)
 		if (!Platform.isMobile) {
 			this.registerEditorMenu();
 		}
 
-		// 3. ファイルエクスプローラ長押し / 右クリックメニュー (PC & iOS/Mobile共通)
+		// 3. File explorer long-press / right-click menu (desktop & mobile)
 		this.registerFileMenu();
 
-		// 4. ナビゲーションバー / リボンアイコンの初期化
+		// 4. Initialize navigation bar / ribbon icons
 		this.refreshRibbonIcons();
 
-		// 5. 設定画面タブの追加
+		// 5. Add settings tab
 		this.addSettingTab(new FormatConvertSettingTab(this.app, this));
 	}
 
@@ -49,7 +49,7 @@ export default class FormatConvertPlugin extends Plugin {
 	}
 
 	// ----------------------------------------------------
-	// 登録処理 (Commands, Menus, Ribbons)
+	// Registrations (Commands, Menus, Ribbons)
 	// ----------------------------------------------------
 
 	private registerCommands(): void {
@@ -73,7 +73,7 @@ export default class FormatConvertPlugin extends Plugin {
 			});
 		}
 
-		// 形式選択メニュー表示コマンド（モバイルキーボードツールバーやコマンドパレットから1タップで選択シートを表示）
+		// Show format selection menu command (one-tap sheet for mobile keyboard toolbar or command palette)
 		this.addCommand({
 			id: "convert-select-menu",
 			name: t("cmdMenu"),
@@ -138,7 +138,7 @@ export default class FormatConvertPlugin extends Plugin {
 					}
 				};
 
-				// 直接コピー項目の登録
+				// Register direct copy items
 				const directItems: { enabled: boolean; type: FormatType; title: string }[] = [
 					{ enabled: this.settings.showFileSlackItem, type: "slack", title: t("actionCopySlack") },
 					{ enabled: this.settings.showFileDiscordItem, type: "discord", title: t("actionCopyDiscord") },
@@ -157,7 +157,7 @@ export default class FormatConvertPlugin extends Plugin {
 					}
 				}
 
-				// 形式選択メニュー項目の登録
+				// Register format selection menu item
 				if (this.settings.showFileMenuItem) {
 					menu.addItem((item) =>
 						item
@@ -183,35 +183,35 @@ export default class FormatConvertPlugin extends Plugin {
 			}
 		};
 
-		// 1. Slack直接
+		// 1. Direct Slack
 		if (this.settings.showRibbonSlackIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("share-2", t("actionCopySlack"), () => activeCopy("slack"))
 			);
 		}
 
-		// 2. Discord直接
+		// 2. Direct Discord
 		if (this.settings.showRibbonDiscordIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("message-square", t("actionCopyDiscord"), () => activeCopy("discord"))
 			);
 		}
 
-		// 3. WhatsApp直接
+		// 3. Direct WhatsApp
 		if (this.settings.showRibbonWhatsAppIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("message-circle", t("actionCopyWhatsApp"), () => activeCopy("whatsapp"))
 			);
 		}
 
-		// 4. Markdown直接
+		// 4. Direct Markdown
 		if (this.settings.showRibbonRawIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("file-text", t("actionCopyRaw"), () => activeCopy("raw"))
 			);
 		}
 
-		// 5. 全形式選択メニュー
+		// 5. Format selection menu
 		if (this.settings.showRibbonMenuIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("copy", t("actionChooseMenu"), (evt: MouseEvent) => {
@@ -264,14 +264,14 @@ export default class FormatConvertPlugin extends Plugin {
 		const editor = activeView?.editor;
 		const target = this.getTargetText(editor);
 		if (!target) {
-			new Notice("アクティブなノートまたは選択テキストがありません");
+			new Notice(t("noticeNoActiveNote"));
 			return null;
 		}
 		return target;
 	}
 
 	// ----------------------------------------------------
-	// 設定の永続化 (Deep Merge パターン)
+	// Settings persistence (deep merge pattern)
 	// ----------------------------------------------------
 
 	async loadSettings(): Promise<void> {

@@ -2,8 +2,8 @@ import { Notice, Platform } from "obsidian";
 import { t } from "../i18n";
 
 /**
- * テキスト（および利用可能な環境ではHTML）をOSクリップボードにコピーする。
- * モバイル（iOS / Android）環境とデスクトップ環境で最適なフォールバック処理を行う。
+ * Copies text (and HTML where supported) to the OS clipboard.
+ * Performs optimal fallback handling across mobile (iOS / Android) and desktop environments.
  */
 export async function copyToClipboard(
 	text: string,
@@ -17,11 +17,12 @@ export async function copyToClipboard(
 		}
 	};
 
-	// モバイル(特にiOSのWebView)はクリップボード書き込みに厳格なユーザー操作の有効期限があり、
-	// 失敗するとその後のフォールバックも巻き添えになるため、モバイルではプレーンテキストで確実に書き込む
+	// Mobile WebViews (especially iOS) enforce strict user-gesture expiration for clipboard writes.
+	// If writing rich HTML fails, any subsequent fallback might also be rejected.
+	// Therefore, on mobile we write plain text directly and reliably.
 	if (html && !Platform.isMobile) {
 		try {
-			// Electron環境(デスクトップ)
+			// Electron environment (desktop)
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			const electron = require("electron");
 			if (electron && electron.clipboard) {
@@ -30,7 +31,7 @@ export async function copyToClipboard(
 				return true;
 			}
 		} catch (_electronError) {
-			// Electronが使えない環境（Web版など）は次へ
+			// Proceed if Electron is unavailable (e.g., web context)
 		}
 
 		try {
@@ -48,7 +49,7 @@ export async function copyToClipboard(
 		}
 	}
 
-	// プレーンテキスト書き込み（デスクトップのフォールバックおよびモバイルのメイン処理）
+	// Plain text write (desktop fallback and mobile primary flow)
 	try {
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
@@ -63,7 +64,7 @@ export async function copyToClipboard(
 		console.warn("format-convert-copy: writeText failed, attempting execCommand fallback", error);
 	}
 
-	// 最終フォールバック（iOS WebViewなどで古いexecCommandが効く場合）
+	// Final fallback (for cases where legacy execCommand works in iOS WebView, etc.)
 	try {
 		const textArea = document.createElement("textarea");
 		textArea.value = text;

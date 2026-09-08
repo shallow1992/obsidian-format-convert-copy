@@ -11,17 +11,17 @@ const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "bmp", "svg", "we
 const AUDIO_VIDEO_EXTENSIONS = new Set(["mp3", "wav", "m4a", "ogg", "mp4", "webm", "mov", "mkv"]);
 
 /**
- * 埋め込みリンク (![[...]])、画像記法 (![alt](url))、および Wikilink ([[...]]) を解決する
+ * Resolves embedded links (![[...]]), image markdown (![alt](url)), and Wikilinks ([[...]]).
  */
 export function resolveWikilinks(md: string): string {
-	// 1. 埋め込み Wikilink (![[ファイル名|エイリアス/サイズ]])
+	// 1. Embedded Wikilinks (![[filename|alias/size]])
 	let text = md.replace(/!\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, rawName, rawAlias) => {
 		const name = rawName.trim();
 		const alias = rawAlias ? rawAlias.trim() : "";
 		const hasExt = name.includes(".");
 		const ext = hasExt ? name.split(".").pop()?.toLowerCase() ?? "" : "";
 
-		// サイズ指定 (例: |300, |300x200) はエイリアスではなくサイズなので除外
+		// Dimension specifiers (e.g., |300, |300x200) are sizes rather than aliases; exclude them
 		const isDimension = /^\d+(x\d+)?$/i.test(alias);
 		const displayLabel = alias && !isDimension ? alias : name;
 
@@ -37,14 +37,14 @@ export function resolveWikilinks(md: string): string {
 		return `[embedded: ${displayLabel}]`;
 	});
 
-	// 2. 標準 Markdown画像 (![alt](url)) を [image: alt](url) に正規化
+	// 2. Normalize standard Markdown images (![alt](url)) to [image: alt](url)
 	text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, url) => {
 		const cleanAlt = alt.trim();
 		const label = cleanAlt ? `image: ${cleanAlt}` : "image";
 		return `[${label}](${url})`;
 	});
 
-	// 3. 通常の Wikilink ([[ノート名|エイリアス]])
+	// 3. Regular Wikilinks ([[note|alias]])
 	text = text.replace(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, name, alias) => {
 		return alias || name;
 	});
@@ -53,7 +53,7 @@ export function resolveWikilinks(md: string): string {
 }
 
 /**
- * HTML特殊文字をエスケープする
+ * Escapes HTML special characters.
  */
 export function escapeHtml(text: string): string {
 	return text
@@ -65,16 +65,16 @@ export function escapeHtml(text: string): string {
 }
 
 /**
- * URLスキームの安全性を検証する。
- * http, https, mailto, tel, obsidian などの安全なスキーム、またはページ内アンカー(#)のみ許可する。
- * javascript: や data: などの危険なスキームを遮断する。
+ * Validates the safety of a URL scheme.
+ * Permits safe schemes like http, https, mailto, tel, obsidian, or in-page anchors (#).
+ * Blocks dangerous schemes such as javascript: or data:.
  */
 export function isSafeUrl(rawUrl: string): boolean {
 	const trimmed = rawUrl.trim();
 	if (trimmed.startsWith("#")) {
 		return true;
 	}
-	// コントロール文字（ASCII 0-31, 127）を拒否
+	// Reject control characters (ASCII 0-31, 127)
 	if (/[\x00-\x1F\x7F]/.test(trimmed)) {
 		return false;
 	}
@@ -82,8 +82,8 @@ export function isSafeUrl(rawUrl: string): boolean {
 }
 
 /**
- * コードフェンスおよびインラインコードを行単位・構文単位で安全に抽出し、
- * プレースホルダーに退避する
+ * Safely extracts code fences and inline code line-by-line / syntax-by-syntax
+ * and stashes them into placeholders.
  */
 export function extractCodeBlocks(
 	source: string,
@@ -129,14 +129,14 @@ export function extractCodeBlocks(
 
 	let intermediateText = outputLines.join("\n");
 
-	// 1. ブロック数式 ($$...$$) の抽出・保護
+	// 1. Extract and protect block math ($$...$$)
 	intermediateText = intermediateText.replace(/(?<!\\)\$\$([\s\S]+?)\$\$/g, (_match, math) => {
 		const trimmedMath = math.trim();
 		blocks.push(wrapBlock(`$$\n${trimmedMath}\n$$`));
 		return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
 	});
 
-	// 2. インライン数式 ($...$) の抽出・保護（通貨記号 $100 等の誤検知を防止）
+	// 2. Extract and protect inline math ($...$) while avoiding false positives for currency ($100)
 	intermediateText = intermediateText.replace(
 		/(?<!\\|\$)\$([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)/g,
 		(_match, math) => {
@@ -145,14 +145,14 @@ export function extractCodeBlocks(
 		}
 	);
 
-	// 3. テーブル構文の抽出・整列（コードブロックの外側にあるテーブル）
+	// 3. Extract and align table syntax (tables outside of code blocks)
 	const processedText = extractTables(intermediateText, blocks, wrapBlock);
 
 	return { text: processedText, blocks };
 }
 
 /**
- * プレースホルダーを実際のコードブロックに戻す
+ * Restores placeholders back to actual code blocks.
  */
 export function restoreCodeBlocks(text: string, blocks: string[]): string {
 	const pattern = new RegExp(`${CODE_MARK}(\\d+)${CODE_MARK}`, "g");
@@ -238,7 +238,7 @@ function formatTableSeparator(width: number, align: TableAlignment): string {
 }
 
 /**
- * 複数行のMarkdownテーブルを等幅フォントで整列されたテキストにフォーマットする
+ * Formats multi-line Markdown tables into monospaced aligned text.
  */
 export function formatAlignedTable(tableLines: string[]): string {
 	const rows = tableLines.map(parseTableRow);
@@ -283,8 +283,8 @@ export function formatAlignedTable(tableLines: string[]): string {
 }
 
 /**
- * Markdownの表（Table）構文を検知し、
- * 整列されたコードブロック表現に変換・退避する。
+ * Detects Markdown table syntax and converts/stashes them
+ * into aligned code block representations.
  */
 export function extractTables(
 	text: string,
@@ -297,7 +297,7 @@ export function extractTables(
 
 	while (i < lines.length) {
 		const line = lines[i];
-		// テーブル開始行判定（パイプを含み、次行がセパレータ行）
+		// Detect table start (line contains pipes and is immediately followed by a separator row)
 		if (line.includes("|") && i + 1 < lines.length && isTableSeparatorRow(lines[i + 1])) {
 			const tableLines: string[] = [line, lines[i + 1]];
 			let j = i + 2;
