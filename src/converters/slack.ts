@@ -151,23 +151,7 @@ export function convertToSlack(md: string): string {
 }
 
 function formatSlackCodeBlockHtml(code: string): string {
-	const lines = code.split("\n");
-	return lines
-		.map((line) => {
-			let content = escapeHtml(line);
-			content = content.replace(/^( +)/, (_match, spaces) => {
-				let converted = "";
-				for (let s = 0; s < spaces.length; s++) {
-					converted += s % 2 === 0 ? "&nbsp;" : " ";
-				}
-				return `<span class="Apple-converted-space">${converted}</span>`;
-			});
-			if (!content) {
-				content = "&nbsp;";
-			}
-			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">${content}</span></p>`;
-		})
-		.join("\n");
+	return `<pre style="margin: 0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><code>${escapeHtml(code)}</code></pre>`;
 }
 
 /**
