@@ -84,8 +84,8 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 - `Format Convert Copy: Convert and copy for Slack` (Japanese: `Slack形式に変換してコピー`)
 - `Format Convert Copy: Convert and copy for Discord` (Japanese: `Discord形式に変換してコピー`)
 - `Format Convert Copy: Convert and copy for WhatsApp` (Japanese: `WhatsApp形式に変換してコピー`)
-- `Format Convert Copy: Copy as raw Markdown` (Japanese: `Markdownのままコピー`)
-- `Format Convert Copy: Choose format and copy (Show menu)` (Japanese: `形式を選択してコピー（メニュー表示）`)
+- `Format Convert Copy: Copy as raw Markdown` (Japanese: `Markdown形式でコピー`)
+- `Format Convert Copy: Choose format and copy (Show menu)` (Japanese: `形式を選択してコピー`)
 
 ---
 
