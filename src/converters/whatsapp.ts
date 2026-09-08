@@ -8,27 +8,27 @@ import {
 } from "./common";
 
 /**
- * MarkdownをWhatsApp形式に変換する。
- * WhatsApp書式ルール:
- * - 太字: *text*
- * - 斜体: _text_
- * - 打消し線: ~text~
- * - 等幅/コード: ```code``` または `inline`
- * - 引用: > 引用
- * - 箇条書き: - または * または •
- * - リンク: WhatsAppはマークダウンリンク[title](url)を解釈しないため、title (url) または url に展開する
+ * Converts Markdown to WhatsApp format.
+ * WhatsApp formatting rules:
+ * - Bold: *text*
+ * - Italic: _text_
+ * - Strikethrough: ~text~
+ * - Monospace / Code: ```code``` or `inline`
+ * - Blockquote: > quote
+ * - Bullet points: - or * or •
+ * - Links: WhatsApp does not interpret [title](url) Markdown links; expand to title (url) or url
  */
 export function convertToWhatsApp(md: string): string {
 	let text = resolveWikilinks(md);
 
-	// <u>...</u> はWhatsAppに対応記法がないためタグを除去
+	// Strip <u>...</u> tags since WhatsApp has no underline syntax
 	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, "$1");
 
-	// チェックボックス (タスクリスト) の変換
+	// Convert checkboxes (task lists)
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+/gm, "$1☑ ");
 
-	// コードブロックの抽出
+	// Extract code blocks
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => "```\n" + code + "\n```",
@@ -37,45 +37,45 @@ export function convertToWhatsApp(md: string): string {
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
 
-	// 残りのインラインコードを退避
+	// Stash remaining inline code
 	text = text.replace(/`([^`]+)`/g, (match) => {
 		codeBlocks.push(match);
 		return `${CODE_MARK}${codeBlocks.length - 1}${CODE_MARK}`;
 	});
 
-	// 見出し・太字（**/__）・Calloutタイトルを退避
+	// Stash headings, bold (**/__), and Callout titles
 	const boldTargets: string[] = [];
 
-	// Callout (e.g. > [!NOTE] 内容) を退避
+	// Stash Callouts (e.g. > [!NOTE] content)
 	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		boldTargets.push(`[${label}]`);
 		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// 見出しを太字へ
+	// Convert headings to bold
 	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// 太字 (**)
+	// Bold (**)
 	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match, _marker, content) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// 斜体 (* / _)
+	// Italics (* / _)
 	text = text.replace(/(\*|_)(.+?)\1/g, "_$2_");
 
-	// 太字をWhatsAppの *text* に戻す
+	// Restore bold to WhatsApp *text* format
 	const boldPattern = new RegExp(`${BOLD_MARK}(\\d+)${BOLD_MARK}`, "g");
 	text = text.replace(boldPattern, (_match, i) => `*${boldTargets[Number(i)]}*`);
 
-	// 打消し線 (~~)
+	// Strikethrough (~~)
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
 
-	// リンク [title](url) -> title (url) または url (安全なURLのみ)
+	// Convert [title](url) -> title (url) or url (safe URLs only)
 	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
 		const cleanUrl = url.trim();
 		if (!isSafeUrl(cleanUrl)) {

@@ -10,7 +10,7 @@ export interface ConvertedResult {
 }
 
 /**
- * フォーマットタイプに応じた変換を実行するディスパッチャ
+ * Dispatcher to execute markdown conversions based on format type.
  */
 export function convertMarkdown(content: string, type: FormatType): ConvertedResult {
 	switch (type) {

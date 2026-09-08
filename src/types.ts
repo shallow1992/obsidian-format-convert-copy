@@ -1,27 +1,27 @@
 export type FormatType = "slack" | "discord" | "whatsapp" | "raw";
 
 export interface FormatConvertSettings {
-	// ナビゲーションバー / リボンアイコン（直接コピー & 選択メニュー）
+	// Navigation bar / ribbon icons (direct copy & format menu)
 	showRibbonSlackIcon: boolean;
 	showRibbonDiscordIcon: boolean;
 	showRibbonWhatsAppIcon: boolean;
 	showRibbonRawIcon: boolean;
 	showRibbonMenuIcon: boolean;
 
-	// ファイルエクスプローラメニュー（長押し / 右クリック）
+	// File explorer menu (long-press / right-click)
 	showFileSlackItem: boolean;
 	showFileDiscordItem: boolean;
 	showFileWhatsAppItem: boolean;
 	showFileRawItem: boolean;
 	showFileMenuItem: boolean;
 
-	// エディタコンテキストメニュー（デスクトップの右クリック）
+	// Editor context menu (desktop right-click)
 	showSlackInMenu: boolean;
 	showDiscordInMenu: boolean;
 	showWhatsAppInMenu: boolean;
 	showRawInMenu: boolean;
 
-	// コピー動作設定
+	// Copy behavior and notifications
 	emptySelectionBehavior: EmptySelectionBehavior;
 	silentMode: boolean;
 }
@@ -29,27 +29,27 @@ export interface FormatConvertSettings {
 export type EmptySelectionBehavior = "document" | "currentLine";
 
 export const DEFAULT_SETTINGS: FormatConvertSettings = {
-	// ナビゲーションバー / リボン初期値
+	// Navigation bar / ribbon default values
 	showRibbonSlackIcon: true,
 	showRibbonDiscordIcon: false,
 	showRibbonWhatsAppIcon: false,
 	showRibbonRawIcon: false,
 	showRibbonMenuIcon: false,
 
-	// ファイルエクスプローラ初期値
+	// File explorer default values
 	showFileSlackItem: true,
 	showFileDiscordItem: false,
 	showFileWhatsAppItem: false,
 	showFileRawItem: false,
 	showFileMenuItem: true,
 
-	// デスクトップエディタメニュー初期値
+	// Desktop editor context menu default values
 	showSlackInMenu: true,
 	showDiscordInMenu: true,
 	showWhatsAppInMenu: true,
 	showRawInMenu: true,
 
-	// コピー動作設定初期値
+	// Copy behavior default values
 	emptySelectionBehavior: "document",
 	silentMode: false,
 };
