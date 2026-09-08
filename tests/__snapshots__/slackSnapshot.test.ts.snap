@@ -1,0 +1,1307 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Comprehensive Manual Test Suite > converts tests/manual/slack-comprehensive-test.md with zero invariant violations and matches snapshot 1`] = `
+{
+  "ops": [
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Comprehensive Manual Test Suite: Slack Native Format",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "This note contains a complete collection of Markdown syntaxes and edge cases for manually testing the ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Format Convert: Copy as Slack Format",
+    },
+    {
+      "insert": " feature.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Testers may copy the contents of this file or place this note anywhere in their Obsidian vault.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 1 (H1: Largest Header)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 2 (H2)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 3 (H3)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 4 (H4)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 5 (H5)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading 6 (H6: Smallest Header)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "1. Inline Formatting (Slack Toolbar Parity)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Bold",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Bold Text",
+    },
+    {
+      "insert": " (or ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Underscore Bold",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "italic": true,
+      },
+      "insert": "Italic",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "italic": true,
+      },
+      "insert": "Italic Text",
+    },
+    {
+      "insert": " (or ",
+    },
+    {
+      "attributes": {
+        "italic": true,
+      },
+      "insert": "Underscore Italic",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "underline": true,
+      },
+      "insert": "Underline",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "underline": true,
+      },
+      "insert": "Underlined Text",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Strikethrough",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Deprecated Information",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "Inline Code",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "const token = "slack_test_123";",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Hyperlink: ",
+    },
+    {
+      "attributes": {
+        "link": "https://www.google.com",
+      },
+      "insert": "Google Search",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Combined Formatting",
+    },
+    {
+      "insert": ": ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Bold text containing ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "code": true,
+      },
+      "insert": "inline code",
+    },
+    {
+      "insert": ", or ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "*Bold Italic",
+    },
+    {
+      "insert": "*, or ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "strike": true,
+      },
+      "insert": "Bold Strikethrough",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "2. Bulleted Lists (5-Level Nesting)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item A",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 2 Nested Item (Indent 1)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 3 Nested Item (Indent 2)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 4 Nested Item (Indent 3)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 5 Nested Item (Indent 4: Deepest Supported Level)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item B",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "3. Numbered Lists (5-Level Nesting & Return to Root)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1 (Level 1: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1 (Level 2: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1 (Level 3: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "i.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1 (Level 4: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1-1 (Level 5: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 2 (Level 1: returns to ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "2.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "4. Checklists / Task Lists (5-Level Nesting)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Incomplete Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Task (Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Detailed Subtask A (Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Subtask B (Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Deepest Task (Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Parent Completed Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "5. Mixed Nested Lists",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Project Planning Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Requirements Definition (Bullet Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Create API Specifications (Incomplete Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Design Database Schema (Completed Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Finalize Foreign Key Constraints (Numbered Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Security Review Approval (Checklist Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Implementation Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "6. Blockquotes & Obsidian Callouts",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "This is a standard single-line blockquote.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "This is a multi-line blockquote.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Inside quotes, ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "bold",
+    },
+    {
+      "insert": ", ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "inline code",
+    },
+    {
+      "insert": ", and ",
+    },
+    {
+      "attributes": {
+        "link": "https://example.com",
+      },
+      "insert": "links",
+    },
+    {
+      "insert": " must function properly.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "[Release Announcement]",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "This is an Obsidian callout block.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "In Slack, this renders as a bold-titled quote container.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "[Deprecation Alert]",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Warning callout verification.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "7. Code Blocks",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "typescript",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "function calculateTotal(items: { price: number; count: number }[]): number {",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "    return items.reduce((sum, item) => sum + item.price * item.count, 0);",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "}",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "// Verification",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "const total = calculateTotal([{ price: 100, count: 2 }]);",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "console.log(\`Total: $\${total}\`);",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Plain code block without language tag.",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Indentation and symbols must remain intact.",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "8. Tables (Monospace Aligned Code Block)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern A: Standard ASCII Table with Column Alignments",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "| Item Name (Left) | Status (Center) | Quantity (Right) | Price (Right) | Notes (Left)        |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "|:-----------------|:---------------:|-----------------:|--------------:|:--------------------|",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Apple Fuji       |    Available    |               12 |        $12.00 | Fresh harvest       |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Mandarin Orange  |    In Stock     |              150 |        $85.00 | Sweet seedless      |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Shine Muscat     |    Sold Out     |                3 |       $120.00 | Premium gift box    |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Banana Cavendish |    Available    |               50 |         $9.80 | High altitude grown |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern B: Mixed CJK Multi-byte Characters & Inline Code",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "| Feature        | Syntax                                             | Alignment | Slack Native Support |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "|:---------------|:---------------------------------------------------|:---------:|---------------------:|",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Heading        | \`# Heading\`                                        |   Left    |            Bold text |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Bold           | \`**Bold**\`                                         |   Left    |       Bold attribute |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Checkbox       | \`- [x]\`                                            |  Center   |     ☑ Checked bullet |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Long cell test | \`Some very long inline code parameter inside cell\` |   Right   | Monospace code block |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "9. Math & Vault-Specific Wikilinks",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Inline Math: $E = mc^2$",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Block Math:",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Obsidian Internal Link (Wikilinks): System Architecture",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Embedded Attachment: [image: architecture-diagram.png]",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+  ],
+}
+`;
