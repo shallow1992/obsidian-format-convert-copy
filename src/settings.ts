@@ -90,16 +90,6 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			.setDesc(t("settingsFileDesc"));
 
 		new Setting(containerEl)
-			.setName(t("settingsFileMenuName"))
-			.setDesc(t("settingsFileMenuDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileMenuItem).onChange(async (value) => {
-					this.plugin.settings.showFileMenuItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
 			.setName(t("settingsFileSlackName"))
 			.setDesc(t("settingsFileSlackDesc"))
 			.addToggle((toggle) =>
@@ -135,6 +125,16 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.showFileRawItem).onChange(async (value) => {
 					this.plugin.settings.showFileRawItem = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName(t("settingsFileMenuName"))
+			.setDesc(t("settingsFileMenuDesc"))
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.showFileMenuItem).onChange(async (value) => {
+					this.plugin.settings.showFileMenuItem = value;
 					await this.plugin.saveSettings();
 				})
 			);

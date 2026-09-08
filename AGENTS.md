@@ -51,3 +51,14 @@ Format Convert Copy strictly supports both Desktop (macOS, Windows, Linux) and M
     npm version [patch | minor | major]
     git push origin master --tags
     ```
+
+---
+
+## 5. Domain Knowledge & Specialized Skills
+
+For in-depth Obsidian API guidelines, Keychain storage, and UI patterns, refer to the local skill:
+- **Obsidian Plugin Development**: [.agents/skills/obsidian-plugin-development/SKILL.md](./.agents/skills/obsidian-plugin-development/SKILL.md)
+  - Architecture & lifecycle: `references/lifecycle-and-architecture.md`
+  - Mobile compatibility: `references/mobile-compatibility.md`
+  - Security & Keychain: `references/security-and-keychain.md`
+  - UI & Design system: `references/ui-and-design-system.md`
