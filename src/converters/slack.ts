@@ -112,7 +112,7 @@ export function convertToSlack(md: string): string {
 	const boldTargets: string[] = [];
 
 	// Stash Callouts (e.g. > [!NOTE] content)
-	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		boldTargets.push(`[${label}]`);
 		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
@@ -166,7 +166,7 @@ export function convertToSlackHtml(md: string): string {
 	let text = resolveWikilinks(md);
 
 	// Callout (e.g. > [!NOTE] content)
-	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});

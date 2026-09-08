@@ -22,7 +22,7 @@ export function convertToDiscord(md: string): string {
 	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, "__$1__");
 
 	// Callout (e.g. > [!NOTE] content)
-	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});
