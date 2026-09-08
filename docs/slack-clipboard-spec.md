@@ -164,12 +164,14 @@ Through systematic real-device testing on iOS (Obsidian iOS ➜ Slack iOS), the 
    - Numbered lists cycle natively: `1.` (decimal) ➜ `a.` (alpha) ➜ `i.` (roman) ➜ `1.` ➜ `a.`.
 3. **Checklists / Task Lists**:
    - Represented as nested bullet items with Unicode checkboxes `● ☐` and `● ☑` (with strikethrough).
-4. **Code Blocks (`<pre><code>`)**:
-   - Multi-line `<pre><code>` blocks are split by Slack iOS across line breaks into individual monospace inline code chips. Indentation is preserved per line.
-5. **Blockquotes (`<blockquote>`)**:
-   - Slack iOS strips the container border of `<blockquote>`, but completely preserves all inner formatted text, links, and code.
+4. **Code Blocks, Tables & Block Math (Markdown Backtick Architecture)**:
+   - Rather than `<pre><code>` (which Slack iOS fragments into separate inline chips), multi-line code blocks, aligned tables, and block math formulas are output as backtick-fenced paragraphs (`<p>```lang<br>...<br>```</p>`) with `&nbsp;` indentation preservation.
+   - When pasted and sent in Slack iOS, Slack's server-side markdown parser reconstructs them as **true, unified, bordered code block containers** with language syntax highlighting and vertical column alignment intact.
+5. **Blockquotes & Callouts (`&gt; ` Prefix Architecture)**:
+   - Because Slack iOS strips standard `<blockquote>` container borders, quote lines are prefixed with `&gt; ` inside `<blockquote>` (`<blockquote>&gt; Line 1<br>&gt; Line 2</blockquote>`).
+   - When sent in Slack iOS, Slack detects the `>` prefix at the start of each line and renders a **native, vertical-line quote block** while preserving inner formatting (bold titles, links, inline code).
 6. **Tables & LaTeX**:
-   - Tables are auto-aligned as monospaced ASCII code blocks, maintaining clean vertical column alignment on mobile screens.
+   - Tables and display math formulas are wrapped inside triple backticks with monospaced column alignment, rendering as unified monospace blocks upon send.
 
 ---
 

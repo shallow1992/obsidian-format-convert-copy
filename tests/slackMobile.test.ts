@@ -65,6 +65,36 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			expect(html).toContain("<b>Bold</b> and <i>Italic</i>.");
 			expect(html).toContain("Line 1<br>Line 2<br><br>New paragraph");
 		});
+
+		it("converts blockquotes and callouts with &gt; prefix", () => {
+			const md = [
+				"> Single quote line",
+				"",
+				"> Line 1",
+				"> Line 2",
+				"",
+				"> [!NOTE]",
+				"> Callout body",
+			].join("\n");
+
+			const html = convertToSlackMobileHtml(md);
+			expect(html).toContain("<blockquote>&gt; Single quote line</blockquote>");
+			expect(html).toContain("<blockquote>&gt; Line 1<br>&gt; Line 2</blockquote>");
+			expect(html).toContain("<blockquote>&gt; <b>[NOTE]</b><br>&gt; Callout body</blockquote>");
+		});
+
+		it("converts code blocks to backtick paragraphs with preserved indentation", () => {
+			const md = [
+				"```typescript",
+				"function test() {",
+				"    return 42;",
+				"}",
+				"```",
+			].join("\n");
+
+			const html = convertToSlackMobileHtml(md);
+			expect(html).toContain("<p>```typescript<br>function test() {<br>&nbsp;&nbsp;&nbsp;&nbsp;return 42;<br>}<br>```</p>");
+		});
 	});
 
 	describe("Platform Branching (convertMarkdown)", () => {
