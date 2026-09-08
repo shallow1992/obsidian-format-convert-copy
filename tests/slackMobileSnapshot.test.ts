@@ -42,4 +42,17 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		expect(html).toMatchSnapshot();
 	});
+
+	it("converts tests/manual/slack-ios-poc-phase3.md and matches snapshot", () => {
+		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase3.md");
+		const content = fs.readFileSync(suitePath, "utf-8");
+
+		const html = convertToSlackMobileHtml(content);
+
+		expect(html).toContain("<pre><code>console.log(&quot;Hello, Slack iOS!&quot;);</code></pre>");
+		expect(html).toContain("<pre><code>function calculateTotal(items) {");
+		expect(html).toContain("&lt;div class=&quot;container&quot;&gt;");
+
+		expect(html).toMatchSnapshot();
+	});
 });
