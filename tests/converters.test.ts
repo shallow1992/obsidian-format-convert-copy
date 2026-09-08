@@ -186,7 +186,7 @@ describe("slack converter", () => {
 		expect(html).toContain('<a href="https://example.com">Safe</a>');
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
-		expect(html).toContain("AppleSystemUIFontMonospaced");
+		expect(html).toContain("ui-monospace");
 		expect(html).toContain("<code>$a_b$</code>");
 	});
 
@@ -194,9 +194,9 @@ describe("slack converter", () => {
 		const md = "```typescript\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```";
 		const html = convertToSlackHtml(md);
 		expect(html).toBe(
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">function greet(name: string): string {</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">}</span></p>`
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">function greet(name: string): string {</span></p>\n` +
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">}</span></p>`
 		);
 	});
 
