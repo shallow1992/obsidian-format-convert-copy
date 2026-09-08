@@ -55,4 +55,21 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		expect(html).toMatchSnapshot();
 	});
+
+	it("converts tests/manual/slack-ios-poc-phase4.md and matches snapshot", () => {
+		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase4.md");
+		const content = fs.readFileSync(suitePath, "utf-8");
+
+		const html = convertToSlackMobileHtml(content);
+
+		// Tables are formatted inside <pre><code> with aligned monospace columns
+		expect(html).toContain("<pre><code>| Item   | Status");
+		expect(html).toContain("| 項目名       | 進捗");
+
+		// Math formulas
+		expect(html).toContain("<code>$E = mc^2$</code>");
+		expect(html).toContain("<pre><code>$$\n");
+
+		expect(html).toMatchSnapshot();
+	});
 });

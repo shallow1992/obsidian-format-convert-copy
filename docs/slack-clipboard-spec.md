@@ -123,29 +123,58 @@ Slack has no native table Delta element. Markdown tables are converted into **mo
 
 ---
 
-## 4. Clipboard API Implementation
+## 4. Cross-Platform Architecture & Implementation
 
-### Desktop (Obsidian Desktop / Electron)
-We write multiple clipboard representations simultaneously using the Web `ClipboardItem` API:
+### 4.1 Platform Branching (`Platform.isMobile`)
+Slack behaves fundamentally differently on Desktop versus Mobile:
+- **Desktop (macOS / Windows / Linux Electron)**: Reads proprietary `slack/texty` (Quill Delta JSON). External `text/html` causes code block fragmentation and list flattening.
+- **Mobile (Slack iOS / Android Native App)**: Does **not** read `slack/texty` from `UIPasteboard`. Instead, it reads standard **`text/html`** and `text/plain`.
+
+To prevent regressions, the plugin strictly branches on `Platform.isMobile`:
+- **Desktop**: writes `slack/texty`, `text/markdown`, and `text/plain`.
+- **Mobile**: writes `text/html` (via `convertToSlackMobileHtml`) and `text/plain` (mrkdwn fallback).
 
 ```typescript
-const textyBlob = new Blob([textyJson], { type: "slack/texty" });
-const textBlob = new Blob([plainMrkdwn], { type: "text/plain" });
-const mdBlob = new Blob([cleanMarkdown], { type: "text/markdown" });
-
-const item = new ClipboardItem({
-  "slack/texty": textyBlob,
-  "text/plain": textBlob,
-  "text/markdown": mdBlob,
-});
-await navigator.clipboard.write([item]);
+if (isMobile) {
+  const html = convertToSlackMobileHtml(content);
+  const plain = convertToSlack(content);
+  return { text: plain, html, label: "Slack" };
+}
+const res = convertToSlackTexty(content);
+return {
+  text: res.plain,
+  label: "Slack",
+  customMimeTypes: {
+    "slack/texty": res.texty,
+    "text/markdown": res.markdown,
+  },
+};
 ```
 
-### Mobile (iOS / Android WebViews)
-Mobile WebViews often restrict writing arbitrary custom MIME types via `navigator.clipboard.write`. Therefore, a robust fallback chain writes `text/plain` (Slack mrkdwn syntax) on mobile devices.
+### 4.2 Empirical iOS Findings (PoC Results)
+
+Through systematic real-device testing on iOS (Obsidian iOS ➜ Slack iOS), the following empirical behaviors were confirmed:
+
+1. **Inline Styles & Links (100% Native Support)**:
+   - `<b>` (Bold), `<i>` (Italic), `<s>` (Strikethrough), `<u>` (Underline), `<code>` (Inline Code), and `<a href="...">` (Hyperlinks) are fully rendered as native Slack rich text.
+   - Combined styles (`<b><i>`, `<b><code>`, `<u><b>`) nest properly without style collisions.
+2. **Multi-Level Lists (5-Level Nesting Native Support)**:
+   - Unlike Desktop Slack's HTML sanitizer, Slack iOS **fully supports nested `<ul><li>` and `<ol><li>` hierarchies up to 5 levels**.
+   - Bullet shapes cycle natively: `●` (disc) ➜ `○` (circle) ➜ `■` (square) ➜ `●` (disc) ➜ `○` (circle).
+   - Numbered lists cycle natively: `1.` (decimal) ➜ `a.` (alpha) ➜ `i.` (roman) ➜ `1.` ➜ `a.`.
+3. **Checklists / Task Lists**:
+   - Represented as nested bullet items with Unicode checkboxes `● ☐` and `● ☑` (with strikethrough).
+4. **Code Blocks (`<pre><code>`)**:
+   - Multi-line `<pre><code>` blocks are split by Slack iOS across line breaks into individual monospace inline code chips. Indentation is preserved per line.
+5. **Blockquotes (`<blockquote>`)**:
+   - Slack iOS strips the container border of `<blockquote>`, but completely preserves all inner formatted text, links, and code.
+6. **Tables & LaTeX**:
+   - Tables are auto-aligned as monospaced ASCII code blocks, maintaining clean vertical column alignment on mobile screens.
 
 ---
 
 ## 5. Reverse-Engineering & Testing Tools
 
 - **`clipboard-test.html`**: A standalone browser-based tool located in the repository root. Open this file in any browser and click **"Inspect Clipboard"** after copying anything in Slack to inspect the raw `slack/texty` JSON, `text/html`, and `text/plain` streams in real time.
+- **`tests/manual/`**: Multiplatform comprehensive test suites for manual validation (`slack-comprehensive-test.md`, `slack-ios-poc-phase1.md` through `phase4.md`).
+

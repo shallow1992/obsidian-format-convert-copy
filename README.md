@@ -43,17 +43,21 @@ Designed from the ground up for seamless cross-platform usage across **Desktop (
 
 ## Syntax Conversion Comparison
 
-| Obsidian Syntax | Slack (mrkdwn / HTML) | Discord | WhatsApp |
+| Obsidian Syntax | Slack (Desktop: texty / Mobile: HTML) | Discord | WhatsApp |
 | :--- | :--- | :--- | :--- |
 | `**Bold**` / `__Bold__` | `*Bold*` / `<b>Bold</b>` | `**Bold**` | `*Bold*` |
 | `*Italic*` / `_Italic_` | `_Italic_` / `<i>Italic</i>` | `*Italic*` | `_Italic_` |
 | `~~Strikethrough~~` | `~Strikethrough~` / `<s>...</s>` | `~~Strikethrough~~` | `~Strikethrough~` |
 | `<u>Underline</u>` | Plain text / `<u>Underline</u>` | `__Underline__` (native underline) | Plain text (stripped) |
 | `# Heading` | `*Heading*` / `<b>Heading</b>` | `# Heading` (preserved) | `*Heading*` (bold fallback) |
+| `1. Numbered List` | `1. Item` (5-level nested list) | `1. Item` | `1. Item` |
+| `- Bullet` / `* Bullet` | `• Bullet` / `<ul><li>` (5-level nested list) | `- Bullet` | `- Bullet` |
 | `- [ ] Task` | `☐ Task` | `☐ Task` | `☐ Task` |
 | `- [x] Done` | `☑ Done` | `☑ ~~Done~~` (strikethrough) | `☑ Done` |
-| `- Bullet` / `* Bullet` | `• Bullet` / `<ul><li>` | `- Bullet` | `- Bullet` |
-| `> [!NOTE] Callout` | `> *[NOTE]*` / `<blockquote>` | `> **[NOTE]**` | `> *[NOTE]*` |
+| `` `Inline Code` `` | `` `code` `` / `<code>code</code>` | `` `code` `` | `` `code` `` |
+| ```` ```Code Block``` ```` | Native block (Desktop) / `<pre><code>` (Mobile) | Native code block (```` ``` ````) | Monospace block (```` ``` ````) |
+| `> Quote` | Native quote (Desktop) / `<blockquote>` (Mobile) | `> Quote` (native quote) | `> Quote` (native quote) |
+| `> [!NOTE] Callout` | Bold-titled quote (Desktop) / `<blockquote><b>` (Mobile) | `> **[NOTE]**` | `> *[NOTE]*` |
 | `[Title](url)` | `<url\|Title>` / `<a href="...">` | `[Title](url)` | `Title (url)` (auto-expanded) |
 | `[[Note\|Alias]]` | `Alias` | `Alias` | `Alias` |
 | `![[image.png\|300]]` | `[image: image.png]` | `[image: image.png]` | `[image: image.png]` |
@@ -131,17 +135,21 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 
 ObsidianのMarkdown記法が、コピー時に各アプリ向けにどのように変換されるかの一覧です。
 
-| 記法・要素 | Obsidian (元の記法) | Slack形式 (mrkdwn / HTML) | Discord形式 | WhatsApp形式 |
+| 記法・要素 | Obsidian (元の記法) | Slack形式 (PC: texty / モバイル: HTML) | Discord形式 | WhatsApp形式 |
 | :--- | :--- | :--- | :--- | :--- |
 | **太字** | `**テキスト**` / `__テキスト__` | `*テキスト*` / `<b>テキスト</b>` | `**テキスト**` | `*テキスト*` |
 | **斜体** | `*テキスト*` / `_テキスト_` | `_テキスト_` / `<i>テキスト</i>` | `*テキスト*` | `_テキスト_` |
 | **打消し線** | `~~テキスト~~` | `~テキスト~` / `<s>テキスト</s>` | `~~テキスト~~` | `~テキスト~` |
 | **下線** | `<u>テキスト</u>` | 通常テキスト / `<u>テキスト</u>` | `__テキスト__`（Discord下線） | 通常テキスト（タグ除去） |
 | **見出し** | `# 見出し` | `*見出し*`（太字化） / `<b>` | `# 見出し`（Markdown維持） | `*見出し*`（太字化） |
+| **番号付きリスト** | `1. 項目` | `1. 項目`（5階層ネスト連番） | `1. 項目` | `1. 項目` |
+| **箇条書き** | `- 項目` / `* 項目` | `• 項目` / `<ul><li>`（5階層ネスト） | `- 項目` | `- 項目` |
 | **未完了タスク** | `- [ ] タスク` | `☐ タスク` | `☐ タスク` | `☐ タスク` |
 | **完了タスク** | `- [x] 完了` | `☑ 完了` | `☑ ~~完了~~`（打消し線で強調） | `☑ 完了` |
-| **箇条書き** | `- 項目` / `* 項目` | `• 項目` / `<ul><li>` | `- 項目` | `- 項目` |
-| **引用・Callout** | `> [!NOTE] 内容` | `> *[NOTE]* 内容` | `> **[NOTE]** 内容` | `> *[NOTE]* 内容` |
+| **インラインコード** | `` `コード` `` | `` `コード` `` / `<code>コード</code>` | `` `コード` `` | `` `コード` `` |
+| **コードブロック** | ```` ```言語\nコード\n``` ```` | ネイティブ枠（PC: `slack/texty`） / `<pre><code>`（モバイル） | ネイティブコード枠（```` ``` ````） | 等幅コード枠（```` ``` ````） |
+| **引用** | `> 引用` | ネイティブ引用枠（PC） / `<blockquote>`（モバイル） | `> 引用` | `> 引用` |
+| **Callout** | `> [!NOTE] 内容` | 太字見出し付き引用枠（PC） / `<blockquote><b>`（モバイル） | `> **[NOTE]** 内容` | `> *[NOTE]* 内容` |
 | **Webリンク** | `[タイトル](URL)` | `<URL\|タイトル>` / `<a href="...">` | `[タイトル](URL)` | `タイトル (URL)`（URL自動展開） |
 | **Wikilink** | `[[ノート名\|別名]]` | `別名`（または `ノート名`） | `別名` | `別名` |
 | **画像埋め込み** | `![[image.png\|300]]` | `[image: image.png]` | `[image: image.png]` | `[image: image.png]` |
@@ -153,7 +161,8 @@ ObsidianのMarkdown記法が、コピー時に各アプリ向けにどのよう�
 
 #### 各形式ごとの詳細仕様
 - **Slack形式**:
-  - **デスクトップ環境**: Slackのリッチテキスト入力欄に最適化された **HTML**（`<b>`, `<i>`, `<a>`, `<ul>` 等）と、フォールバック用のプレーンテキスト **mrkdwn** を同時にクリップボードへ格納します。ペーストするだけで書式がそのまま反映されます。
+  - **デスクトップ環境 (PC)**: Slack独自の内部クリップボード形式 **`slack/texty`**（Quill Delta JSON）を出力します。Slackアプリがネイティブ内部データとして認識するため、コードブロックの分断や多段リストの崩れを完全に防ぎ、100%の忠実度でリッチテキストコンテナを復元します。
+  - **モバイル環境 (iOS / Android)**: モバイルSlackアプリの仕様に合わせて最適化された **HTML**（`<b>`, `<i>`, `<a>`, `<ul>`, `<ol>` 等）を出力します。最大5階層までの美しい多段ネストリスト（黒丸・白丸・四角の自動サイクルやアルファベット・ローマ数字の連番）やインライン装飾をネイティブ描画します。
   - **Webリンク**: Slack独自の `<URL|表示テキスト>` 記法に変換され、リンクとして正しくクリックできます。
 - **Discord形式**:
   - **下線（Underline）**: Discordでは `__text__` が下線として機能するため、HTMLの `<u>` を `__text__` に変換します。また、標準Markdownの太字 `__text__` は下線と誤認されないよう `**text**` に自動統一されます。
