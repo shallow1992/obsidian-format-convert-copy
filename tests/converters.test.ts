@@ -190,6 +190,16 @@ describe("slack converter", () => {
 		expect(html).toContain("<code>$a_b$</code>");
 	});
 
+	it("generates exact native Slack HTML structure for code blocks", () => {
+		const md = "```typescript\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```";
+		const html = convertToSlackHtml(md);
+		expect(html).toBe(
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">function greet(name: string): string {</span></p>\n` +
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
+			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">}</span></p>`
+		);
+	});
+
 	it("converts image embeds in Slack", () => {
 		const md = "![[chart.png|300]]\n![Dashboard](https://example.com/dash.png)";
 		const converted = convertToSlack(md);
