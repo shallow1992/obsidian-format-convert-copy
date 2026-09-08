@@ -25,4 +25,21 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 		// Snapshot assertion to detect unintended HTML regressions
 		expect(html).toMatchSnapshot();
 	});
+
+	it("converts tests/manual/slack-ios-poc-phase2.md and matches snapshot", () => {
+		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase2.md");
+		const content = fs.readFileSync(suitePath, "utf-8");
+
+		const html = convertToSlackMobileHtml(content);
+
+		// Sanity checks on Phase 2 features
+		expect(html).toContain("<ul><li>Level 1 Bullet Item A");
+		expect(html).toContain("<ol><li>Step 1 (Root Level)");
+		expect(html).toContain("<blockquote>This is a standard single-line blockquote.</blockquote>");
+		expect(html).toContain("<blockquote><b>[Release Update]</b><br>This is an Obsidian callout block.");
+		expect(html).toContain("☐ Incomplete task item");
+		expect(html).toContain("☑ <s>Completed task item (should have strikethrough)</s>");
+
+		expect(html).toMatchSnapshot();
+	});
 });
