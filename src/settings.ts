@@ -1,5 +1,6 @@
 import { App, Platform, PluginSettingTab, Setting } from "obsidian";
 import type FormatConvertPlugin from "./main";
+import { FormatConvertSettings } from "./types";
 import { t } from "./i18n";
 
 export class FormatConvertSettingTab extends PluginSettingTab {
@@ -8,6 +9,28 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: FormatConvertPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	private addToggleSetting(
+		containerEl: HTMLElement,
+		name: string,
+		desc: string | undefined,
+		key: keyof FormatConvertSettings,
+		afterChange?: () => void
+	): Setting {
+		const setting = new Setting(containerEl).setName(name);
+		if (desc) {
+			setting.setDesc(desc);
+		}
+		return setting.addToggle((toggle) =>
+			toggle.setValue(Boolean(this.plugin.settings[key])).onChange(async (value) => {
+				(this.plugin.settings as any)[key] = value;
+				await this.plugin.saveSettings();
+				if (afterChange) {
+					afterChange();
+				}
+			})
+		);
 	}
 
 	display(): void {
@@ -24,60 +47,17 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		containerEl.createEl("h3", { text: ribbonAreaName, cls: "format-convert-setting-heading" });
 		containerEl.createEl("p", { text: t("settingsRibbonDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
-		new Setting(containerEl)
-			.setName(t("settingsRibbonSlackName"))
-			.setDesc(t("settingsRibbonSlackDesc", { area: ribbonAreaName }))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonSlackIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonSlackIcon = value;
-					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcons();
-				})
-			);
+		const ribbonToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
+			{ name: t("settingsRibbonSlackName"), desc: t("settingsRibbonSlackDesc", { area: ribbonAreaName }), key: "showRibbonSlackIcon" },
+			{ name: t("settingsRibbonDiscordName"), desc: t("settingsRibbonDiscordDesc", { area: ribbonAreaName }), key: "showRibbonDiscordIcon" },
+			{ name: t("settingsRibbonWhatsAppName"), desc: t("settingsRibbonWhatsAppDesc", { area: ribbonAreaName }), key: "showRibbonWhatsAppIcon" },
+			{ name: t("settingsRibbonRawName"), desc: t("settingsRibbonRawDesc", { area: ribbonAreaName }), key: "showRibbonRawIcon" },
+			{ name: t("settingsRibbonMenuName"), desc: t("settingsRibbonMenuDesc", { area: ribbonAreaName }), key: "showRibbonMenuIcon" },
+		];
 
-		new Setting(containerEl)
-			.setName(t("settingsRibbonDiscordName"))
-			.setDesc(t("settingsRibbonDiscordDesc", { area: ribbonAreaName }))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonDiscordIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonDiscordIcon = value;
-					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcons();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsRibbonWhatsAppName"))
-			.setDesc(t("settingsRibbonWhatsAppDesc", { area: ribbonAreaName }))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonWhatsAppIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonWhatsAppIcon = value;
-					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcons();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsRibbonRawName"))
-			.setDesc(t("settingsRibbonRawDesc", { area: ribbonAreaName }))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonRawIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonRawIcon = value;
-					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcons();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsRibbonMenuName"))
-			.setDesc(t("settingsRibbonMenuDesc", { area: ribbonAreaName }))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showRibbonMenuIcon).onChange(async (value) => {
-					this.plugin.settings.showRibbonMenuIcon = value;
-					await this.plugin.saveSettings();
-					this.plugin.refreshRibbonIcons();
-				})
-			);
+		for (const item of ribbonToggles) {
+			this.addToggleSetting(containerEl, item.name, item.desc, item.key, () => this.plugin.refreshRibbonIcons());
+		}
 
 		// ==========================================
 		// 2. File explorer menu settings
@@ -85,55 +65,17 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		containerEl.createEl("h3", { text: t("settingsFileHeading"), cls: "format-convert-setting-heading" });
 		containerEl.createEl("p", { text: t("settingsFileDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
-		new Setting(containerEl)
-			.setName(t("settingsFileSlackName"))
-			.setDesc(t("settingsFileSlackDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileSlackItem).onChange(async (value) => {
-					this.plugin.settings.showFileSlackItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
+		const fileToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
+			{ name: t("settingsFileSlackName"), desc: t("settingsFileSlackDesc"), key: "showFileSlackItem" },
+			{ name: t("settingsFileDiscordName"), desc: t("settingsFileDiscordDesc"), key: "showFileDiscordItem" },
+			{ name: t("settingsFileWhatsAppName"), desc: t("settingsFileWhatsAppDesc"), key: "showFileWhatsAppItem" },
+			{ name: t("settingsFileRawName"), desc: t("settingsFileRawDesc"), key: "showFileRawItem" },
+			{ name: t("settingsFileMenuName"), desc: t("settingsFileMenuDesc"), key: "showFileMenuItem" },
+		];
 
-		new Setting(containerEl)
-			.setName(t("settingsFileDiscordName"))
-			.setDesc(t("settingsFileDiscordDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileDiscordItem).onChange(async (value) => {
-					this.plugin.settings.showFileDiscordItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsFileWhatsAppName"))
-			.setDesc(t("settingsFileWhatsAppDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileWhatsAppItem).onChange(async (value) => {
-					this.plugin.settings.showFileWhatsAppItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsFileRawName"))
-			.setDesc(t("settingsFileRawDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileRawItem).onChange(async (value) => {
-					this.plugin.settings.showFileRawItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
-
-		new Setting(containerEl)
-			.setName(t("settingsFileMenuName"))
-			.setDesc(t("settingsFileMenuDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.showFileMenuItem).onChange(async (value) => {
-					this.plugin.settings.showFileMenuItem = value;
-					await this.plugin.saveSettings();
-				})
-			);
+		for (const item of fileToggles) {
+			this.addToggleSetting(containerEl, item.name, item.desc, item.key);
+		}
 
 		// ==========================================
 		// 3. Desktop editor context menu settings
@@ -142,41 +84,16 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			containerEl.createEl("h3", { text: t("settingsEditorHeading"), cls: "format-convert-setting-heading" });
 			containerEl.createEl("p", { text: t("settingsEditorDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
-			new Setting(containerEl)
-				.setName(t("settingsEditorSlackName"))
-				.addToggle((toggle) =>
-					toggle.setValue(this.plugin.settings.showSlackInMenu).onChange(async (value) => {
-						this.plugin.settings.showSlackInMenu = value;
-						await this.plugin.saveSettings();
-					})
-				);
+			const editorToggles: { name: string; key: keyof FormatConvertSettings }[] = [
+				{ name: t("settingsEditorSlackName"), key: "showSlackInMenu" },
+				{ name: t("settingsEditorDiscordName"), key: "showDiscordInMenu" },
+				{ name: t("settingsEditorWhatsAppName"), key: "showWhatsAppInMenu" },
+				{ name: t("settingsEditorRawName"), key: "showRawInMenu" },
+			];
 
-			new Setting(containerEl)
-				.setName(t("settingsEditorDiscordName"))
-				.addToggle((toggle) =>
-					toggle.setValue(this.plugin.settings.showDiscordInMenu).onChange(async (value) => {
-						this.plugin.settings.showDiscordInMenu = value;
-						await this.plugin.saveSettings();
-					})
-				);
-
-			new Setting(containerEl)
-				.setName(t("settingsEditorWhatsAppName"))
-				.addToggle((toggle) =>
-					toggle.setValue(this.plugin.settings.showWhatsAppInMenu).onChange(async (value) => {
-						this.plugin.settings.showWhatsAppInMenu = value;
-						await this.plugin.saveSettings();
-					})
-				);
-
-			new Setting(containerEl)
-				.setName(t("settingsEditorRawName"))
-				.addToggle((toggle) =>
-					toggle.setValue(this.plugin.settings.showRawInMenu).onChange(async (value) => {
-						this.plugin.settings.showRawInMenu = value;
-						await this.plugin.saveSettings();
-					})
-				);
+			for (const item of editorToggles) {
+				this.addToggleSetting(containerEl, item.name, undefined, item.key);
+			}
 		}
 
 		// ==========================================
@@ -198,14 +115,11 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl)
-			.setName(t("settingsSilentModeName"))
-			.setDesc(t("settingsSilentModeDesc"))
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.silentMode).onChange(async (value) => {
-					this.plugin.settings.silentMode = value;
-					await this.plugin.saveSettings();
-				})
-			);
+		this.addToggleSetting(
+			containerEl,
+			t("settingsSilentModeName"),
+			t("settingsSilentModeDesc"),
+			"silentMode"
+		);
 	}
 }
