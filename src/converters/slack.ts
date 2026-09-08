@@ -165,7 +165,7 @@ function formatSlackCodeBlockHtml(code: string): string {
 			if (!content) {
 				content = "&nbsp;";
 			}
-			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">${content}</span></p>`;
+			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">${content}</span></p>`;
 		})
 		.join("\n");
 }
