@@ -68,7 +68,14 @@ For in-depth Obsidian API guidelines, Keychain storage, and UI patterns, refer t
 
 ## 6. Manual Testing Suite & Protocol
 
-To ensure manual verification is consistent across varying environments:
-- **Repository Test Suite**: Maintain a comprehensive Markdown test note in the repository at [`tests/manual/slack-comprehensive-test.md`](./tests/manual/slack-comprehensive-test.md). This file covers headings, inline formatting, 5-level nested lists, tables, callouts, blockquotes, code blocks, task lists, and edge cases.
-- **Protocol for Impacted Code**: Whenever changes affect conversion or clipboard logic, identify and present the specific test items from the test suite to the user/tester.
-- **No Forced Placement**: Testers work with different vault structures, OS platforms, and cloud sync solutions. Never enforce or assume a fixed file placement on the tester's machine; provide the test note in the repo so testers can copy, import, or place it wherever convenient in their own vaults.
+To ensure manual verification is consistent and reliable across all supported platforms without enforcing fixed local vault structures:
+- **Repository Test Suites (`tests/manual/`)**:
+  - **Slack**: [`tests/manual/slack-comprehensive-test.md`](./tests/manual/slack-comprehensive-test.md) (Headings, 5-level nested lists, tables, callouts, blockquotes, code blocks, task lists, math, Wikilinks).
+  - **Discord**: [`tests/manual/discord-comprehensive-test.md`](./tests/manual/discord-comprehensive-test.md) (Native headings `#..###`, underline `__text__`, spoiler `||spoiler||`, task strikethroughs, tables, code blocks).
+  - **WhatsApp**: [`tests/manual/whatsapp-comprehensive-test.md`](./tests/manual/whatsapp-comprehensive-test.md) (Bold `*text*`, italic `_text_`, strike `~text~`, heading bolding, URL link expansion `title (url)`, tables).
+- **Mandatory Protocol for Impacted Code**:
+  Whenever code affecting format conversion or clipboard output is modified (`src/converters/` or `src/utils/clipboard.ts`):
+  1. Identify which format(s) are impacted (Slack, Discord, WhatsApp, or Common).
+  2. Present the specific, actionable test items from the corresponding manual test suite(s) to the user/tester in your response.
+  3. Explain the expected visual and functional result in each target application.
+- **No Forced Placement**: Testers work with different vault structures, mobile environments, and cloud sync solutions. Never enforce or assume a fixed file placement on the tester's machine; provide the test notes in the repository so testers can copy, import, or place them wherever convenient in their own vaults.
