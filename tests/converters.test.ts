@@ -135,6 +135,12 @@ describe("slack converter", () => {
 		expect(convertToSlackHtml(md)).toContain("<b>Heading CRLF 2</b>");
 	});
 
+	it("converts alternating headings and bold text consistently for Slack", () => {
+		const md = "## テスト\n**テスト**\n# てすと\n**ですと**";
+		expect(convertToSlack(md)).toBe("*テスト*\n*テスト*\n*てすと*\n*ですと*");
+		expect(convertToSlackHtml(md)).toBe("<b>テスト</b><br><b>テスト</b><br><b>てすと</b><br><b>ですと</b>");
+	});
+
 	it("converts links to Slack format <url|text> and sanitizes unsafe schemes", () => {
 		const md = "[Google](https://google.com)\n[Evil](javascript:alert(1))\n[Mail](mailto:test@example.com)";
 		const converted = convertToSlack(md);
