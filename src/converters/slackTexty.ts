@@ -1,4 +1,11 @@
-import { resolveWikilinks } from "./common";
+import {
+	escapeHtml,
+	formatAlignedTable,
+	isSafeUrl,
+	isTableSeparatorRow,
+	resolveWikilinks,
+} from "./common";
+import { convertToSlack } from "./slack";
 
 export interface DeltaOp {
 	insert: string;
@@ -11,215 +18,307 @@ export interface SlackTextyResult {
 	plain: string;
 }
 
-interface BlockItem {
-	type: "code" | "text";
-	content: string;
-	lang?: string;
+export interface InlineAttr {
+	bold?: boolean;
+	italic?: boolean;
+	strike?: boolean;
+	code?: boolean;
+	link?: string;
+	underline?: boolean;
 }
 
 /**
- * Parses markdown into code block items and plain text items.
+ * Parses inline formatting (links, code, bold, italic, strike, underline)
+ * into a list of Delta operations with appropriate attributes.
  */
-function parseBlocks(source: string): BlockItem[] {
-	const lines = source.split("\n");
-	const items: BlockItem[] = [];
-	let currentTextLines: string[] = [];
-	let i = 0;
+export function parseInlineToOps(text: string, currentAttrs: InlineAttr = {}): DeltaOp[] {
+	if (!text) return [];
 
-	const flushText = () => {
-		if (currentTextLines.length > 0) {
-			items.push({
-				type: "text",
-				content: currentTextLines.join("\n"),
-			});
-			currentTextLines = [];
-		}
-	};
-
-	while (i < lines.length) {
-		const line = lines[i];
-		const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
-
-		if (fenceMatch) {
-			const fenceStr = fenceMatch[1];
-			const fenceChar = fenceStr[0];
-			const fenceLen = fenceStr.length;
-			const lang = fenceMatch[2].trim();
-
-			if (!(fenceChar === "`" && lang.includes("`"))) {
-				flushText();
-				const codeLines: string[] = [];
-				let j = i + 1;
-				let closed = false;
-
-				while (j < lines.length) {
-					const closeMatch = lines[j].match(/^ {0,3}(`{3,}|~{3,})\s*$/);
-					if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLen) {
-						closed = true;
-						break;
-					}
-					codeLines.push(lines[j]);
-					j++;
-				}
-
-				items.push({
-					type: "code",
-					content: codeLines.join("\n"),
-					lang: lang || undefined,
-				});
-
-				i = closed ? j + 1 : lines.length;
-				continue;
-			}
-		}
-
-		currentTextLines.push(line);
-		i++;
-	}
-
-	flushText();
-	return items;
-}
-
-/**
- * Parses an inline text segment into Delta operations.
- * Handles inline code (`code`), bold (**bold**), italic (*italic* / _italic_),
- * strikethrough (~~strike~~), and links ([title](url)).
- */
-function parseInlineToOps(text: string): DeltaOp[] {
-	const ops: DeltaOp[] = [];
-
-	// Tokenize inline styles
-	// Patterns:
-	// 1. Inline code: `...`
-	// 2. Bold: **...** or __...__
-	// 3. Italic: *...* or _..._
-	// 4. Strikethrough: ~~...~~
-	// 5. Link: [...](...)
-	const tokenRegex = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_)|~~[^~]+~~|\[[^\]]+\]\([^)]+\))/g;
+	// Token patterns:
+	// 1. Link: [title](url)
+	// 2. Inline code: `code`
+	// 3. Bold: **text** or __text__
+	// 4. Italic: *text* or _text_
+	// 5. Strike: ~~text~~
+	// 6. Underline: <u>text</u>
+	const tokenRegex = /(\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([\s\S]+?)\*\*|__([\s\S]+?)__|(?<!\*)\*([^\s*](?:[\s\S]*?[^\s*])?)\*(?!\*)|(?<!_)_([^\s_](?:[\s\S]*?[^\s_])?)_(?!_)|~~([\s\S]+?)~~|<u>([\s\S]+?)<\/u>)/g;
 
 	let lastIndex = 0;
 	let match: RegExpExecArray | null;
+	const ops: DeltaOp[] = [];
 
 	while ((match = tokenRegex.exec(text)) !== null) {
-		if (match.index > lastIndex) {
-			ops.push({ insert: text.slice(lastIndex, match.index) });
+		const matchIndex = match.index;
+		if (matchIndex > lastIndex) {
+			const plain = text.slice(lastIndex, matchIndex);
+			ops.push({
+				insert: plain,
+				...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
+			});
 		}
 
-		const token = match[0];
-		if (token.startsWith("`") && token.endsWith("`")) {
-			ops.push({
-				insert: token.slice(1, -1),
-				attributes: { code: true },
-			});
-		} else if ((token.startsWith("**") && token.endsWith("**")) || (token.startsWith("__") && token.endsWith("__"))) {
-			ops.push({
-				insert: token.slice(2, -2),
-				attributes: { bold: true },
-			});
-		} else if ((token.startsWith("*") && token.endsWith("*")) || (token.startsWith("_") && token.endsWith("_"))) {
-			ops.push({
-				insert: token.slice(1, -1),
-				attributes: { italic: true },
-			});
-		} else if (token.startsWith("~~") && token.endsWith("~~")) {
-			ops.push({
-				insert: token.slice(2, -2),
-				attributes: { strike: true },
-			});
-		} else if (token.startsWith("[") && token.includes("](")) {
-			const linkMatch = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-			if (linkMatch) {
-				ops.push({
-					insert: linkMatch[1],
-					attributes: { link: linkMatch[2].trim() },
-				});
+		const fullMatch = match[0];
+		if (match[2] !== undefined && match[3] !== undefined) {
+			// Link: [title](url)
+			const title = match[2];
+			const url = match[3].trim();
+			if (isSafeUrl(url)) {
+				ops.push(...parseInlineToOps(title, { ...currentAttrs, link: url }));
 			} else {
-				ops.push({ insert: token });
+				ops.push(...parseInlineToOps(title, currentAttrs));
 			}
-		} else {
-			ops.push({ insert: token });
+		} else if (match[4] !== undefined) {
+			// Inline code: `code`
+			ops.push({
+				insert: match[4],
+				attributes: { ...currentAttrs, code: true },
+			});
+		} else if (match[5] !== undefined || match[6] !== undefined) {
+			// Bold: **text** or __text__
+			const inner = match[5] ?? match[6];
+			ops.push(...parseInlineToOps(inner, { ...currentAttrs, bold: true }));
+		} else if (match[7] !== undefined || match[8] !== undefined) {
+			// Italic: *text* or _text_
+			const inner = match[7] ?? match[8];
+			ops.push(...parseInlineToOps(inner, { ...currentAttrs, italic: true }));
+		} else if (match[9] !== undefined) {
+			// Strike: ~~text~~
+			ops.push(...parseInlineToOps(match[9], { ...currentAttrs, strike: true }));
+		} else if (match[10] !== undefined) {
+			// Underline: <u>text</u>
+			ops.push(...parseInlineToOps(match[10], { ...currentAttrs, underline: true }));
 		}
 
-		lastIndex = match.index + token.length;
+		lastIndex = matchIndex + fullMatch.length;
 	}
 
 	if (lastIndex < text.length) {
-		ops.push({ insert: text.slice(lastIndex) });
+		const remaining = text.slice(lastIndex);
+		ops.push({
+			insert: remaining,
+			...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
+		});
 	}
 
 	return ops;
 }
 
 /**
- * Converts Markdown into Slack native clipboard representations:
- * 1. `slack/texty`: Quill Delta JSON (`{"ops": [...]}`)
- * 2. `text/markdown`: Standard fenced Markdown
- * 3. `text/plain`: Plain text format
+ * Calculates indentation level for list items (0, 1, 2, ...).
  */
-export function convertToSlackTexty(source: string): SlackTextyResult {
-	const resolvedSource = resolveWikilinks(source);
-	const blocks = parseBlocks(resolvedSource);
+function getIndentLevel(indentStr: string): number {
+	const expanded = indentStr.replace(/\t/g, "    ");
+	return Math.floor(expanded.length / 2);
+}
 
-	const ops: DeltaOp[] = [];
-	const markdownParts: string[] = [];
-	const plainParts: string[] = [];
+/**
+ * Compresses adjacent Delta operations with identical attributes.
+ */
+function compactOps(rawOps: DeltaOp[]): DeltaOp[] {
+	const compacted: DeltaOp[] = [];
 
-	for (const block of blocks) {
-		if (block.type === "code") {
-			// 1. slack/texty ops for code block
-			if (block.lang) {
-				ops.push({ insert: block.lang });
-				ops.push({ insert: "\n", attributes: { "code-block": true } });
-			}
+	for (const op of rawOps) {
+		if (compacted.length === 0) {
+			compacted.push(op);
+			continue;
+		}
 
-			const codeLines = block.content.split("\n");
-			for (const line of codeLines) {
-				if (line.length > 0) {
-					ops.push({ insert: line });
-				}
-				ops.push({ insert: "\n", attributes: { "code-block": true } });
-			}
+		const prev = compacted[compacted.length - 1];
+		const prevAttrs = prev.attributes;
+		const currAttrs = op.attributes;
 
-			// 2. text/markdown representation
-			if (block.lang) {
-				markdownParts.push(`\`\`\`\n${block.lang}\n${block.content}\n\`\`\``);
-			} else {
-				markdownParts.push(`\`\`\`\n${block.content}\n\`\`\``);
-			}
+		const bothNoAttrs = !prevAttrs && !currAttrs;
+		const sameAttrs =
+			prevAttrs &&
+			currAttrs &&
+			Object.keys(prevAttrs).length === Object.keys(currAttrs).length &&
+			Object.entries(prevAttrs).every(([k, v]) => currAttrs[k] === v);
 
-			// 3. text/plain representation
-			if (block.lang) {
-				plainParts.push(`${block.lang}\n${block.content}`);
-			} else {
-				plainParts.push(block.content);
-			}
+		if ((bothNoAttrs || sameAttrs) && !prev.insert.endsWith("\n") && !op.insert.startsWith("\n")) {
+			prev.insert += op.insert;
 		} else {
-			// Ordinary text block
-			const lines = block.content.split("\n");
-			for (let idx = 0; idx < lines.length; idx++) {
-				const line = lines[idx];
-				const inlineOps = parseInlineToOps(line);
-				ops.push(...inlineOps);
-
-				// Add newline for all lines except the very last if trailing
-				if (idx < lines.length - 1 || line.length > 0) {
-					ops.push({ insert: "\n" });
-				}
-			}
-
-			markdownParts.push(block.content);
-			plainParts.push(block.content);
+			compacted.push(op);
 		}
 	}
 
+	return compacted;
+}
+
+/**
+ * Converts Markdown into Slack native clipboard representations:
+ * 1. `slack/texty`: Quill Delta JSON (`{"ops": [...]}`)
+ * 2. `text/markdown`: Standard clean Markdown
+ * 3. `text/plain`: Slack mrkdwn plain text
+ */
+export function convertToSlackTexty(source: string): SlackTextyResult {
+	const resolvedSource = resolveWikilinks(source);
+	const lines = resolvedSource.split("\n");
+	const rawOps: DeltaOp[] = [];
+	let i = 0;
+
+	while (i < lines.length) {
+		const line = lines[i];
+
+		// 1. Code Block Fence
+		const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+		if (fenceMatch) {
+			const fenceChar = fenceMatch[1][0];
+			const fenceLen = fenceMatch[1].length;
+			const lang = fenceMatch[2].trim();
+
+			if (!(fenceChar === "`" && lang.includes("`"))) {
+				if (lang) {
+					rawOps.push({ insert: lang });
+					rawOps.push({ insert: "\n", attributes: { "code-block": true } });
+				}
+
+				let j = i + 1;
+				let closed = false;
+				while (j < lines.length) {
+					const closeMatch = lines[j].match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+					if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLen) {
+						closed = true;
+						break;
+					}
+
+					const codeLine = lines[j];
+					if (codeLine.length > 0) {
+						rawOps.push({ insert: codeLine });
+					}
+					rawOps.push({ insert: "\n", attributes: { "code-block": true } });
+					j++;
+				}
+
+				i = closed ? j + 1 : lines.length;
+				continue;
+			}
+		}
+
+		// 2. Table Block (render as aligned code block for perfect column alignment)
+		if (line.trim().startsWith("|") && i + 1 < lines.length && isTableSeparatorRow(lines[i + 1])) {
+			const tableLines: string[] = [];
+			let j = i;
+			while (j < lines.length && lines[j].trim().startsWith("|")) {
+				tableLines.push(lines[j]);
+				j++;
+			}
+
+			const aligned = formatAlignedTable(tableLines);
+			for (const tableLine of aligned.split("\n")) {
+				if (tableLine.length > 0) {
+					rawOps.push({ insert: tableLine });
+				}
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
+			}
+			i = j;
+			continue;
+		}
+
+		// 3. Callout / Blockquote
+		if (line.match(/^>\s?/)) {
+			// Check for Callout header on the first quote line
+			const calloutMatch = line.match(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/);
+			if (calloutMatch) {
+				const label = calloutMatch[2].trim() || calloutMatch[1].toUpperCase();
+				rawOps.push({ insert: `[${label}]`, attributes: { bold: true } });
+				rawOps.push({ insert: "\n", attributes: { blockquote: true } });
+				i++;
+				continue;
+			}
+
+			// Standard Blockquote line
+			const quoteContent = line.replace(/^>\s?/, "");
+			if (quoteContent.length > 0) {
+				rawOps.push(...parseInlineToOps(quoteContent));
+			}
+			rawOps.push({ insert: "\n", attributes: { blockquote: true } });
+			i++;
+			continue;
+		}
+
+		// 4. Task List (Checkbox: - [ ] or - [x])
+		const taskMatch = line.match(/^(\s*)[-*+]\s+\[([ xX])\]\s+(.*)$/);
+		if (taskMatch) {
+			const indent = getIndentLevel(taskMatch[1]);
+			const isChecked = taskMatch[2].toLowerCase() === "x";
+			const symbol = isChecked ? "☑ " : "☐ ";
+			const text = taskMatch[3];
+
+			rawOps.push({ insert: symbol });
+			if (isChecked) {
+				rawOps.push(...parseInlineToOps(text, { strike: true }));
+			} else {
+				rawOps.push(...parseInlineToOps(text));
+			}
+
+			const listAttrs: Record<string, any> = { list: "bullet" };
+			if (indent > 0) listAttrs.indent = indent;
+			rawOps.push({ insert: "\n", attributes: listAttrs });
+			i++;
+			continue;
+		}
+
+		// 5. Bullet List (- item, * item, + item)
+		const bulletMatch = line.match(/^(\s*)[-*+]\s+(.*)$/);
+		if (bulletMatch) {
+			const indent = getIndentLevel(bulletMatch[1]);
+			const text = bulletMatch[2];
+
+			rawOps.push(...parseInlineToOps(text));
+			const listAttrs: Record<string, any> = { list: "bullet" };
+			if (indent > 0) listAttrs.indent = indent;
+			rawOps.push({ insert: "\n", attributes: listAttrs });
+			i++;
+			continue;
+		}
+
+		// 6. Ordered List (1. item)
+		const orderedMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
+		if (orderedMatch) {
+			const indent = getIndentLevel(orderedMatch[1]);
+			const text = orderedMatch[2];
+
+			rawOps.push(...parseInlineToOps(text));
+			const listAttrs: Record<string, any> = { list: "ordered" };
+			if (indent > 0) listAttrs.indent = indent;
+			rawOps.push({ insert: "\n", attributes: listAttrs });
+			i++;
+			continue;
+		}
+
+		// 7. Heading (# H1 ... ###### H6)
+		const headingMatch = line.match(/^#{1,6}\s+(.*)$/);
+		if (headingMatch) {
+			rawOps.push(...parseInlineToOps(headingMatch[1], { bold: true }));
+			rawOps.push({ insert: "\n" });
+			i++;
+			continue;
+		}
+
+		// 8. Horizontal Rule
+		if (/^(?:---+|\*\*\*+|___+)\s*$/.test(line)) {
+			rawOps.push({ insert: "───\n" });
+			i++;
+			continue;
+		}
+
+		// 9. Standard Paragraph Line
+		if (line.length === 0) {
+			rawOps.push({ insert: "\n" });
+		} else {
+			rawOps.push(...parseInlineToOps(line));
+			rawOps.push({ insert: "\n" });
+		}
+		i++;
+	}
+
+	const ops = compactOps(rawOps);
 	const textyJson = JSON.stringify({ ops });
-	const markdown = markdownParts.join("\n\n").trim();
-	const plain = plainParts.join("\n\n").trim();
+	const plain = convertToSlack(source);
 
 	return {
 		texty: textyJson,
-		markdown,
+		markdown: resolvedSource,
 		plain,
 	};
 }
