@@ -96,7 +96,7 @@ export function convertToSlack(md: string): string {
 	// Extract code blocks
 	const extraction = extractCodeBlocks(
 		text,
-		(code) => "```\n" + code + "\n```",
+		(code) => code,
 		(code) => "`" + code + "`"
 	);
 	text = extraction.text;
@@ -151,7 +151,23 @@ export function convertToSlack(md: string): string {
 }
 
 function formatSlackCodeBlockHtml(code: string): string {
-	return `<pre style="margin: 0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><code>${escapeHtml(code)}</code></pre>`;
+	const lines = code.split("\n");
+	return lines
+		.map((line) => {
+			let content = escapeHtml(line);
+			content = content.replace(/^( +)/, (_match, spaces) => {
+				let converted = "";
+				for (let s = 0; s < spaces.length; s++) {
+					converted += s % 2 === 0 ? "&nbsp;" : " ";
+				}
+				return `<span class="Apple-converted-space">${converted}</span>`;
+			});
+			if (!content) {
+				content = "&nbsp;";
+			}
+			return `<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">${content}</span></p>`;
+		})
+		.join("\n");
 }
 
 /**
