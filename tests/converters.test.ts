@@ -190,13 +190,11 @@ describe("slack converter", () => {
 		expect(html).toContain("<code>$a_b$</code>");
 	});
 
-	it("generates exact native Slack HTML structure for code blocks", () => {
+	it("generates exact single pre/code structure for code blocks", () => {
 		const md = "```typescript\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```";
 		const html = convertToSlackHtml(md);
 		expect(html).toBe(
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">function greet(name: string): string {</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
-			`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px;">}</span></p>`
+			`<pre style="margin: 0px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 14px; line-height: normal; white-space: pre-wrap;"><code>function greet(name: string): string {\n    return \`Hello, \${name}!\`;\n}</code></pre>`
 		);
 	});
 
