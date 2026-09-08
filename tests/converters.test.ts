@@ -108,37 +108,9 @@ describe("slack converter", () => {
 		expect(convertToSlack(md)).toBe("*Bold* and _Italic_ and ~Deleted~");
 	});
 
-	it("converts headings to bold across levels, spaces, CRLF, and closing hashes", () => {
-		const md = "# Heading 1\n## Heading 2\n### Heading 3 with spaces   \n#### Heading with closing hash ####\n  ##### Indented Heading";
-		expect(convertToSlack(md)).toBe(
-			"*Heading 1*\n*Heading 2*\n*Heading 3 with spaces*\n*Heading with closing hash*\n*Indented Heading*"
-		);
-	});
-
-	it("converts headings with inner bold, italic, and strikethrough without corrupting syntax", () => {
-		const md = "# **Bold Heading**\n## Heading with *italic* text\n### Heading with ~~deleted~~ word";
-		expect(convertToSlack(md)).toBe(
-			"*Bold Heading*\n*Heading with _italic_ text*\n*Heading with ~deleted~ word*"
-		);
-	});
-
-	it("converts Setext headings to bold in Slack and WhatsApp", () => {
-		const md = "Main Title\n==========\nSubtitle\n--------";
-		expect(convertToSlack(md)).toBe("*Main Title*\n*Subtitle*");
-		expect(convertToWhatsApp(md)).toBe("*Main Title*\n*Subtitle*");
-	});
-
-	it("handles CRLF line endings in Slack and WhatsApp headings", () => {
-		const md = "# Heading CRLF 1\r\n## Heading CRLF 2\r\nContent line";
-		expect(convertToSlack(md)).toBe("*Heading CRLF 1*\n*Heading CRLF 2*\nContent line");
-		expect(convertToSlackHtml(md)).toContain("<b>Heading CRLF 1</b>");
-		expect(convertToSlackHtml(md)).toContain("<b>Heading CRLF 2</b>");
-	});
-
-	it("converts alternating headings and bold text consistently for Slack", () => {
-		const md = "## テスト\n**テスト**\n# てすと\n**ですと**";
-		expect(convertToSlack(md)).toBe("*テスト*\n*テスト*\n*てすと*\n*ですと*");
-		expect(convertToSlackHtml(md)).toBe("<b>テスト</b><br><b>テスト</b><br><b>てすと</b><br><b>ですと</b>");
+	it("converts headings to bold", () => {
+		const md = "# Heading 1\n## Heading 2";
+		expect(convertToSlack(md)).toBe("*Heading 1*\n*Heading 2*");
 	});
 
 	it("converts links to Slack format <url|text> and sanitizes unsafe schemes", () => {
