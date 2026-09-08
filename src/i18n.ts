@@ -80,8 +80,8 @@ const ja: typeof en = {
 	cmdSlack: "Slack形式に変換してコピー",
 	cmdDiscord: "Discord形式に変換してコピー",
 	cmdWhatsApp: "WhatsApp形式に変換してコピー",
-	cmdRaw: "Markdownのままコピー",
-	cmdMenu: "形式を選択してコピー（メニュー表示）",
+	cmdRaw: "Markdown形式でコピー",
+	cmdMenu: "形式を選択してコピー",
 
 	// Format Labels
 	formatSlack: "Slack",
@@ -93,8 +93,8 @@ const ja: typeof en = {
 	actionCopySlack: "Slack形式でコピー",
 	actionCopyDiscord: "Discord形式でコピー",
 	actionCopyWhatsApp: "WhatsApp形式でコピー",
-	actionCopyRaw: "Markdownのままコピー",
-	actionChooseMenu: "フォーマット変換してコピー",
+	actionCopyRaw: "Markdown形式でコピー",
+	actionChooseMenu: "形式を選択してコピー",
 
 	// Notices
 	noticeCopied: "{format}形式でコピーしました",
@@ -130,7 +130,7 @@ const ja: typeof en = {
 	settingsFileRawName: "Markdown形式",
 	settingsFileRawDesc: "ファイルメニューにMarkdown直接コピー項目を追加します。",
 	settingsFileMenuName: "形式選択メニュー",
-	settingsFileMenuDesc: "全形式から選べるサブメニュー（フォーマット変換してコピー）を表示します。",
+	settingsFileMenuDesc: "全形式から選べるサブメニュー（形式を選択してコピー）を表示します。",
 
 	// Editor Context Menu Settings
 	settingsEditorHeading: "エディタ右クリックメニュー（デスクトップPC）",
