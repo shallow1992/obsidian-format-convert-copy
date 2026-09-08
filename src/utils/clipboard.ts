@@ -17,23 +17,30 @@ export async function copyToClipboard(
 		}
 	};
 
-	// Mobile WebViews (especially iOS) enforce strict user-gesture expiration for clipboard writes.
-	// If writing rich HTML fails, any subsequent fallback might also be rejected.
-	// Therefore, on mobile we write plain text directly and reliably.
-	if (html && !Platform.isMobile) {
-		try {
-			// Electron environment (desktop)
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			const electron = require("electron");
-			if (electron && electron.clipboard) {
-				electron.clipboard.write({ text, html });
-				notifySuccess(t("noticeCopied", { format: label }));
-				return true;
+	// 1. Rich text write (HTML + Plain Text) for Slack and other rich-text editors
+	if (html) {
+		// Method A: Desktop Electron clipboard (synchronous rich write)
+		if (!Platform.isMobile) {
+			try {
+				// eslint-disable-next-line @typescript-eslint/no-var-requires
+				const electron =
+					typeof (window as any)?.require === "function"
+						? (window as any).require("electron")
+						: typeof require === "function"
+						? require("electron")
+						: null;
+
+				if (electron && electron.clipboard && typeof electron.clipboard.write === "function") {
+					electron.clipboard.write({ text, html });
+					notifySuccess(t("noticeCopied", { format: label }));
+					return true;
+				}
+			} catch (_electronError) {
+				// Proceed to Web Clipboard API / DOM methods
 			}
-		} catch (_electronError) {
-			// Proceed if Electron is unavailable (e.g., web context)
 		}
 
+		// Method B: Modern Async Clipboard API with ClipboardItem (iOS 13.4+, Android, Chrome/Safari)
 		try {
 			if (typeof ClipboardItem !== "undefined" && navigator.clipboard && navigator.clipboard.write) {
 				const item = new ClipboardItem({
@@ -45,16 +52,41 @@ export async function copyToClipboard(
 				return true;
 			}
 		} catch (clipboardItemError) {
-			console.warn("format-convert-copy: ClipboardItem write failed, fallback to plain text", clipboardItemError);
+			console.warn("format-convert-copy: ClipboardItem write failed, trying DOM copy event", clipboardItemError);
+		}
+
+		// Method C: Synchronous DOM copy event handler (cross-platform HTML + plain text fallback)
+		try {
+			let copiedWithHtml = false;
+			const copyListener = (event: ClipboardEvent) => {
+				event.preventDefault();
+				if (event.clipboardData) {
+					event.clipboardData.clearData();
+					event.clipboardData.setData("text/html", html);
+					event.clipboardData.setData("text/plain", text);
+					copiedWithHtml = true;
+				}
+			};
+
+			document.addEventListener("copy", copyListener, { once: true });
+			const execSuccess = document.execCommand("copy");
+			document.removeEventListener("copy", copyListener);
+
+			if (execSuccess && copiedWithHtml) {
+				notifySuccess(t("noticeCopied", { format: label }));
+				return true;
+			}
+		} catch (_domError) {
+			// Proceed to plain text fallback
 		}
 	}
 
-	// Plain text write (desktop fallback and mobile primary flow)
+	// 2. Plain text fallback (for plain text formats like raw Markdown or when rich text write fails)
 	try {
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
 			notifySuccess(
-				html && !Platform.isMobile
+				html
 					? t("noticeCopiedSimple", { format: label })
 					: t("noticeCopied", { format: label })
 			);
@@ -64,7 +96,7 @@ export async function copyToClipboard(
 		console.warn("format-convert-copy: writeText failed, attempting execCommand fallback", error);
 	}
 
-	// Final fallback (for cases where legacy execCommand works in iOS WebView, etc.)
+	// 3. Final legacy textarea fallback
 	try {
 		const textArea = document.createElement("textarea");
 		textArea.value = text;
@@ -77,7 +109,11 @@ export async function copyToClipboard(
 		const successful = document.execCommand("copy");
 		document.body.removeChild(textArea);
 		if (successful) {
-			notifySuccess(t("noticeCopied", { format: label }));
+			notifySuccess(
+				html
+					? t("noticeCopiedSimple", { format: label })
+					: t("noticeCopied", { format: label })
+			);
 			return true;
 		}
 	} catch (execError) {
