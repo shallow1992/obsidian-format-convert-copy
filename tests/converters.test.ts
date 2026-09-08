@@ -383,13 +383,17 @@ describe("getTargetText selection behavior", () => {
 import { copyToClipboard } from "../src/utils/clipboard";
 import { noticeInstances } from "./__mocks__/obsidian";
 
-describe("copyToClipboard silent mode", () => {
+describe("copyToClipboard rich text and silent mode", () => {
 	beforeEach(() => {
 		noticeInstances.length = 0;
+		(globalThis as any).ClipboardItem = class ClipboardItem {
+			constructor(public data: Record<string, Blob>) {}
+		};
 		Object.defineProperty(globalThis, "navigator", {
 			value: {
 				clipboard: {
 					writeText: vi.fn().mockResolvedValue(undefined),
+					write: vi.fn().mockResolvedValue(undefined),
 				},
 			},
 			configurable: true,
@@ -408,5 +412,11 @@ describe("copyToClipboard silent mode", () => {
 		const success = await copyToClipboard("test text", "Slack", undefined, true);
 		expect(success).toBe(true);
 		expect(noticeInstances.length).toBe(0);
+	});
+
+	it("writes rich HTML via ClipboardItem when html is provided", async () => {
+		const success = await copyToClipboard("*test*", "Slack", "<b>test</b>", false);
+		expect(success).toBe(true);
+		expect(navigator.clipboard.write).toHaveBeenCalled();
 	});
 });
