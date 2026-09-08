@@ -19,10 +19,16 @@ import {
  * - Links: WhatsApp does not interpret [title](url) Markdown links; expand to title (url) or url
  */
 export function convertToWhatsApp(md: string): string {
-	let text = resolveWikilinks(md);
+	// Normalize CRLF to LF
+	let text = md.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+	text = resolveWikilinks(text);
 
 	// Strip <u>...</u> tags since WhatsApp has no underline syntax
 	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, "$1");
+
+	// Normalize Setext headings (e.g. Title\n=== or Title\n---)
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n={2,}\s*$/gm, "# $1");
+	text = text.replace(/^([^\n#>`\-*+~_\t][^\n]*)\n-{2,}\s*$/gm, "## $1");
 
 	// Convert checkboxes (task lists)
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
@@ -53,15 +59,21 @@ export function convertToWhatsApp(md: string): string {
 		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// Convert headings to bold
-	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
-		boldTargets.push(content);
+	// Convert ATX headings (with optional 1-3 leading spaces and trailing closing hashes)
+	text = text.replace(/^[ \t]*#{1,6}\s+(.*?)(?:\s+#+)?\s*$/gm, (_match, content) => {
+		let clean = content.trim().replace(/^(\*\*|__)(.+?)\1$/, "$2");
+		clean = clean.replace(/(\*|_)(.+?)\1/g, "_$2_");
+		clean = clean.replace(/~~(.+?)~~/g, "~$1~");
+		boldTargets.push(clean);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// Bold (**)
+	// Bold (**/__)
 	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match, _marker, content) => {
-		boldTargets.push(content);
+		let clean = content.trim();
+		clean = clean.replace(/(\*|_)(.+?)\1/g, "_$2_");
+		clean = clean.replace(/~~(.+?)~~/g, "~$1~");
+		boldTargets.push(clean);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
