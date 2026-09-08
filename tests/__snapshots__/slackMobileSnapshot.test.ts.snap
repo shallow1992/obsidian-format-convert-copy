@@ -18,3 +18,17 @@ Line 3: Final line of code block</code></pre><br><b>4. Code Block with HTML/Spec
     &lt;span&gt;Price &lt; $100 &amp; Weight &gt; 5kg&lt;/span&gt;
 &lt;/div&gt;</code></pre>"
 `;
+
+exports[`Slack Mobile HTML Snapshot Testing > converts tests/manual/slack-ios-poc-phase4.md and matches snapshot 1`] = `
+"<b>Slack iOS PoC Phase 4: Tables &amp; Math</b><br><br>This test note is designed for <b>Phase 4 of the iOS Slack Clipboard PoC</b>.<br>Its goal is to verify how the Slack iOS native app handles Markdown tables and LaTeX math formulas via <code>text/html</code>.<br><br>---<br><br><b>Verification Instructions for Tester</b><ol><li>Open this note in <b>Obsidian Mobile (iOS)</b>.</li><li>Run the command <b>&quot;Format Convert: Copy as Slack Format&quot;</b>.</li><li>Paste into the <b>Slack iOS App</b> message input box.</li><li>Check whether table columns align neatly and math formulas are protected in monospace code styling.</li></ol><br>---<br><br><b>1. Simple Markdown Table</b><pre><code>| Item   | Status      | Priority |
+|:-------|:------------|:---------|
+| Task A | Done        | High     |
+| Task B | In Progress | Medium   |
+| Task C | Pending     | Low      |</code></pre><br><b>2. Table with Japanese / CJK Text</b><pre><code>| 項目名       | 進捗   | 担当者 |
+|:-------------|:-------|:-------|
+| 要件定義     | 完了   | 浅子   |
+| 設計レビュー | 進行中 | 佐藤   |
+| リリース     | 未着手 | 田中   |</code></pre><br><b>3. Inline Math</b><br>This is an inline formula: <code>$E = mc^2$</code> within a sentence.<br><br><b>4. Display Math (Block)</b><pre><code>$$
+f(x) = \\int_{-\\infty}^{\\infty} \\hat{f}(\\xi)\\,e^{2 \\pi i \\xi x}\\,d\\xi
+$$</code></pre>"
+`;
