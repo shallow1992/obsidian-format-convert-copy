@@ -3,6 +3,7 @@ import { convertMarkdown } from "./converters";
 import { FormatConvertSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
+import { convertToSlackTexty } from "./converters/slackTexty";
 import { t } from "./i18n";
 
 export function getTargetText(
@@ -86,6 +87,28 @@ export default class FormatConvertPlugin extends Plugin {
 					(type) => {
 						const result = convertMarkdown(target, type);
 						this.copyResult(result.text, result.label, result.html);
+					}
+				);
+			},
+		});
+
+		// POC command for testing native Slack clipboard formats (slack/texty)
+		this.addCommand({
+			id: "copy-slack-texty-poc",
+			name: "Format Convert: Copy as Slack (slack/texty POC)",
+			icon: "zap",
+			editorCallback: async (editor: Editor) => {
+				const target = this.getTargetText(editor);
+				if (!target) return;
+				const res = convertToSlackTexty(target);
+				await copyToClipboard(
+					res.plain,
+					"Slack (slack/texty POC)",
+					undefined,
+					false,
+					{
+						"slack/texty": res.texty,
+						"text/markdown": res.markdown,
 					}
 				);
 			},
