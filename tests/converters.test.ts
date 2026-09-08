@@ -186,7 +186,7 @@ describe("slack converter", () => {
 		expect(html).toContain('<a href="https://example.com">Safe</a>');
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
-		expect(html).toContain('<pre class="ql-syntax" spellcheck="false">| H1');
+		expect(html).toContain('font-family: monospace;">| H1');
 		expect(html).toContain("<code>$a_b$</code>");
 	});
 
