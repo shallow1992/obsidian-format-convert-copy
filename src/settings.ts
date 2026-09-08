@@ -21,10 +21,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 1. Navigation bar / ribbon settings
 		// ==========================================
-		new Setting(containerEl)
-			.setName(ribbonAreaName)
-			.setHeading()
-			.setDesc(t("settingsRibbonDesc"));
+		containerEl.createEl("h3", { text: ribbonAreaName, cls: "format-convert-setting-heading" });
+		containerEl.createEl("p", { text: t("settingsRibbonDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
 		new Setting(containerEl)
 			.setName(t("settingsRibbonSlackName"))
@@ -84,10 +82,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 2. File explorer menu settings
 		// ==========================================
-		new Setting(containerEl)
-			.setName(t("settingsFileHeading"))
-			.setHeading()
-			.setDesc(t("settingsFileDesc"));
+		containerEl.createEl("h3", { text: t("settingsFileHeading"), cls: "format-convert-setting-heading" });
+		containerEl.createEl("p", { text: t("settingsFileDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
 		new Setting(containerEl)
 			.setName(t("settingsFileSlackName"))
@@ -143,10 +139,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// 3. Desktop editor context menu settings
 		// ==========================================
 		if (!Platform.isMobile) {
-			new Setting(containerEl)
-				.setName(t("settingsEditorHeading"))
-				.setHeading()
-				.setDesc(t("settingsEditorDesc"));
+			containerEl.createEl("h3", { text: t("settingsEditorHeading"), cls: "format-convert-setting-heading" });
+			containerEl.createEl("p", { text: t("settingsEditorDesc"), cls: "setting-item-description format-convert-setting-desc" });
 
 			new Setting(containerEl)
 				.setName(t("settingsEditorSlackName"))
@@ -188,9 +182,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 4. Copy behavior and notification settings
 		// ==========================================
-		new Setting(containerEl)
-			.setName(t("settingsBehaviorHeading"))
-			.setHeading();
+		containerEl.createEl("h3", { text: t("settingsBehaviorHeading"), cls: "format-convert-setting-heading" });
 
 		new Setting(containerEl)
 			.setName(t("settingsEmptySelectionName"))

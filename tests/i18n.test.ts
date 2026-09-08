@@ -20,6 +20,9 @@ describe("i18n localization", () => {
 		expect(t("noticeFailed")).toBe("Failed to copy to clipboard");
 		expect(t("settingsEmptySelectionDoc")).toBe("Entire note (default)");
 		expect(t("settingsEmptySelectionLine")).toBe("Current line (cursor line)");
+		expect(t("settingsRibbonSlackName")).toBe("Slack format");
+		expect(t("settingsFileMenuName")).toBe("Format selection menu");
+		expect(t("settingsSilentModeName")).toBe("Silent mode");
 	});
 
 	it("returns Japanese strings when locale is ja", () => {
@@ -35,6 +38,9 @@ describe("i18n localization", () => {
 		expect(t("noticeFailed")).toBe("クリップボードへのコピーに失敗しました");
 		expect(t("settingsEmptySelectionDoc")).toBe("ノート全体（全文）");
 		expect(t("settingsEmptySelectionLine")).toBe("カーソル行（現在の1行）");
+		expect(t("settingsRibbonSlackName")).toBe("Slack形式");
+		expect(t("settingsFileMenuName")).toBe("形式選択メニュー");
+		expect(t("settingsSilentModeName")).toBe("サイレントモード");
 	});
 
 	it("falls back to English for unsupported locales", () => {
