@@ -16,7 +16,7 @@ describe("i18n localization", () => {
 		expect(t("cmdRaw")).toBe("Copy as raw Markdown");
 		expect(t("cmdMenu")).toBe("Choose format and copy (Show menu)");
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Copied for Slack");
-		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Copied for Slack (plain text)");
+		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Failed to copy for Slack. Copied as Markdown instead.");
 		expect(t("noticeFailed")).toBe("Failed to copy to clipboard");
 		expect(t("settingsEmptySelectionDoc")).toBe("Entire note (default)");
 		expect(t("settingsEmptySelectionLine")).toBe("Current line (cursor line)");
@@ -36,7 +36,7 @@ describe("i18n localization", () => {
 		expect(t("actionCopyRaw")).toBe("Markdown形式でコピー");
 		expect(t("actionChooseMenu")).toBe("形式を選択してコピー");
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Slack形式でコピーしました");
-		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Slack形式でコピーしました（簡易版）");
+		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Slack形式のコピーに失敗したため、Markdown形式でコピーしました");
 		expect(t("noticeFailed")).toBe("クリップボードへのコピーに失敗しました");
 		expect(t("settingsEmptySelectionDoc")).toBe("ノート全体（全文）");
 		expect(t("settingsEmptySelectionLine")).toBe("カーソル行（現在の1行）");
