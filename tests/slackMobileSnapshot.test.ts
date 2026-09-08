@@ -35,8 +35,8 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 		// Sanity checks on Phase 2 features
 		expect(html).toContain("<ul><li>Level 1 Bullet Item A");
 		expect(html).toContain("<ol><li>Step 1 (Root Level)");
-		expect(html).toContain("<blockquote>This is a standard single-line blockquote.</blockquote>");
-		expect(html).toContain("<blockquote><b>[Release Update]</b><br>This is an Obsidian callout block.");
+		expect(html).toContain("<blockquote>&gt; This is a standard single-line blockquote.</blockquote>");
+		expect(html).toContain("<blockquote>&gt; <b>[Release Update]</b><br>&gt; This is an Obsidian callout block.");
 		expect(html).toContain("☐ Incomplete task item");
 		expect(html).toContain("☑ <s>Completed task item (should have strikethrough)</s>");
 
@@ -49,8 +49,8 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		const html = convertToSlackMobileHtml(content);
 
-		expect(html).toContain("<pre><code>console.log(&quot;Hello, Slack iOS!&quot;);</code></pre>");
-		expect(html).toContain("<pre><code>function calculateTotal(items) {");
+		expect(html).toContain("<p>```typescript<br>console.log(&quot;Hello, Slack iOS!&quot;);<br>```</p>");
+		expect(html).toContain("<p>```javascript<br>function calculateTotal(items) {");
 		expect(html).toContain("&lt;div class=&quot;container&quot;&gt;");
 
 		expect(html).toMatchSnapshot();
@@ -62,13 +62,13 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		const html = convertToSlackMobileHtml(content);
 
-		// Tables are formatted inside <pre><code> with aligned monospace columns
-		expect(html).toContain("<pre><code>| Item   | Status");
+		// Tables are formatted inside ``` code blocks with aligned monospace columns
+		expect(html).toContain("<p>```<br>| Item   | Status");
 		expect(html).toContain("| 項目名       | 進捗");
 
 		// Math formulas
 		expect(html).toContain("<code>$E = mc^2$</code>");
-		expect(html).toContain("<pre><code>$$\n");
+		expect(html).toContain("<p>```<br>$$<br>");
 
 		expect(html).toMatchSnapshot();
 	});

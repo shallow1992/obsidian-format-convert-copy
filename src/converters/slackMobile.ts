@@ -119,8 +119,14 @@ function buildNestedListHtml(lines: ListLine[], startIndex: number, minIndent: n
 	return [html, i];
 }
 
-function formatSlackMobileCodeBlockHtml(code: string): string {
-	return `<pre><code>${escapeHtml(code)}</code></pre>`;
+function formatSlackMobileCodeBlockHtml(code: string, lang?: string): string {
+	const openFence = lang ? `\`\`\`${escapeHtml(lang)}` : "```";
+	const lines = code.split("\n").map((line) => {
+		let content = escapeHtml(line);
+		content = content.replace(/^( +)/, (_match, spaces) => "&nbsp;".repeat(spaces.length));
+		return content || "&nbsp;";
+	});
+	return `<p>${openFence}<br>${lines.join("<br>")}<br>\`\`\`</p>`;
 }
 
 /**
@@ -130,7 +136,7 @@ export function convertToSlackMobileHtml(md: string): string {
 	let text = resolveWikilinks(md);
 
 	// Callout conversion (e.g. > [!NOTE] content)
-	text = text.replace(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});
@@ -141,7 +147,7 @@ export function convertToSlackMobileHtml(md: string): string {
 
 	const extraction = extractCodeBlocks(
 		text,
-		(code) => formatSlackMobileCodeBlockHtml(code),
+		(code, lang) => formatSlackMobileCodeBlockHtml(code, lang),
 		(code) => `<code>${escapeHtml(code)}</code>`
 	);
 	text = extraction.text;
@@ -171,7 +177,8 @@ export function convertToSlackMobileHtml(md: string): string {
 			while (j < lines.length) {
 				const m = lines[j].match(/^>\s?(.*)$/);
 				if (!m) break;
-				quoteLines.push(formatInlineSlackMobileHtml(m[1]));
+				const content = formatInlineSlackMobileHtml(m[1]);
+				quoteLines.push(content ? `&gt; ${content}` : "&gt;");
 				j++;
 			}
 			htmlParts.push({ html: `<blockquote>${quoteLines.join("<br>")}</blockquote>`, kind: "quote" });
