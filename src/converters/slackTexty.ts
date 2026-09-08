@@ -1,5 +1,4 @@
 import {
-	escapeHtml,
 	formatAlignedTable,
 	isSafeUrl,
 	isTableSeparatorRow,
@@ -28,84 +27,86 @@ export interface InlineAttr {
 }
 
 /**
+ * Regex for inline markdown tokens:
+ * - Link: [title](url)
+ * - Inline code: `code`
+ * - Bold: **text** or __text__
+ * - Italic: *text* or _text_
+ * - Strikethrough: ~~text~~
+ * - Underline: <u>text</u>
+ */
+function createInlineTokenRegex(): RegExp {
+	return /(\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([\s\S]+?)\*\*|__([\s\S]+?)__|(?<!\*)\*([^\s*](?:[\s\S]*?[^\s*])?)\*(?!\*)|(?<!_)_([^\s_](?:[\s\S]*?[^\s_])?)_(?!_)|~~([\s\S]+?)~~|<u>([\s\S]+?)<\/u>)/g;
+}
+
+/**
  * Parses inline formatting (links, code, bold, italic, strike, underline)
- * into a list of Delta operations with appropriate attributes.
+ * into a sequence of Delta operations with appropriate formatting attributes.
  */
 export function parseInlineToOps(text: string, currentAttrs: InlineAttr = {}): DeltaOp[] {
 	if (!text) return [];
 
-	// Token patterns:
-	// 1. Link: [title](url)
-	// 2. Inline code: `code`
-	// 3. Bold: **text** or __text__
-	// 4. Italic: *text* or _text_
-	// 5. Strike: ~~text~~
-	// 6. Underline: <u>text</u>
-	const tokenRegex = /(\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([\s\S]+?)\*\*|__([\s\S]+?)__|(?<!\*)\*([^\s*](?:[\s\S]*?[^\s*])?)\*(?!\*)|(?<!_)_([^\s_](?:[\s\S]*?[^\s_])?)_(?!_)|~~([\s\S]+?)~~|<u>([\s\S]+?)<\/u>)/g;
-
+	const tokenRegex = createInlineTokenRegex();
 	let lastIndex = 0;
 	let match: RegExpExecArray | null;
 	const ops: DeltaOp[] = [];
 
-	while ((match = tokenRegex.exec(text)) !== null) {
-		const matchIndex = match.index;
-		if (matchIndex > lastIndex) {
-			const plain = text.slice(lastIndex, matchIndex);
+	const pushPlain = (str: string) => {
+		if (str.length > 0) {
 			ops.push({
-				insert: plain,
+				insert: str,
 				...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
 			});
 		}
+	};
+
+	while ((match = tokenRegex.exec(text)) !== null) {
+		const matchIndex = match.index;
+		if (matchIndex > lastIndex) {
+			pushPlain(text.slice(lastIndex, matchIndex));
+		}
 
 		const fullMatch = match[0];
-		if (match[2] !== undefined && match[3] !== undefined) {
-			// Link: [title](url)
-			const title = match[2];
-			const url = match[3].trim();
-			if (isSafeUrl(url)) {
-				ops.push(...parseInlineToOps(title, { ...currentAttrs, link: url }));
+		const [, , linkTitle, linkUrl, code, boldAst, boldUnd, italicAst, italicUnd, strike, underline] = match;
+
+		if (linkTitle !== undefined && linkUrl !== undefined) {
+			const cleanUrl = linkUrl.trim();
+			if (isSafeUrl(cleanUrl)) {
+				ops.push(...parseInlineToOps(linkTitle, { ...currentAttrs, link: cleanUrl }));
 			} else {
-				ops.push(...parseInlineToOps(title, currentAttrs));
+				ops.push(...parseInlineToOps(linkTitle, currentAttrs));
 			}
-		} else if (match[4] !== undefined) {
-			// Inline code: `code`
+		} else if (code !== undefined) {
 			ops.push({
-				insert: match[4],
+				insert: code,
 				attributes: { ...currentAttrs, code: true },
 			});
-		} else if (match[5] !== undefined || match[6] !== undefined) {
-			// Bold: **text** or __text__
-			const inner = match[5] ?? match[6];
+		} else if (boldAst !== undefined || boldUnd !== undefined) {
+			const inner = boldAst ?? boldUnd;
 			ops.push(...parseInlineToOps(inner, { ...currentAttrs, bold: true }));
-		} else if (match[7] !== undefined || match[8] !== undefined) {
-			// Italic: *text* or _text_
-			const inner = match[7] ?? match[8];
+		} else if (italicAst !== undefined || italicUnd !== undefined) {
+			const inner = italicAst ?? italicUnd;
 			ops.push(...parseInlineToOps(inner, { ...currentAttrs, italic: true }));
-		} else if (match[9] !== undefined) {
-			// Strike: ~~text~~
-			ops.push(...parseInlineToOps(match[9], { ...currentAttrs, strike: true }));
-		} else if (match[10] !== undefined) {
-			// Underline: <u>text</u>
-			ops.push(...parseInlineToOps(match[10], { ...currentAttrs, underline: true }));
+		} else if (strike !== undefined) {
+			ops.push(...parseInlineToOps(strike, { ...currentAttrs, strike: true }));
+		} else if (underline !== undefined) {
+			ops.push(...parseInlineToOps(underline, { ...currentAttrs, underline: true }));
 		}
 
 		lastIndex = matchIndex + fullMatch.length;
 	}
 
 	if (lastIndex < text.length) {
-		const remaining = text.slice(lastIndex);
-		ops.push({
-			insert: remaining,
-			...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
-		});
+		pushPlain(text.slice(lastIndex));
 	}
 
 	return ops;
 }
 
 /**
- * Tracks relative indentation across consecutive list items and caps at Slack's maximum depth (indent: 4).
- * Works uniformly whether users indent using 2 spaces, 3 spaces, 4 spaces, or tabs.
+ * Tracks relative indentation across consecutive list items and caps strictly at
+ * Slack's maximum depth limit (indent: 4).
+ * Works uniformly across 2-space, 3-space, 4-space, and tab indentations.
  */
 export class IndentTracker {
 	private stack: number[] = [0];
@@ -115,57 +116,65 @@ export class IndentTracker {
 	}
 
 	getLevel(rawIndentStr: string): number {
-		const w = rawIndentStr.replace(/\t/g, "    ").length;
-		if (w === 0) {
+		const width = rawIndentStr.replace(/\t/g, "    ").length;
+		if (width === 0) {
 			this.stack = [0];
 			return 0;
 		}
 
 		const last = this.stack[this.stack.length - 1];
-		if (w > last) {
-			this.stack.push(w);
-		} else if (w < last) {
-			while (this.stack.length > 1 && w < this.stack[this.stack.length - 1]) {
+		if (width > last) {
+			this.stack.push(width);
+		} else if (width < last) {
+			while (this.stack.length > 1 && width < this.stack[this.stack.length - 1]) {
 				this.stack.pop();
 			}
-			if (w > this.stack[this.stack.length - 1]) {
-				this.stack.push(w);
+			if (width > this.stack[this.stack.length - 1]) {
+				this.stack.push(width);
 			}
 		}
 
-		// Slack supports up to indent: 4 (5 levels: indent: 0, 1, 2, 3, 4)
+		// Slack supports up to indent: 4 (5 levels: 0, 1, 2, 3, 4)
 		const level = this.stack.length - 1;
 		return Math.min(4, Math.max(0, level));
 	}
 }
 
 /**
- * Compresses adjacent Delta operations with identical attributes.
+ * Checks equality of two Delta attribute records.
+ */
+function areAttrsEqual(a?: Record<string, any>, b?: Record<string, any>): boolean {
+	if (!a && !b) return true;
+	if (!a || !b) return false;
+	const keysA = Object.keys(a);
+	const keysB = Object.keys(b);
+	if (keysA.length !== keysB.length) return false;
+	return keysA.every((k) => a[k] === b[k]);
+}
+
+/**
+ * Compresses adjacent Delta operations with identical attributes into single operations.
  */
 function compactOps(rawOps: DeltaOp[]): DeltaOp[] {
 	const compacted: DeltaOp[] = [];
 
 	for (const op of rawOps) {
+		if (!op.insert) continue;
+
 		if (compacted.length === 0) {
-			compacted.push(op);
+			compacted.push({ ...op });
 			continue;
 		}
 
 		const prev = compacted[compacted.length - 1];
-		const prevAttrs = prev.attributes;
-		const currAttrs = op.attributes;
-
-		const bothNoAttrs = !prevAttrs && !currAttrs;
-		const sameAttrs =
-			prevAttrs &&
-			currAttrs &&
-			Object.keys(prevAttrs).length === Object.keys(currAttrs).length &&
-			Object.entries(prevAttrs).every(([k, v]) => currAttrs[k] === v);
-
-		if ((bothNoAttrs || sameAttrs) && !prev.insert.endsWith("\n") && !op.insert.startsWith("\n")) {
+		if (
+			areAttrsEqual(prev.attributes, op.attributes) &&
+			!prev.insert.endsWith("\n") &&
+			!op.insert.startsWith("\n")
+		) {
 			prev.insert += op.insert;
 		} else {
-			compacted.push(op);
+			compacted.push({ ...op });
 		}
 	}
 
@@ -173,7 +182,116 @@ function compactOps(rawOps: DeltaOp[]): DeltaOp[] {
 }
 
 /**
- * Converts Markdown into Slack native clipboard representations:
+ * Generates newline Delta operation with list attributes.
+ */
+function createListNewlineOp(type: "bullet" | "ordered", indent: number): DeltaOp {
+	const listAttrs: Record<string, any> = { list: type };
+	if (indent > 0) {
+		listAttrs.indent = indent;
+	}
+	return { insert: "\n", attributes: listAttrs };
+}
+
+/**
+ * Parses a code block fence and code body lines into code-block Delta operations.
+ */
+function parseCodeBlock(
+	lines: string[],
+	startIndex: number
+): { ops: DeltaOp[]; nextIndex: number } {
+	const firstLine = lines[startIndex];
+	const fenceMatch = firstLine.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+	if (!fenceMatch) {
+		return { ops: [], nextIndex: startIndex + 1 };
+	}
+
+	const fenceChar = fenceMatch[1][0];
+	const fenceLen = fenceMatch[1].length;
+	const lang = fenceMatch[2].trim();
+
+	// Avoid false positive if inline backticks follow
+	if (fenceChar === "`" && lang.includes("`")) {
+		return { ops: [], nextIndex: startIndex };
+	}
+
+	const ops: DeltaOp[] = [];
+	if (lang) {
+		ops.push({ insert: lang });
+		ops.push({ insert: "\n", attributes: { "code-block": true } });
+	}
+
+	let j = startIndex + 1;
+	let closed = false;
+	while (j < lines.length) {
+		const closeMatch = lines[j].match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+		if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLen) {
+			closed = true;
+			break;
+		}
+
+		const codeLine = lines[j];
+		if (codeLine.length > 0) {
+			ops.push({ insert: codeLine });
+		}
+		ops.push({ insert: "\n", attributes: { "code-block": true } });
+		j++;
+	}
+
+	return {
+		ops,
+		nextIndex: closed ? j + 1 : lines.length,
+	};
+}
+
+/**
+ * Parses Markdown table rows and formats them into an aligned monospace code block.
+ */
+function parseTableBlock(
+	lines: string[],
+	startIndex: number
+): { ops: DeltaOp[]; nextIndex: number } {
+	const tableLines: string[] = [];
+	let j = startIndex;
+	while (j < lines.length && lines[j].trim().includes("|") && lines[j].trim() !== "") {
+		tableLines.push(lines[j]);
+		j++;
+	}
+
+	const aligned = formatAlignedTable(tableLines);
+	const ops: DeltaOp[] = [];
+	for (const tableLine of aligned.split("\n")) {
+		if (tableLine.length > 0) {
+			ops.push({ insert: tableLine });
+		}
+		ops.push({ insert: "\n", attributes: { "code-block": true } });
+	}
+
+	return { ops, nextIndex: j };
+}
+
+/**
+ * Parses a single blockquote or Obsidian callout line.
+ */
+function parseQuoteOrCallout(line: string): DeltaOp[] {
+	const ops: DeltaOp[] = [];
+	const calloutMatch = line.match(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/);
+	if (calloutMatch) {
+		const label = calloutMatch[2].trim() || calloutMatch[1].toUpperCase();
+		ops.push({ insert: `[${label}]`, attributes: { bold: true } });
+		ops.push({ insert: "\n", attributes: { blockquote: true } });
+		return ops;
+	}
+
+	const quoteContent = line.replace(/^>\s?/, "");
+	if (quoteContent.length > 0) {
+		ops.push(...parseInlineToOps(quoteContent));
+	}
+	ops.push({ insert: "\n", attributes: { blockquote: true } });
+	return ops;
+}
+
+/**
+ * Converts Markdown source into Slack native clipboard representations:
  * 1. `slack/texty`: Quill Delta JSON (`{"ops": [...]}`)
  * 2. `text/markdown`: Standard clean Markdown
  * 3. `text/plain`: Slack mrkdwn plain text
@@ -188,82 +306,29 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 	while (i < lines.length) {
 		const line = lines[i];
 
-		// 1. Code Block Fence
+		// 1. Code Block Fence (``` or ~~~)
 		const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
-		if (fenceMatch) {
+		if (fenceMatch && !(fenceMatch[1][0] === "`" && fenceMatch[2].includes("`"))) {
 			indentTracker.reset();
-			const fenceChar = fenceMatch[1][0];
-			const fenceLen = fenceMatch[1].length;
-			const lang = fenceMatch[2].trim();
-
-			if (!(fenceChar === "`" && lang.includes("`"))) {
-				if (lang) {
-					rawOps.push({ insert: lang });
-					rawOps.push({ insert: "\n", attributes: { "code-block": true } });
-				}
-
-				let j = i + 1;
-				let closed = false;
-				while (j < lines.length) {
-					const closeMatch = lines[j].match(/^ {0,3}(`{3,}|~{3,})\s*$/);
-					if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLen) {
-						closed = true;
-						break;
-					}
-
-					const codeLine = lines[j];
-					if (codeLine.length > 0) {
-						rawOps.push({ insert: codeLine });
-					}
-					rawOps.push({ insert: "\n", attributes: { "code-block": true } });
-					j++;
-				}
-
-				i = closed ? j + 1 : lines.length;
-				continue;
-			}
+			const res = parseCodeBlock(lines, i);
+			rawOps.push(...res.ops);
+			i = res.nextIndex;
+			continue;
 		}
 
-		// 2. Table Block (render as aligned code block for perfect column alignment)
+		// 2. Table Block (rendered as aligned monospace code block)
 		if (line.includes("|") && i + 1 < lines.length && isTableSeparatorRow(lines[i + 1])) {
 			indentTracker.reset();
-			const tableLines: string[] = [];
-			let j = i;
-			while (j < lines.length && lines[j].trim().includes("|") && lines[j].trim() !== "") {
-				tableLines.push(lines[j]);
-				j++;
-			}
-
-			const aligned = formatAlignedTable(tableLines);
-			for (const tableLine of aligned.split("\n")) {
-				if (tableLine.length > 0) {
-					rawOps.push({ insert: tableLine });
-				}
-				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
-			}
-			i = j;
+			const res = parseTableBlock(lines, i);
+			rawOps.push(...res.ops);
+			i = res.nextIndex;
 			continue;
 		}
 
 		// 3. Callout / Blockquote
 		if (line.match(/^>\s?/)) {
 			indentTracker.reset();
-			// Check for Callout header on the first quote line
-			const calloutMatch = line.match(/^>\s*\[!([A-Za-z]+)\]\s*(.*)$/);
-			if (calloutMatch) {
-				const label = calloutMatch[2].trim() || calloutMatch[1].toUpperCase();
-				rawOps.push({ insert: `[${label}]`, attributes: { bold: true } });
-				rawOps.push({ insert: "\n", attributes: { blockquote: true } });
-				i++;
-				continue;
-			}
-
-			// Standard Blockquote line
-			const quoteContent = line.replace(/^>\s?/, "");
-			if (quoteContent.length > 0) {
-				rawOps.push(...parseInlineToOps(quoteContent));
-			}
-			rawOps.push({ insert: "\n", attributes: { blockquote: true } });
+			rawOps.push(...parseQuoteOrCallout(line));
 			i++;
 			continue;
 		}
@@ -277,15 +342,8 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 			const text = taskMatch[3];
 
 			rawOps.push({ insert: symbol });
-			if (isChecked) {
-				rawOps.push(...parseInlineToOps(text, { strike: true }));
-			} else {
-				rawOps.push(...parseInlineToOps(text));
-			}
-
-			const listAttrs: Record<string, any> = { list: "bullet" };
-			if (indent > 0) listAttrs.indent = indent;
-			rawOps.push({ insert: "\n", attributes: listAttrs });
+			rawOps.push(...parseInlineToOps(text, isChecked ? { strike: true } : {}));
+			rawOps.push(createListNewlineOp("bullet", indent));
 			i++;
 			continue;
 		}
@@ -294,12 +352,8 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		const bulletMatch = line.match(/^(\s*)[-*+]\s+(.*)$/);
 		if (bulletMatch) {
 			const indent = indentTracker.getLevel(bulletMatch[1]);
-			const text = bulletMatch[2];
-
-			rawOps.push(...parseInlineToOps(text));
-			const listAttrs: Record<string, any> = { list: "bullet" };
-			if (indent > 0) listAttrs.indent = indent;
-			rawOps.push({ insert: "\n", attributes: listAttrs });
+			rawOps.push(...parseInlineToOps(bulletMatch[2]));
+			rawOps.push(createListNewlineOp("bullet", indent));
 			i++;
 			continue;
 		}
@@ -308,12 +362,8 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 		const orderedMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
 		if (orderedMatch) {
 			const indent = indentTracker.getLevel(orderedMatch[1]);
-			const text = orderedMatch[2];
-
-			rawOps.push(...parseInlineToOps(text));
-			const listAttrs: Record<string, any> = { list: "ordered" };
-			if (indent > 0) listAttrs.indent = indent;
-			rawOps.push({ insert: "\n", attributes: listAttrs });
+			rawOps.push(...parseInlineToOps(orderedMatch[2]));
+			rawOps.push(createListNewlineOp("ordered", indent));
 			i++;
 			continue;
 		}
