@@ -90,6 +90,21 @@ export default class FormatConvertPlugin extends Plugin {
 				);
 			},
 		});
+
+		// Test command to copy exact Slack HTML and plain text requested by user
+		this.addCommand({
+			id: "copy-slack-test-codeblock",
+			name: "Copy Slack Code Block Test (Raw HTML)",
+			icon: "code",
+			callback: async () => {
+				const plainText = "function greet(name: string): string {\n    return `Hello, ${name}!`;\n}";
+				const testHtml =
+					`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">function greet(name: string): string {</span></p>\n` +
+					`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px"><span class="Apple-converted-space">&nbsp; &nbsp; </span>return \`Hello, \${name}!\`;</span></p>\n` +
+					`<p style="margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px '.AppleSystemUIFontMonospaced'"><span style="font-family: 'system-ui'; font-weight: normal; font-style: normal; font-size: 14.00px">}</span></p>`;
+				await copyToClipboard(plainText, "Slack Test", testHtml);
+			},
+		});
 	}
 
 	private registerEditorMenu(): void {
