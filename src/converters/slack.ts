@@ -168,7 +168,14 @@ export function convertToSlackHtml(md: string): string {
 
 	const extraction = extractCodeBlocks(
 		text,
-		(code) => `<pre class="ql-syntax" spellcheck="false">${escapeHtml(code)}</pre>`,
+		(code) =>
+			code
+				.split("\n")
+				.map(
+					(line) =>
+						`<p style="margin: 0.0px; font-family: monospace;"><span style="font-family: monospace;">${escapeHtml(line) || "&nbsp;"}</span></p>`
+				)
+				.join(""),
 		(code) => `<code>${escapeHtml(code)}</code>`
 	);
 	text = extraction.text;
