@@ -9,6 +9,7 @@ import {
 } from "./common";
 
 const INLINE_CODE_MARK = "\uE003";
+const LINK_MARK = "\uE004";
 const NBSP = "\u00A0";
 const EMPTY_LINE_HTML = "<p>&nbsp;</p>";
 const HR_HTML = "<p>───</p>";
@@ -67,29 +68,32 @@ export function formatInlineSlackMobileHtml(line: string, depth = 0): string {
 		return `${UNDERLINE_MARK}${underlineBlocks.length - 1}${UNDERLINE_MARK}`;
 	});
 
-	// 3. Escape HTML special characters
-	text = escapeHtml(text);
-
-	// 4. Combined Bold + Italic (***text*** or ___text___)
-	text = text.replace(/(\*\*\*|___)(.+?)\1/g, "<b><i>$2</i></b>");
-
-	// 5. Bold: **text** or __text__
-	text = text.replace(/(\*\*|__)(.+?)\1/g, "<b>$2</b>");
-
-	// 6. Italic: *text* or _text_
-	text = text.replace(/(\*|_)(.+?)\1/g, "<i>$2</i>");
-
-	// 7. Strikethrough: ~~text~~
-	text = text.replace(/~~(.+?)~~/g, "<s>$1</s>");
-
-	// 8. Hyperlinks: [title](url) supporting balanced parentheses in URLs
+	// 3. Extract hyperlinks (protect URLs containing _ or * from italic/bold formatting)
+	const linkBlocks: string[] = [];
 	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, url) => {
 		const cleanUrl = url.trim();
 		if (isSafeUrl(cleanUrl)) {
-			return `<a href="${cleanUrl}">${title}</a>`;
+			const formattedTitle = formatInlineSlackMobileHtml(title, depth + 1);
+			linkBlocks.push(`<a href="${escapeHtml(cleanUrl)}">${formattedTitle}</a>`);
+			return `${LINK_MARK}${linkBlocks.length - 1}${LINK_MARK}`;
 		}
 		return title;
 	});
+
+	// 4. Escape HTML special characters
+	text = escapeHtml(text);
+
+	// 5. Combined Bold + Italic (***text*** or ___text___)
+	text = text.replace(/(\*\*\*|___)(.+?)\1/g, "<b><i>$2</i></b>");
+
+	// 6. Bold: **text** or __text__
+	text = text.replace(/(\*\*|__)(.+?)\1/g, "<b>$2</b>");
+
+	// 7. Italic: *text* or _text_
+	text = text.replace(/(\*|_)(.+?)\1/g, "<i>$2</i>");
+
+	// 8. Strikethrough: ~~text~~
+	text = text.replace(/~~(.+?)~~/g, "<s>$1</s>");
 
 	// 9. Restore <u> tags with recursive formatting of inner content
 	const underlinePattern = new RegExp(`${UNDERLINE_MARK}(\\d+)${UNDERLINE_MARK}`, "g");
@@ -98,7 +102,13 @@ export function formatInlineSlackMobileHtml(line: string, depth = 0): string {
 		return `<u>${formatInlineSlackMobileHtml(innerContent, depth + 1)}</u>`;
 	});
 
-	// 10. Restore inline code if any was extracted locally
+	// 10. Restore hyperlinks
+	if (linkBlocks.length > 0) {
+		const linkPattern = new RegExp(`${LINK_MARK}(\\d+)${LINK_MARK}`, "g");
+		text = text.replace(linkPattern, (_match, i) => linkBlocks[Number(i)]);
+	}
+
+	// 11. Restore inline code if any was extracted locally
 	if (inlineCodeBlocks.length > 0) {
 		const codePattern = new RegExp(`${INLINE_CODE_MARK}(\\d+)${INLINE_CODE_MARK}`, "g");
 		text = text.replace(codePattern, (_match, i) => inlineCodeBlocks[Number(i)]);

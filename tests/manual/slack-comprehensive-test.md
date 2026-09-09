@@ -128,3 +128,25 @@ $$
 $$
 - Obsidian Internal Link (Wikilinks): [[Project Documentation|System Architecture]]
 - Embedded Attachment: ![[architecture-diagram.png]]
+
+---
+
+## 10. Edge Cases (Spacing, Math Collisions & URLs)
+
+### 10.1 Consecutive Empty Lines
+Paragraph A
+
+Paragraph B (separated by 1 empty line)
+
+
+Paragraph C (separated by 2 empty lines)
+
+### 10.2 Blockquote Separation
+> First independent quote block.
+
+> Second independent quote block.
+
+### 10.3 Prose Math Delimiters & Parentheses in URLs
+- Formula with subscripts: $a_1 * b_1 + a_2 * b_2$
+- Balanced URL: [Closure](https://en.wikipedia.org/wiki/Closure_(computer_programming))
+
