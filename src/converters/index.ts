@@ -28,8 +28,7 @@ export function convertMarkdown(
 		case "slack": {
 			if (isMobile) {
 				const html = convertToSlackMobileHtml(content);
-				let plain = convertToSlack(content);
-				plain = plain.replace(/\n\n+/g, (match) => "\n" + "\u00A0\n".repeat(match.length - 1));
+				const plain = convertToSlack(content, { preserveMobileEmptyLines: true });
 				return {
 					text: plain,
 					html,
