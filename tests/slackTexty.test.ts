@@ -191,4 +191,22 @@ describe("convertToSlackTexty", () => {
 		const listOps = parsed.ops.filter((op: any) => op.attributes?.list);
 		expect(listOps).toHaveLength(0);
 	});
+
+	it("preserves LaTeX block math and inline math without turning _ or * into italic/bold", () => {
+		const md = "Formula $x_1 * y_1$ inline\n$$\n\\sum_{i=1}^n x_i * y_i\n$$";
+		const res = convertToSlackTexty(md);
+		const parsed = JSON.parse(res.texty);
+		assertSlackDeltaValid(parsed);
+
+		// No italic or bold attributes should be present on math
+		const italicOps = parsed.ops.filter((op: any) => op.attributes?.italic);
+		const boldOps = parsed.ops.filter((op: any) => op.attributes?.bold);
+		expect(italicOps).toHaveLength(0);
+		expect(boldOps).toHaveLength(0);
+
+		// Math content is preserved
+		const text = parsed.ops.map((op: any) => op.insert).join("");
+		expect(text).toContain("$x_1 * y_1$");
+		expect(text).toContain("\\sum_{i=1}^n x_i * y_i");
+	});
 });
