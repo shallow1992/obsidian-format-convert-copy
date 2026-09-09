@@ -196,12 +196,18 @@ describe("slack converter", () => {
 		const md = "```typescript\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```";
 		const html = convertToSlackHtml(md);
 		expect(html).toBe(
-			"<p>```<br>function greet(name: string): string {<br>&nbsp;&nbsp;&nbsp;&nbsp;return `Hello, ${name}!`;<br>}<br>```</p>"
+			"<p>```typescript<br>function greet(name: string): string {<br>&nbsp;&nbsp;&nbsp;&nbsp;return `Hello, ${name}!`;<br>}<br>```</p>"
 		);
 		const plain = convertToSlack(md);
 		expect(plain).toBe(
 			"```\nfunction greet(name: string): string {\n    return `Hello, ${name}!`;\n}\n```"
 		);
+	});
+
+	it("preserves empty lines for mobile plain text fallback when requested", () => {
+		const md = "Line 1\n\nLine 2\n\n\nLine 3";
+		const converted = convertToSlack(md, { preserveMobileEmptyLines: true });
+		expect(converted).toBe("Line 1\n\u00A0\nLine 2\n\u00A0\n\u00A0\nLine 3");
 	});
 
 	it("converts image embeds in Slack", () => {
