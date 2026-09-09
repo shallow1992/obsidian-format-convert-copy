@@ -95,6 +95,45 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			const html = convertToSlackMobileHtml(md);
 			expect(html).toContain("<p>```typescript<br>function test() {<br>&nbsp;&nbsp;&nbsp;&nbsp;return 42;<br>}<br>```</p>");
 		});
+
+		it("does not let prose containing $$ interfere with block math or heading formatting", () => {
+			const md = [
+				"## 2. 数式表現 (v0.3.25: ネイティブ $$ / $ 検証)",
+				"",
+				"### インライン数式",
+				"- 基本の数式: 文中の $E = mc^2$ が自然に表示されるか。",
+				"- 添字記号: $x_1 * y_1 + a_n$",
+				"",
+				"### ブロック数式",
+				"単行のブロック数式:",
+				"$$",
+				"E = \\sqrt{(mc^2)^2 + (pc)^2}",
+				"$$",
+				"",
+				"複数行の複雑な数式（バッククォート ``` が付かず、$$ だけで囲まれているか確認）:",
+				"$$",
+				"\\sum_{i=1}^{n} x_i * y_i = \\int_{-\\infty}^{\\infty} \\hat{f}(\\xi)\\,e^{2 \\pi i \\xi x}\\,d\\xi",
+				"$$",
+			].join("\n");
+
+			const html = convertToSlackMobileHtml(md);
+
+			// 1. Heading remains intact as a single bold tag, not broken by $$
+			expect(html).toContain("<b>2. 数式表現 (v0.3.25: ネイティブ $$ / $ 検証)</b>");
+
+			// 2. Inline formulas are cleanly preserved without <code> tags
+			expect(html).toContain("$E = mc^2$");
+			expect(html).toContain("$x_1 * y_1 + a_n$");
+			expect(html).not.toContain("<code>$E = mc^2$</code>");
+
+			// 3. Block formulas are cleanly wrapped in <p>$$...$$</p> without ```
+			expect(html).toContain("<p>$$<br>E = \\sqrt{(mc^2)^2 + (pc)^2}<br>$$</p>");
+			expect(html).toContain("<p>$$<br>\\sum_{i=1}^{n} x_i * y_i = \\int_{-\\infty}^{\\infty} \\hat{f}(\\xi)\\,e^{2 \\pi i \\xi x}\\,d\\xi<br>$$</p>");
+
+			// 4. Underscores in math are NOT converted to italics (<i>)
+			expect(html).not.toContain("<i>i * y</i>");
+			expect(html).not.toContain("<i>int");
+		});
 	});
 
 	describe("Platform Branching (convertMarkdown)", () => {
