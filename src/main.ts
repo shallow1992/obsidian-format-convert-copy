@@ -1,5 +1,6 @@
 import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obsidian";
 import { convertMarkdown } from "./converters";
+import { convertToSlackTexty } from "./converters/slackTexty";
 import { FormatConvertSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
@@ -86,6 +87,54 @@ export default class FormatConvertPlugin extends Plugin {
 					(type) => {
 						const result = convertMarkdown(target, type);
 						this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+					}
+				);
+			},
+		});
+
+		// POC command to isolate whether slack/texty is read by Slack iOS
+		this.addCommand({
+			id: "copy-slack-texty-isolation",
+			name: "Format Convert: Test slack/texty Isolation (iOS POC)",
+			icon: "help-circle",
+			callback: async () => {
+				const testTextyJson = JSON.stringify({
+					ops: [
+						{ insert: "【TEXTY成功】引用ブロックの縦線が表示されています", attributes: { bold: true } },
+						{ insert: "\n", attributes: { blockquote: true } },
+					],
+				});
+				const fallbackPlain = "【TEXTY失敗】slack/texty は読み取られず、プレーンテキストが読まれました。";
+				await copyToClipboard(
+					fallbackPlain,
+					"Slack Texty Isolation",
+					undefined,
+					false,
+					{
+						"slack/texty": testTextyJson,
+						"text/markdown": fallbackPlain,
+					}
+				);
+			},
+		});
+
+		// Command to run exact v0.3.20 conversion (slack/texty + mrkdwn plain text, no HTML)
+		this.addCommand({
+			id: "copy-slack-v0320-mode",
+			name: "Format Convert: Copy as Slack (v0.3.20 Mode: texty + plain)",
+			icon: "history",
+			editorCallback: async (editor: Editor) => {
+				const target = this.getTargetText(editor);
+				if (!target) return;
+				const res = convertToSlackTexty(target);
+				await copyToClipboard(
+					res.plain,
+					"Slack (v0.3.20 Mode)",
+					undefined,
+					false,
+					{
+						"slack/texty": res.texty,
+						"text/markdown": res.markdown,
 					}
 				);
 			},
