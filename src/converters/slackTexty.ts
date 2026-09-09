@@ -28,6 +28,7 @@ export interface InlineAttr {
 
 /**
  * Regex for inline markdown tokens:
+ * - Inline math: $formula$
  * - Link: [title](url)
  * - Inline code: `code`
  * - Bold: **text** or __text__
@@ -36,7 +37,7 @@ export interface InlineAttr {
  * - Underline: <u>text</u>
  */
 function createInlineTokenRegex(): RegExp {
-	return /(\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([\s\S]+?)\*\*|__([\s\S]+?)__|(?<!\*)\*([^\s*](?:[\s\S]*?[^\s*])?)\*(?!\*)|(?<!_)_([^\s_](?:[\s\S]*?[^\s_])?)_(?!_)|~~([\s\S]+?)~~|<u>([\s\S]+?)<\/u>)/g;
+	return /(\$(?!\$)([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)|\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([\s\S]+?)\*\*|__([\s\S]+?)__|(?<!\*)\*([^\s*](?:[\s\S]*?[^\s*])?)\*(?!\*)|(?<!_)_([^\s_](?:[\s\S]*?[^\s_])?)_(?!_)|~~([\s\S]+?)~~|<u>([\s\S]+?)<\/u>)/g;
 }
 
 /**
@@ -67,9 +68,14 @@ export function parseInlineToOps(text: string, currentAttrs: InlineAttr = {}): D
 		}
 
 		const fullMatch = match[0];
-		const [, , linkTitle, linkUrl, code, boldAst, boldUnd, italicAst, italicUnd, strike, underline] = match;
+		const [, , math, linkTitle, linkUrl, code, boldAst, boldUnd, italicAst, italicUnd, strike, underline] = match;
 
-		if (linkTitle !== undefined && linkUrl !== undefined) {
+		if (math !== undefined) {
+			ops.push({
+				insert: fullMatch,
+				...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
+			});
+		} else if (linkTitle !== undefined && linkUrl !== undefined) {
 			const cleanUrl = linkUrl.trim();
 			if (isSafeUrl(cleanUrl)) {
 				ops.push(...parseInlineToOps(linkTitle, { ...currentAttrs, link: cleanUrl }));
@@ -325,7 +331,50 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 			continue;
 		}
 
-		// 3. Callout / Blockquote
+		// 3. Block Math ($$...$$)
+		if (line.trim().startsWith("$$")) {
+			indentTracker.reset();
+			const singleMatch = line.match(/^(\s*)\$\$(.+?)\$\$\s*$/);
+			if (singleMatch) {
+				rawOps.push({ insert: "$$" });
+				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: singleMatch[2].trim() });
+				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: "$$" });
+				rawOps.push({ insert: "\n" });
+				i++;
+				continue;
+			}
+
+			const mathLines: string[] = [];
+			let j = i + 1;
+			let closed = false;
+			while (j < lines.length) {
+				if (lines[j].trim() === "$$") {
+					closed = true;
+					break;
+				}
+				mathLines.push(lines[j]);
+				j++;
+			}
+
+			rawOps.push({ insert: "$$" });
+			rawOps.push({ insert: "\n" });
+			for (const mLine of mathLines) {
+				rawOps.push({ insert: mLine });
+				rawOps.push({ insert: "\n" });
+			}
+			if (closed) {
+				rawOps.push({ insert: "$$" });
+				rawOps.push({ insert: "\n" });
+				i = j + 1;
+			} else {
+				i = lines.length;
+			}
+			continue;
+		}
+
+		// 4. Callout / Blockquote
 		if (line.match(/^>\s?/)) {
 			indentTracker.reset();
 			rawOps.push(...parseQuoteOrCallout(line));

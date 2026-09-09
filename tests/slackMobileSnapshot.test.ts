@@ -66,9 +66,11 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 		expect(html).toContain("<p>```<br>| Item   | Status");
 		expect(html).toContain("| 項目名       | 進捗");
 
-		// Math formulas
-		expect(html).toContain("<code>$E = mc^2$</code>");
-		expect(html).toContain("<p>```<br>$$<br>");
+		// Math formulas formatted with native $$ and $ without code tags/fences
+		expect(html).toContain("$E = mc^2$");
+		expect(html).not.toContain("<code>$E = mc^2$</code>");
+		expect(html).toContain("<p>$$<br>");
+		expect(html).not.toContain("<p>```<br>$$<br>");
 
 		expect(html).toMatchSnapshot();
 	});
