@@ -64,7 +64,7 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			expect(html).toContain("<p><b>Heading</b></p>");
 			expect(html).toContain("<b>Bold</b> and <i>Italic</i>.");
 			expect(html).toContain("Line 1<br>Line 2");
-			expect(html).toContain("<p><br></p><p>New paragraph</p>");
+			expect(html).toContain("<p>&nbsp;</p><p>New paragraph</p>");
 		});
 
 		it("converts blockquotes and callouts to <p> paragraphs with &gt; prefix", () => {
@@ -139,15 +139,15 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 		describe("Empty Line and Break Preservation (Philosophy A)", () => {
 			it("preserves empty lines between blockquotes", () => {
 				const md1 = "> Quote 1\n\n> Quote 2";
-				expect(convertToSlackMobileHtml(md1)).toBe("<p>&gt; Quote 1</p><p><br></p><p>&gt; Quote 2</p>");
+				expect(convertToSlackMobileHtml(md1)).toBe("<p>&gt; Quote 1</p><p>&nbsp;</p><p>&gt; Quote 2</p>");
 
 				const md2 = "> Quote 1\n\n\n> Quote 2";
-				expect(convertToSlackMobileHtml(md2)).toBe("<p>&gt; Quote 1</p><p><br></p><p><br></p><p>&gt; Quote 2</p>");
+				expect(convertToSlackMobileHtml(md2)).toBe("<p>&gt; Quote 1</p><p>&nbsp;</p><p>&nbsp;</p><p>&gt; Quote 2</p>");
 			});
 
 			it("preserves empty lines between list and heading", () => {
 				const withEmptyLine = "- item 1\n- item 2\n\n# Heading";
-				expect(convertToSlackMobileHtml(withEmptyLine)).toBe("<ul><li>item 1</li><li>item 2</li></ul><p><br></p><p><b>Heading</b></p>");
+				expect(convertToSlackMobileHtml(withEmptyLine)).toBe("<ul><li>item 1</li><li>item 2</li></ul><p>&nbsp;</p><p><b>Heading</b></p>");
 
 				const withoutEmptyLine = "- item 1\n- item 2\n# Heading";
 				expect(convertToSlackMobileHtml(withoutEmptyLine)).toBe("<ul><li>item 1</li><li>item 2</li></ul><p><b>Heading</b></p>");
@@ -156,7 +156,7 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			it("preserves empty lines between code block and table", () => {
 				const md = "```ts\nconst x = 1;\n```\n\n| A | B |\n|---|---|\n| 1 | 2 |";
 				const html = convertToSlackMobileHtml(md);
-				expect(html).toContain("</p><p><br></p><p>```");
+				expect(html).toContain("</p><p>&nbsp;</p><p>```");
 			});
 
 			it("faithfully preserves 0, 1, and 2 empty lines between paragraphs", () => {
@@ -164,10 +164,10 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 				expect(convertToSlackMobileHtml(consecutive)).toBe("<p>Line 1<br>Line 2</p>");
 
 				const oneEmpty = "Line 1\n\nLine 2";
-				expect(convertToSlackMobileHtml(oneEmpty)).toBe("<p>Line 1</p><p><br></p><p>Line 2</p>");
+				expect(convertToSlackMobileHtml(oneEmpty)).toBe("<p>Line 1</p><p>&nbsp;</p><p>Line 2</p>");
 
 				const twoEmpty = "Line 1\n\n\nLine 2";
-				expect(convertToSlackMobileHtml(twoEmpty)).toBe("<p>Line 1</p><p><br></p><p><br></p><p>Line 2</p>");
+				expect(convertToSlackMobileHtml(twoEmpty)).toBe("<p>Line 1</p><p>&nbsp;</p><p>&nbsp;</p><p>Line 2</p>");
 			});
 
 			it("preserves spacing between inline text and block elements", () => {
@@ -175,13 +175,13 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 				expect(convertToSlackMobileHtml(textThenQuote0)).toBe("<p>Text</p><p>&gt; Quote</p>");
 
 				const textThenQuote1 = "Text\n\n> Quote";
-				expect(convertToSlackMobileHtml(textThenQuote1)).toBe("<p>Text</p><p><br></p><p>&gt; Quote</p>");
+				expect(convertToSlackMobileHtml(textThenQuote1)).toBe("<p>Text</p><p>&nbsp;</p><p>&gt; Quote</p>");
 
 				const quoteThenText0 = "> Quote\nText";
 				expect(convertToSlackMobileHtml(quoteThenText0)).toBe("<p>&gt; Quote</p><p>Text</p>");
 
 				const quoteThenText1 = "> Quote\n\nText";
-				expect(convertToSlackMobileHtml(quoteThenText1)).toBe("<p>&gt; Quote</p><p><br></p><p>Text</p>");
+				expect(convertToSlackMobileHtml(quoteThenText1)).toBe("<p>&gt; Quote</p><p>&nbsp;</p><p>Text</p>");
 			});
 		});
 	});
