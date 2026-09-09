@@ -131,6 +131,90 @@ export function extractCodeBlocks(
 			}
 		}
 
+		// Match block math fence: $$ starting at line beginning (up to 3 spaces)
+		const mathFenceMatch = line.match(/^ {0,3}\$\$(.*)$/);
+		if (mathFenceMatch) {
+			const restOfLine = mathFenceMatch[1].trim();
+
+			// Single-line block math on its own line: $$ formula $$
+			const singleLineMatch = restOfLine.match(/^([\s\S]*?)\$\$\s*$/);
+			if (singleLineMatch) {
+				const mathContent = singleLineMatch[1].trim();
+				if (wrapBlockMath) {
+					blocks.push(wrapBlockMath(mathContent));
+				} else {
+					blocks.push(wrapBlock(`$$\n${mathContent}\n$$`));
+				}
+				outputLines.push(`${CODE_MARK}${blocks.length - 1}${CODE_MARK}`);
+				i++;
+				continue;
+			}
+
+			// Multi-line block math starting with $$
+			const mathLines: string[] = [];
+			if (restOfLine !== "") {
+				mathLines.push(restOfLine);
+			}
+			let j = i + 1;
+			let closed = false;
+
+			while (j < lines.length) {
+				const closeMatch = lines[j].match(/^ {0,3}\$\$\s*$/);
+				if (closeMatch) {
+					closed = true;
+					break;
+				}
+				mathLines.push(lines[j]);
+				j++;
+			}
+
+			if (closed) {
+				const mathContent = mathLines.join("\n").trim();
+				if (wrapBlockMath) {
+					blocks.push(wrapBlockMath(mathContent));
+				} else {
+					blocks.push(wrapBlock(`$$\n${mathContent}\n$$`));
+				}
+				outputLines.push(`${CODE_MARK}${blocks.length - 1}${CODE_MARK}`);
+				i = j + 1;
+				continue;
+			}
+		}
+
+		// Match multi-line block math opening at end of line: "prefix $$\nmath\n$$"
+		const endMathMatch = line.match(/^(.*?)\s*\$\$\s*$/);
+		if (endMathMatch) {
+			const prefix = endMathMatch[1];
+			const mathLines: string[] = [];
+			let j = i + 1;
+			let closed = false;
+
+			while (j < lines.length) {
+				const closeMatch = lines[j].match(/^ {0,3}\$\$\s*$/);
+				if (closeMatch) {
+					closed = true;
+					break;
+				}
+				mathLines.push(lines[j]);
+				j++;
+			}
+
+			if (closed) {
+				const mathContent = mathLines.join("\n").trim();
+				if (wrapBlockMath) {
+					blocks.push(wrapBlockMath(mathContent));
+				} else {
+					blocks.push(wrapBlock(`$$\n${mathContent}\n$$`));
+				}
+				if (prefix.length > 0) {
+					outputLines.push(prefix);
+				}
+				outputLines.push(`${CODE_MARK}${blocks.length - 1}${CODE_MARK}`);
+				i = j + 1;
+				continue;
+			}
+		}
+
 		if (line.includes("`")) {
 			const replaced = line.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_match, _ticks, code) => {
 				blocks.push(wrapInline(code));
@@ -147,18 +231,7 @@ export function extractCodeBlocks(
 
 	let intermediateText = outputLines.join("\n");
 
-	// 1. Extract and protect block math ($$...$$)
-	intermediateText = intermediateText.replace(/(?<!\\)\$\$([\s\S]+?)\$\$/g, (_match, math) => {
-		const trimmedMath = math.trim();
-		if (wrapBlockMath) {
-			blocks.push(wrapBlockMath(trimmedMath));
-		} else {
-			blocks.push(wrapBlock(`$$\n${trimmedMath}\n$$`));
-		}
-		return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
-	});
-
-	// 2. Extract and protect inline math ($...$) while avoiding false positives for currency ($100)
+	// 1. Extract and protect inline math ($...$) while avoiding false positives for currency ($100)
 	intermediateText = intermediateText.replace(
 		/(?<!\\|\$)\$([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)/g,
 		(_match, math) => {
