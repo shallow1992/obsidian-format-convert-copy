@@ -1302,6 +1302,1805 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "
 ",
     },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "10. Edge Cases (Spacing, Math Collisions & URLs)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "10.1 Consecutive Empty Lines",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph A",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph B (separated by 1 empty line)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph C (separated by 2 empty lines)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "10.2 Blockquote Separation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "First independent quote block.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Second independent quote block.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "10.3 Prose Math Delimiters & Parentheses in URLs",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Formula with subscripts: $a_1 * b_1 + a_2 * b_2$",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Balanced URL: ",
+    },
+    {
+      "attributes": {
+        "link": "https://en.wikipedia.org/wiki/Closure_(computer_programming)",
+      },
+      "insert": "Closure",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+  ],
+}
+`;
+
+exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Comprehensive Manual Test Suite > converts tests/manual/slack-edge-cases.md with zero invariant violations and matches snapshot 1`] = `
+{
+  "ops": [
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Slack Formatting & Rendering Edge Cases Manual Test Suite",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "This test note is specifically designed to verify ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "visual edge cases",
+    },
+    {
+      "insert": " that only become apparent upon actual rendering in the Slack desktop and mobile (iOS/Android) apps.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Checklist for Testers",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Copy this note via ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": ""Format Convert: Copy as Slack Format"",
+    },
+    {
+      "insert": " in Obsidian.",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Paste into Slack (mobile iOS or desktop composer).",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Visually inspect each section against the criteria below.",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "1. Consecutive Empty Lines & Block Spacing (空行・改行のエッジケース)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.1: Single vs Multiple Consecutive Blank Lines",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph 1 (First line)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph 2 (Separated by exactly ONE empty line above)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph 3 (Separated by exactly TWO empty lines above)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Paragraph 4 (Separated by exactly THREE empty lines above)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Exactly 1 empty line between Paragraph 1 and 2.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Exactly 2 empty lines between Paragraph 2 and 3 (Slack normalizer must NOT collapse to 1).",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Exactly 3 empty lines between Paragraph 3 and 4.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.2: Soft Line Breaks vs Hard Paragraph Breaks",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Line 1 of the same paragraph.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Line 2 of the same paragraph (soft break without empty line).",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Line 3 of the same paragraph (soft break without empty line).",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "New paragraph after a hard empty line.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Lines 1, 2, 3 appear grouped in a single paragraph block with normal line breaks.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The next paragraph is separated by a blank line.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.3: Empty Lines Between Blockquotes",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Quote Block A: First independent quotation.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Line 2 of Quote Block A.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Quote Block B: Second quotation separated by an empty line above.",
+    },
+    {
+      "attributes": {
+        "blockquote": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Quote Block A and Quote Block B do NOT merge into a single quote.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ There is a visible empty line separating Quote Block A and Quote Block B.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.4: Empty Lines Between Lists and Headings",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "List Item Alpha",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "List Item Beta",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "List Item Gamma",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Heading Immediately After List (Separated by Empty Line)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Follow-up text under heading.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ A visible empty line exists between "List Item Gamma" and the "### Heading".",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The heading is NOT squeezed flush against the bottom of the list.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.5: Empty Lines Between Code Blocks and Tables",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "typescript",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "interface ServerConfig {",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "    host: string;",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "    port: number;",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "}",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "| Config Key | Type   | Default     |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "|:-----------|:-------|:------------|",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| \`host\`     | string | "localhost" |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| \`port\`     | number | 8080        |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ There is a clean empty line separating the code block and the table.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The table columns remain vertically aligned in monospace font.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 1.6: Empty Lines Between Tables and Block Math",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "| Metric  | Q1   | Q2   |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "|:--------|:-----|:-----|",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| Revenue | $10M | $12M |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "\\text{Growth} = \\frac{Q2 - Q1}{Q1} \\times 100\\%",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ There is a clean empty line between the table and the block formula.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The formula is wrapped only in native ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$$",
+    },
+    {
+      "insert": " delimiters (no stray backticks).",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "2. Math & Delimiter Collision Edge Cases (数式・記号の衝突エッジケース)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 2.1: Heading Containing ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "code": true,
+      },
+      "insert": "$$",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": " Near Block Math",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Section 2.1: Verifying $$ and $ Delimiters in Prose",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Here is the formula below that must NOT be accidentally merged with the header:",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "f(x) = \\int_{0}^{x} t^2 \\, dt",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The heading remains an intact, single-line bold header.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The intervening text ("Here is the formula...") is NOT swallowed or treated as math.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The math formula renders correctly below.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 2.2: LaTeX Subscripts (",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "code": true,
+      },
+      "insert": "_",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": ") and Multiplication (",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "code": true,
+      },
+      "insert": "*",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": ") Protection",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Inline math equation with multiple underscores and asterisks:",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "$x_1 * y_1 + x_2 * y_2 \\le z_{max} * \\lambda_{target}$",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The text between underscores (",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "_1 * y_1 + x_2 *",
+    },
+    {
+      "insert": ") does NOT become italicized or bolded.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Underscores ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "_",
+    },
+    {
+      "insert": " and asterisks ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "*",
+    },
+    {
+      "insert": " remain intact as part of the formula text.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 2.3: Currency Dollar Signs ($) in Prose",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "The small widget costs $15 and the deluxe widget costs $45. The total savings is $10 per order.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Dollar amounts (",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$15",
+    },
+    {
+      "insert": ", ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$45",
+    },
+    {
+      "insert": ", ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$10",
+    },
+    {
+      "insert": ") appear as regular text with dollar signs.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Neither amount is treated as an inline LaTeX math formula.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "3. URLs with Balanced Parentheses & Special Characters (URL・特殊文字)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 3.1: URLs Containing Parentheses",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Wikipedia English: ",
+    },
+    {
+      "attributes": {
+        "link": "https://en.wikipedia.org/wiki/Closure_(computer_programming)",
+      },
+      "insert": "Closure in Programming",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Wikipedia Japanese: ",
+    },
+    {
+      "attributes": {
+        "link": "https://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0",
+      },
+      "insert": "高階関数",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Multi-nested query link: ",
+    },
+    {
+      "attributes": {
+        "link": "https://example.com/search?q=(test)&category=(dev)",
+      },
+      "insert": "Search Link",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The trailing closing parenthesis ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": ")",
+    },
+    {
+      "insert": " is included inside the hyperlink URL.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ The link opens the complete URL without a 404 error.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 3.2: Special HTML Characters in Plain Text & Code",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Testing raw angle brackets and ampersands: ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "5 < 10 && 20 > 15",
+    },
+    {
+      "insert": ", ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "<script>alert('test')</script>",
+    },
+    {
+      "insert": ", and ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "Tom & Jerry",
+    },
+    {
+      "insert": ".",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "<",
+    },
+    {
+      "insert": " and ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": ">",
+    },
+    {
+      "insert": " and ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "&",
+    },
+    {
+      "insert": " display literally without causing HTML injection or disappearing.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "4. Complex Nested Inline Styles (複雑な複合装飾)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Case 4.1: Multi-layer Inline Formatting",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Underline with nested bold: ",
+    },
+    {
+      "attributes": {
+        "underline": true,
+      },
+      "insert": "Underlined text containing ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "underline": true,
+      },
+      "insert": "Bold Underlined Text",
+    },
+    {
+      "attributes": {
+        "underline": true,
+      },
+      "insert": " inside",
+    },
+    {
+      "insert": ".",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Bold containing inline code: ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Important flag: ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "code": true,
+      },
+      "insert": "DISABLE_CACHE=true",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": " must be set",
+    },
+    {
+      "insert": ".",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Bold, italic, and strikethrough: ",
+    },
+    {
+      "attributes": {
+        "bold": true,
+        "strike": true,
+      },
+      "insert": "*Crucial Deprecated Warning",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "*",
+    },
+    {
+      "insert": ".",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ All nested styles apply simultaneously without breaking adjacent text.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "5. Horizontal Dividers with Surrounding Spacing (水平線と余白)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Preceding paragraph before horizontal rule.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "───
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Succeeding paragraph after horizontal rule.",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Verification Criteria",
+    },
+    {
+      "insert": ":",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ A clean horizontal divider (",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "───",
+    },
+    {
+      "insert": ") is displayed between the two paragraphs.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ There is natural spacing above and below the divider.",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
   ],
 }
 `;
