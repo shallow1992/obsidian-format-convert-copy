@@ -76,7 +76,7 @@ export function convertToWhatsApp(md: string): string {
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
 
 	// Convert [title](url) -> title (url) or url (safe URLs only)
-	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title, url) => {
+	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, url) => {
 		const cleanUrl = url.trim();
 		if (!isSafeUrl(cleanUrl)) {
 			return title;

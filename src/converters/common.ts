@@ -38,7 +38,7 @@ export function resolveWikilinks(md: string): string {
 	});
 
 	// 2. Normalize standard Markdown images (![alt](url)) to [image: alt](url)
-	text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, url) => {
+	text = text.replace(/!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, alt, url) => {
 		const cleanAlt = alt.trim();
 		const label = cleanAlt ? `image: ${cleanAlt}` : "image";
 		return `[${label}](${url})`;
