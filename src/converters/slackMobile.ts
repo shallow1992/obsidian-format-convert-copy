@@ -9,6 +9,19 @@ import {
 } from "./common";
 
 const INLINE_CODE_MARK = "\uE003";
+const NBSP = "\u00A0";
+const EMPTY_LINE_HTML = "<p>&nbsp;</p>";
+const HR_HTML = "<p>───</p>";
+
+// Pre-compiled regular expressions for line categorization
+const CODE_PLACEHOLDER_REGEX = new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`);
+const HEADING_REGEX = /^#{1,6}\s+(.*)$/;
+const LIST_REGEX = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+const QUOTE_REGEX = /^>\s?(.*)$/;
+const HR_REGEX = /^(?:---+|\*\*\*+|___+)\s*$/;
+const CALLOUT_REGEX = /^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm;
+const TASK_UNCHECKED_REGEX = /^(\s*)[-*+]\s+\[ \]\s+(.*)$/gm;
+const TASK_CHECKED_REGEX = /^(\s*)[-*+]\s+\[[xX]\]\s+(.*)$/gm;
 
 interface ListLine {
 	indent: number;
@@ -18,6 +31,16 @@ interface ListLine {
 
 function indentWidth(raw: string): number {
 	return raw.replace(/\t/g, "    ").length;
+}
+
+function isBlockStart(line: string): boolean {
+	return (
+		CODE_PLACEHOLDER_REGEX.test(line) ||
+		HEADING_REGEX.test(line) ||
+		LIST_REGEX.test(line) ||
+		QUOTE_REGEX.test(line) ||
+		HR_REGEX.test(line)
+	);
 }
 
 /**
@@ -129,6 +152,69 @@ function formatSlackMobileCodeBlockHtml(code: string, lang?: string): string {
 	return `<p>${openFence}<br>${lines.join("<br>")}<br>\`\`\`</p>`;
 }
 
+function parseQuoteBlock(lines: string[], startIndex: number): { html: string; nextIndex: number } {
+	const quoteLines: string[] = [];
+	let j = startIndex;
+	while (j < lines.length) {
+		const m = lines[j].match(QUOTE_REGEX);
+		if (!m) break;
+		const content = formatInlineSlackMobileHtml(m[1]);
+		quoteLines.push(content ? `&gt; ${content}` : "&gt;");
+		j++;
+	}
+	return {
+		html: `<p>${quoteLines.join("<br>")}</p>`,
+		nextIndex: j,
+	};
+}
+
+function parseListBlock(lines: string[], startIndex: number): { html: string; nextIndex: number } {
+	const listLines: ListLine[] = [];
+	let j = startIndex;
+	while (j < lines.length) {
+		const m = lines[j].match(LIST_REGEX);
+		if (!m) break;
+		listLines.push({
+			indent: indentWidth(m[1]),
+			tag: /\d+\./.test(m[2]) ? "ol" : "ul",
+			content: formatInlineSlackMobileHtml(m[3]),
+		});
+		j++;
+	}
+	const minIndent = Math.min(...listLines.map((l) => l.indent));
+	const [listHtml] = buildNestedListHtml(listLines, 0, minIndent);
+	return {
+		html: listHtml,
+		nextIndex: j,
+	};
+}
+
+function parseParagraphBlock(lines: string[], startIndex: number): { html: string; nextIndex: number } {
+	const paraLines: string[] = [formatInlineSlackMobileHtml(lines[startIndex])];
+	let j = startIndex + 1;
+	while (j < lines.length && lines[j].trim() !== "" && !isBlockStart(lines[j])) {
+		paraLines.push(formatInlineSlackMobileHtml(lines[j]));
+		j++;
+	}
+	return {
+		html: `<p>${paraLines.join("<br>")}</p>`,
+		nextIndex: j,
+	};
+}
+
+function countTrailingEmptyLines(lines: string[], startIndex: number): { emptyCount: number; nextIndex: number } {
+	let count = 0;
+	let j = startIndex;
+	while (j < lines.length && lines[j].trim() === "") {
+		count++;
+		j++;
+	}
+	return {
+		emptyCount: count,
+		nextIndex: j,
+	};
+}
+
 /**
  * Converts Markdown to Slack rich-text HTML tailored for mobile (iOS / Android) pasteboards.
  */
@@ -136,14 +222,14 @@ export function convertToSlackMobileHtml(md: string): string {
 	let text = resolveWikilinks(md);
 
 	// Callout conversion (e.g. > [!NOTE] content)
-	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(CALLOUT_REGEX, (_match, type, title) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});
 
 	// Adjust Markdown task list syntax for HTML conversion
-	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+(.*)$/gm, "$1- ☐ $2");
-	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+(.*)$/gm, "$1- ☑ ~~$2~~");
+	text = text.replace(TASK_UNCHECKED_REGEX, "$1- ☐ $2");
+	text = text.replace(TASK_CHECKED_REGEX, "$1- ☑ ~~$2~~");
 
 	const extraction = extractCodeBlocks(
 		text,
@@ -171,28 +257,13 @@ export function convertToSlackMobileHtml(md: string): string {
 		i++;
 	}
 
-	const isBlockStart = (l: string): boolean => {
-		const codePlaceholder = new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`);
-		const heading = /^#{1,6}\s+(.*)$/;
-		const listMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
-		const quoteMatch = /^>\s?(.*)$/;
-		const hrMatch = /^(?:---+|\*\*\*+|___+)\s*$/;
-		return (
-			codePlaceholder.test(l) ||
-			heading.test(l) ||
-			listMatch.test(l) ||
-			quoteMatch.test(l) ||
-			hrMatch.test(l)
-		);
-	};
-
 	while (i < lines.length) {
 		const line = lines[i];
-		const codePlaceholder = line.match(new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`));
-		const heading = line.match(/^#{1,6}\s+(.*)$/);
-		const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
-		const quoteMatch = line.match(/^>\s?(.*)$/);
-		const hrMatch = line.match(/^(?:---+|\*\*\*+|___+)\s*$/);
+		const codePlaceholder = line.match(CODE_PLACEHOLDER_REGEX);
+		const heading = line.match(HEADING_REGEX);
+		const hrMatch = line.match(HR_REGEX);
+		const quoteMatch = line.match(QUOTE_REGEX);
+		const listMatch = line.match(LIST_REGEX);
 
 		let html = "";
 
@@ -203,63 +274,33 @@ export function convertToSlackMobileHtml(md: string): string {
 			html = `<p><b>${formatInlineSlackMobileHtml(heading[1])}</b></p>`;
 			i++;
 		} else if (hrMatch) {
-			html = "<p>───</p>";
+			html = HR_HTML;
 			i++;
 		} else if (quoteMatch) {
-			const quoteLines: string[] = [];
-			let j = i;
-			while (j < lines.length) {
-				const m = lines[j].match(/^>\s?(.*)$/);
-				if (!m) break;
-				const content = formatInlineSlackMobileHtml(m[1]);
-				quoteLines.push(content ? `&gt; ${content}` : "&gt;");
-				j++;
-			}
-			html = `<p>${quoteLines.join("<br>")}</p>`;
-			i = j;
+			const parsed = parseQuoteBlock(lines, i);
+			html = parsed.html;
+			i = parsed.nextIndex;
 		} else if (listMatch) {
-			const listLines: ListLine[] = [];
-			let j = i;
-			while (j < lines.length) {
-				const m = lines[j].match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
-				if (!m) break;
-				listLines.push({
-					indent: indentWidth(m[1]),
-					tag: /\d+\./.test(m[2]) ? "ol" : "ul",
-					content: formatInlineSlackMobileHtml(m[3]),
-				});
-				j++;
-			}
-			const minIndent = Math.min(...listLines.map((l) => l.indent));
-			const [listHtml] = buildNestedListHtml(listLines, 0, minIndent);
-			html = listHtml;
-			i = j;
+			const parsed = parseListBlock(lines, i);
+			html = parsed.html;
+			i = parsed.nextIndex;
 		} else {
-			// Normal paragraph lines: group consecutive lines with soft breaks (<br>)
-			const paraLines: string[] = [formatInlineSlackMobileHtml(line)];
-			let j = i + 1;
-			while (j < lines.length && lines[j].trim() !== "" && !isBlockStart(lines[j])) {
-				paraLines.push(formatInlineSlackMobileHtml(lines[j]));
-				j++;
-			}
-			html = `<p>${paraLines.join("<br>")}</p>`;
-			i = j;
+			const parsed = parseParagraphBlock(lines, i);
+			html = parsed.html;
+			i = parsed.nextIndex;
 		}
 
 		parts.push(html);
 
 		// Count any subsequent empty lines as trailing empty lines
-		let emptyCount = 0;
-		while (i < lines.length && lines[i].trim() === "") {
-			emptyCount++;
-			i++;
-		}
+		const { emptyCount, nextIndex } = countTrailingEmptyLines(lines, i);
+		i = nextIndex;
 
 		// If not at the end of the document, emit <p>&nbsp;</p> for each empty line.
 		// &nbsp; (U+00A0) prevents Slack mobile's paste normalizer from collapsing empty paragraphs.
 		if (i < lines.length) {
 			for (let k = 0; k < emptyCount; k++) {
-				parts.push("<p>&nbsp;</p>");
+				parts.push(EMPTY_LINE_HTML);
 			}
 		}
 	}
@@ -268,3 +309,4 @@ export function convertToSlackMobileHtml(md: string): string {
 	result = restoreCodeBlocks(result, codeBlocks);
 	return result.trim();
 }
+
