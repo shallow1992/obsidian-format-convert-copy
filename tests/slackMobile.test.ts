@@ -66,7 +66,7 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			expect(html).toContain("Line 1<br>Line 2<br><br>New paragraph");
 		});
 
-		it("converts blockquotes and callouts with &gt; prefix", () => {
+		it("converts blockquotes and callouts to <p> paragraphs with &gt; prefix", () => {
 			const md = [
 				"> Single quote line",
 				"",
@@ -78,9 +78,9 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			].join("\n");
 
 			const html = convertToSlackMobileHtml(md);
-			expect(html).toContain("<blockquote>&gt; Single quote line</blockquote>");
-			expect(html).toContain("<blockquote>&gt; Line 1<br>&gt; Line 2</blockquote>");
-			expect(html).toContain("<blockquote>&gt; <b>[NOTE]</b><br>&gt; Callout body</blockquote>");
+			expect(html).toContain("<p>&gt; Single quote line</p>");
+			expect(html).toContain("<p>&gt; Line 1<br>&gt; Line 2</p>");
+			expect(html).toContain("<p>&gt; <b>[NOTE]</b><br>&gt; Callout body</p>");
 		});
 
 		it("converts code blocks to backtick paragraphs with preserved indentation", () => {
