@@ -181,7 +181,7 @@ export function convertToSlackMobileHtml(md: string): string {
 				quoteLines.push(content ? `&gt; ${content}` : "&gt;");
 				j++;
 			}
-			htmlParts.push({ html: `<blockquote>${quoteLines.join("<br>")}</blockquote>`, kind: "quote" });
+			htmlParts.push({ html: `<p>${quoteLines.join("<br>")}</p>`, kind: "quote" });
 			i = j;
 		} else if (listMatch) {
 			const listLines: ListLine[] = [];

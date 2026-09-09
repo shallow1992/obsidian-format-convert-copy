@@ -92,36 +92,10 @@ export default class FormatConvertPlugin extends Plugin {
 			},
 		});
 
-		// POC command to isolate whether slack/texty is read by Slack iOS
+		// Command to copy as Slack plain text / mrkdwn without HTML (v0.3.20 compatibility mode)
 		this.addCommand({
-			id: "copy-slack-texty-isolation",
-			name: "Format Convert: Test slack/texty Isolation (iOS POC)",
-			icon: "help-circle",
-			callback: async () => {
-				const testTextyJson = JSON.stringify({
-					ops: [
-						{ insert: "【TEXTY成功】引用ブロックの縦線が表示されています", attributes: { bold: true } },
-						{ insert: "\n", attributes: { blockquote: true } },
-					],
-				});
-				const fallbackPlain = "【TEXTY失敗】slack/texty は読み取られず、プレーンテキストが読まれました。";
-				await copyToClipboard(
-					fallbackPlain,
-					"Slack Texty Isolation",
-					undefined,
-					false,
-					{
-						"slack/texty": testTextyJson,
-						"text/markdown": fallbackPlain,
-					}
-				);
-			},
-		});
-
-		// Command to run exact v0.3.20 conversion (slack/texty + mrkdwn plain text, no HTML)
-		this.addCommand({
-			id: "copy-slack-v0320-mode",
-			name: "Format Convert: Copy as Slack (v0.3.20 Mode: texty + plain)",
+			id: "copy-slack-plain-mode",
+			name: "Format Convert: Copy as Slack (Plain Text)",
 			icon: "history",
 			editorCallback: async (editor: Editor) => {
 				const target = this.getTargetText(editor);
@@ -129,7 +103,7 @@ export default class FormatConvertPlugin extends Plugin {
 				const res = convertToSlackTexty(target);
 				await copyToClipboard(
 					res.plain,
-					"Slack (v0.3.20 Mode)",
+					"Slack (Plain Text)",
 					undefined,
 					false,
 					{
