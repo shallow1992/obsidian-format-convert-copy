@@ -255,10 +255,11 @@ export function convertToSlackMobileHtml(md: string): string {
 			i++;
 		}
 
-		// If not at the end of the document, emit <p><br></p> for each empty line
+		// If not at the end of the document, emit <p>&nbsp;</p> for each empty line.
+		// &nbsp; (U+00A0) prevents Slack mobile's paste normalizer from collapsing empty paragraphs.
 		if (i < lines.length) {
 			for (let k = 0; k < emptyCount; k++) {
-				parts.push("<p><br></p>");
+				parts.push("<p>&nbsp;</p>");
 			}
 		}
 	}
