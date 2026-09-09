@@ -4,74 +4,53 @@ import * as path from "path";
 import { convertToSlackMobileHtml } from "../src/converters/slackMobile";
 
 describe("Slack Mobile HTML Snapshot Testing", () => {
-	it("converts tests/manual/slack-ios-poc-phase1.md and matches snapshot", () => {
-		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase1.md");
+	it("converts tests/manual/slack-comprehensive-test.md and matches snapshot", () => {
+		const suitePath = path.resolve(__dirname, "manual/slack-comprehensive-test.md");
 		const content = fs.readFileSync(suitePath, "utf-8");
 
 		const html = convertToSlackMobileHtml(content);
 
-		// Sanity checks on Phase 1 features
-		expect(html).toContain("<b>This text should be bold</b>");
-		expect(html).toContain("<b>This text should also be bold</b>");
-		expect(html).toContain("<i>This text should be italic</i>");
-		expect(html).toContain("<s>This text should have a line through it</s>");
-		expect(html).toContain("<u>This text should be underlined</u>");
-		expect(html).toContain("<code>const message = &quot;Hello from iOS&quot;;</code>");
+		// Headings
+		expect(html).toContain("<p><b>Heading 1 (H1: Largest Header)</b></p>");
+		expect(html).toContain("<p><b>Heading 2 (H2)</b></p>");
+
+		// Inline formatting
+		expect(html).toContain("<b>Bold Text</b>");
+		expect(html).toContain("<i>Italic Text</i>");
+		expect(html).toContain("<u>Underlined Text</u>");
+		expect(html).toContain("<s>Deprecated Information</s>");
+		expect(html).toContain("<code>const token = &quot;slack_test_123&quot;;</code>");
 		expect(html).toContain('<a href="https://www.google.com">Google Search</a>');
-		expect(html).toContain("<b><i>Bold and Italic combined</i></b>");
+		expect(html).toContain("<b><i>Bold Italic</i></b>");
 		expect(html).toContain("<s><b>Bold Strikethrough</b></s>");
-		expect(html).toContain("<u><b>Underlined Bold</b></u>");
 
-		// Snapshot assertion to detect unintended HTML regressions
-		expect(html).toMatchSnapshot();
-	});
-
-	it("converts tests/manual/slack-ios-poc-phase2.md and matches snapshot", () => {
-		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase2.md");
-		const content = fs.readFileSync(suitePath, "utf-8");
-
-		const html = convertToSlackMobileHtml(content);
-
-		// Sanity checks on Phase 2 features
+		// Lists & Tasks
 		expect(html).toContain("<ul><li>Level 1 Bullet Item A");
-		expect(html).toContain("<ol><li>Step 1 (Root Level)");
+		expect(html).toContain("<ol><li>Step 1 (Level 1: rendered as <code>1.</code>)");
+		expect(html).toContain("☐ Incomplete Task (Level 1)");
+		expect(html).toContain("☑ <s>Completed Task (Level 2)</s>");
+
+		// Blockquotes & Callouts
 		expect(html).toContain("<p>&gt; This is a standard single-line blockquote.</p>");
-		expect(html).toContain("<p>&gt; <b>[Release Update]</b><br>&gt; This is an Obsidian callout block.");
-		expect(html).toContain("☐ Incomplete task item");
-		expect(html).toContain("☑ <s>Completed task item (should have strikethrough)</s>");
+		expect(html).toContain("<p>&gt; <b>[Release Announcement]</b><br>&gt; This is an Obsidian callout block.");
 
-		expect(html).toMatchSnapshot();
-	});
+		// Code Blocks
+		expect(html).toContain("<p>```typescript<br>function calculateTotal(items: { price: number; count: number }[]): number {");
+		expect(html).toContain("<p>```<br>Plain code block without language tag.");
 
-	it("converts tests/manual/slack-ios-poc-phase3.md and matches snapshot", () => {
-		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase3.md");
-		const content = fs.readFileSync(suitePath, "utf-8");
+		// Tables (aligned monospace code blocks including CJK full-width columns)
+		expect(html).toContain("<p>```<br>| Item Name (Left) | Status (Center) | Quantity (Right) | Price (Right) | Notes (Left)");
+		expect(html).toContain("| 項目名     | 進捗状況 | 優先度 |");
 
-		const html = convertToSlackMobileHtml(content);
-
-		expect(html).toContain("<p>```typescript<br>console.log(&quot;Hello, Slack iOS!&quot;);<br>```</p>");
-		expect(html).toContain("<p>```javascript<br>function calculateTotal(items) {");
-		expect(html).toContain("&lt;div class=&quot;container&quot;&gt;");
-
-		expect(html).toMatchSnapshot();
-	});
-
-	it("converts tests/manual/slack-ios-poc-phase4.md and matches snapshot", () => {
-		const suitePath = path.resolve(__dirname, "manual/slack-ios-poc-phase4.md");
-		const content = fs.readFileSync(suitePath, "utf-8");
-
-		const html = convertToSlackMobileHtml(content);
-
-		// Tables are formatted inside ``` code blocks with aligned monospace columns
-		expect(html).toContain("<p>```<br>| Item   | Status");
-		expect(html).toContain("| 項目名     | 進捗状況");
-
-		// Math formulas formatted with native $$ and $ without code tags/fences
+		// Math
 		expect(html).toContain("$E = mc^2$");
 		expect(html).not.toContain("<code>$E = mc^2$</code>");
-		expect(html).toContain("<p>$$<br>");
-		expect(html).not.toContain("<p>```<br>$$<br>");
+		expect(html).toContain("<p>$$<br>\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}<br>$$</p>");
 
+		// Wikilinks
+		expect(html).toContain("System Architecture");
+
+		// Snapshot assertion
 		expect(html).toMatchSnapshot();
 	});
 

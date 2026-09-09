@@ -70,12 +70,42 @@ For in-depth Obsidian API guidelines, Keychain storage, and UI patterns, refer t
 
 To ensure manual verification is consistent and reliable across all supported platforms without enforcing fixed local vault structures:
 - **Repository Test Suites (`tests/manual/`)**:
-  - **Slack**: [`tests/manual/slack-comprehensive-test.md`](./tests/manual/slack-comprehensive-test.md) (Headings, 5-level nested lists, tables, callouts, blockquotes, code blocks, task lists, math, Wikilinks).
-  - **Discord**: [`tests/manual/discord-comprehensive-test.md`](./tests/manual/discord-comprehensive-test.md) (Native headings `#..###`, underline `__text__`, spoiler `||spoiler||`, task strikethroughs, tables, code blocks).
-  - **WhatsApp**: [`tests/manual/whatsapp-comprehensive-test.md`](./tests/manual/whatsapp-comprehensive-test.md) (Bold `*text*`, italic `_text_`, strike `~text~`, heading bolding, URL link expansion `title (url)`, tables).
+  - **Slack Comprehensive**: [`tests/manual/slack-comprehensive-test.md`](./tests/manual/slack-comprehensive-test.md) (Headings, 5-level nested lists, ASCII/CJK tables, callouts, blockquotes, code blocks, task lists, math, Wikilinks).
+  - **Slack Edge Cases**: [`tests/manual/slack-edge-cases.md`](./tests/manual/slack-edge-cases.md) (Visual rendering, consecutive blank line collapse, blockquote isolation, math-in-prose collisions, LaTeX subscripts, balanced parenthesis URLs).
+  - **Discord Comprehensive**: [`tests/manual/discord-comprehensive-test.md`](./tests/manual/discord-comprehensive-test.md) (Native headings `#..###`, underline `__text__`, spoiler `||spoiler||`, task strikethroughs, tables, code blocks).
+  - **WhatsApp Comprehensive**: [`tests/manual/whatsapp-comprehensive-test.md`](./tests/manual/whatsapp-comprehensive-test.md) (Bold `*text*`, italic `_text_`, strike `~text~`, heading bolding, URL link expansion `title (url)`, tables).
 - **Mandatory Protocol for Impacted Code**:
   Whenever code affecting format conversion or clipboard output is modified (`src/converters/` or `src/utils/clipboard.ts`):
   1. Identify which format(s) are impacted (Slack, Discord, WhatsApp, or Common).
   2. Present the specific, actionable test items from the corresponding manual test suite(s) to the user/tester in your response.
   3. Explain the expected visual and functional result in each target application.
 - **No Forced Placement**: Testers work with different vault structures, mobile environments, and cloud sync solutions. Never enforce or assume a fixed file placement on the tester's machine; provide the test notes in the repository so testers can copy, import, or place them wherever convenient in their own vaults.
+
+---
+
+## 7. Language & Privacy Policy (Strict Mandate)
+
+All contributors and AI agents must adhere strictly to the project language and privacy standards:
+- **English as Default Primary Language**:
+  - All source code comments, docstrings, variable/function names, commit messages, PR titles/descriptions, and documentation files must be written in **English**.
+- **Permitted Japanese / CJK Usage**:
+  - Japanese or CJK text is strictly restricted to:
+    1. Testing multi-byte string width calculations (`wcwidth` / `stringWidth`), character wrapping, or monospace column alignments in Markdown tables (e.g., `tests/manual/slack-comprehensive-test.md` Pattern C).
+    2. Optional secondary Japanese translation documents (e.g. `README.ja.md`).
+- **Zero Personal Data Policy**:
+  - Real personal names, user handles, real email addresses, or individual identifiers are strictly forbidden anywhere in the repository (code, docs, tests, and commit history).
+  - Always use neutral, generic technical terms (`Task A`, `Feature X`, `項目名`, `進捗状況`, `基本設計`, `完了`, `高`).
+
+---
+
+## 8. Testing Strategy & Fixture Lifecycle
+
+Detailed testing architecture and guidelines are documented in [`docs/testing-policy.md`](./docs/testing-policy.md):
+- **Two-Tier Model**: Complementary automated unit/snapshot tests (Vitest) + manual cross-platform suites (`tests/manual/`).
+- **Canonical Suites vs. PoC Notes**:
+  - Canonical suites (`*-comprehensive-test.md` and `*-edge-cases.md`) are the sole permanent manual test fixtures.
+  - Temporary Proof-of-Concept notes (e.g., `*-poc-phase*.md`) used during exploratory prototyping must be consolidated into the canonical suites and retired (`git rm`) once verified.
+- **Automated Snapshot Protection**:
+  - Every canonical test fixture under `tests/manual/` must be covered by a snapshot test in `tests/*Snapshot.test.ts`.
+  - CI must fail if any converter change or test note update causes undocumented snapshot differences.
+

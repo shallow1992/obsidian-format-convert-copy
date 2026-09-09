@@ -110,13 +110,20 @@ Indentation and symbols must remain intact.
 | Shine Muscat | Sold Out | 3 | $120.00 | Premium gift box |
 | Banana Cavendish | Available | 50 | $9.80 | High altitude grown |
 
-### Pattern B: Mixed CJK Multi-byte Characters & Inline Code
+### Pattern B: Mixed Content & Inline Code
 | Feature | Syntax | Alignment | Slack Native Support |
 | :--- | :--- | :---: | ---: |
 | Heading | `# Heading` | Left | Bold text |
 | Bold | `**Bold**` | Left | Bold attribute |
 | Checkbox | `- [x]` | Center | ☑ Checked bullet |
 | Long cell test | `Some very long inline code parameter inside cell` | Right | Monospace code block |
+
+### Pattern C: CJK Full-Width Font Alignment Test
+| 項目名 | 進捗状況 | 優先度 |
+| :--- | :--- | :--- |
+| 基本設計 | 完了 | 高 |
+| 詳細設計 | 進行中 | 中 |
+| 結合テスト | 未着手 | 低 |
 
 ---
 
