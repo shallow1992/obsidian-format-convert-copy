@@ -1149,7 +1149,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "Pattern B: Mixed CJK Multi-byte Characters & Inline Code",
+      "insert": "Pattern B: Mixed Content & Inline Code",
     },
     {
       "insert": "
@@ -1207,6 +1207,70 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
     },
     {
       "insert": "| Long cell test | \`Some very long inline code parameter inside cell\` |   Right   | Monospace code block |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern C: CJK Full-Width Font Alignment Test",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "| 項目名     | 進捗状況 | 優先度 |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "|:-----------|:---------|:-------|",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| 基本設計   | 完了     | 高     |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| 詳細設計   | 進行中   | 中     |",
+    },
+    {
+      "attributes": {
+        "code-block": true,
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "| 結合テスト | 未着手   | 低     |",
     },
     {
       "attributes": {
