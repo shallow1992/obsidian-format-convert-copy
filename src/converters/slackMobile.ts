@@ -162,10 +162,20 @@ export function convertToSlackMobileHtml(md: string): string {
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
 
-	type PartKind = "code" | "quote" | "list" | "inline";
-	const htmlParts: { html: string; kind: PartKind }[] = [];
+	interface ConvertedPart {
+		html: string;
+		isBlock: boolean;
+		trailingEmptyLines: number;
+	}
+
+	const parts: ConvertedPart[] = [];
 	const lines = text.split("\n");
 	let i = 0;
+
+	// Skip leading empty lines at the very start of the document
+	while (i < lines.length && lines[i].trim() === "") {
+		i++;
+	}
 
 	while (i < lines.length) {
 		const line = lines[i];
@@ -174,11 +184,16 @@ export function convertToSlackMobileHtml(md: string): string {
 		const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
 		const quoteMatch = line.match(/^>\s?(.*)$/);
 
+		let html = "";
+		let isBlock = false;
+
 		if (codePlaceholder) {
-			htmlParts.push({ html: codeBlocks[Number(codePlaceholder[1])], kind: "code" });
+			html = codeBlocks[Number(codePlaceholder[1])];
+			isBlock = html.startsWith("<p>") || html.startsWith("<ul>") || html.startsWith("<ol>");
 			i++;
 		} else if (heading) {
-			htmlParts.push({ html: `<b>${formatInlineSlackMobileHtml(heading[1])}</b>`, kind: "inline" });
+			html = `<b>${formatInlineSlackMobileHtml(heading[1])}</b>`;
+			isBlock = false;
 			i++;
 		} else if (quoteMatch) {
 			const quoteLines: string[] = [];
@@ -190,7 +205,8 @@ export function convertToSlackMobileHtml(md: string): string {
 				quoteLines.push(content ? `&gt; ${content}` : "&gt;");
 				j++;
 			}
-			htmlParts.push({ html: `<p>${quoteLines.join("<br>")}</p>`, kind: "quote" });
+			html = `<p>${quoteLines.join("<br>")}</p>`;
+			isBlock = true;
 			i = j;
 		} else if (listMatch) {
 			const listLines: ListLine[] = [];
@@ -206,25 +222,41 @@ export function convertToSlackMobileHtml(md: string): string {
 				j++;
 			}
 			const minIndent = Math.min(...listLines.map((l) => l.indent));
-			const [html] = buildNestedListHtml(listLines, 0, minIndent);
-			htmlParts.push({ html, kind: "list" });
+			const [listHtml] = buildNestedListHtml(listLines, 0, minIndent);
+			html = listHtml;
+			isBlock = true;
 			i = j;
 		} else {
-			htmlParts.push({ html: formatInlineSlackMobileHtml(line), kind: "inline" });
+			html = formatInlineSlackMobileHtml(line);
+			isBlock = false;
 			i++;
 		}
+
+		// Count any subsequent empty lines as trailingEmptyLines for this part
+		let emptyCount = 0;
+		while (i < lines.length && lines[i].trim() === "") {
+			emptyCount++;
+			i++;
+		}
+
+		parts.push({
+			html,
+			isBlock,
+			trailingEmptyLines: emptyCount,
+		});
 	}
 
 	let result = "";
-	for (let idx = 0; idx < htmlParts.length; idx++) {
-		result += htmlParts[idx].html;
-		const next = htmlParts[idx + 1];
+	for (let idx = 0; idx < parts.length; idx++) {
+		result += parts[idx].html;
+		const next = parts[idx + 1];
 		if (!next) continue;
 
-		const bothInline = htmlParts[idx].kind === "inline" && next.kind === "inline";
-		const bothCode = htmlParts[idx].kind === "code" && next.kind === "code";
-		if (bothInline || bothCode) {
-			result += "<br>";
+		const bothInline = !parts[idx].isBlock && !next.isBlock;
+		const emptyCount = parts[idx].trailingEmptyLines;
+		const brCount = emptyCount + (bothInline ? 1 : 0);
+		if (brCount > 0) {
+			result += "<br>".repeat(brCount);
 		}
 	}
 

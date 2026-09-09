@@ -134,6 +134,55 @@ describe("Slack Mobile HTML Converter (iOS / Android)", () => {
 			expect(html).not.toContain("<i>i * y</i>");
 			expect(html).not.toContain("<i>int");
 		});
+
+		describe("Empty Line and Break Preservation (Philosophy A)", () => {
+			it("preserves empty lines between blockquotes", () => {
+				const md1 = "> Quote 1\n\n> Quote 2";
+				expect(convertToSlackMobileHtml(md1)).toBe("<p>&gt; Quote 1</p><br><p>&gt; Quote 2</p>");
+
+				const md2 = "> Quote 1\n\n\n> Quote 2";
+				expect(convertToSlackMobileHtml(md2)).toBe("<p>&gt; Quote 1</p><br><br><p>&gt; Quote 2</p>");
+			});
+
+			it("preserves empty lines between list and heading", () => {
+				const withEmptyLine = "- item 1\n- item 2\n\n# Heading";
+				expect(convertToSlackMobileHtml(withEmptyLine)).toBe("<ul><li>item 1</li><li>item 2</li></ul><br><b>Heading</b>");
+
+				const withoutEmptyLine = "- item 1\n- item 2\n# Heading";
+				expect(convertToSlackMobileHtml(withoutEmptyLine)).toBe("<ul><li>item 1</li><li>item 2</li></ul><b>Heading</b>");
+			});
+
+			it("preserves empty lines between code block and table", () => {
+				const md = "```ts\nconst x = 1;\n```\n\n| A | B |\n|---|---|\n| 1 | 2 |";
+				const html = convertToSlackMobileHtml(md);
+				expect(html).toContain("</p><br><p>```");
+			});
+
+			it("faithfully preserves 0, 1, and 2 empty lines between paragraphs", () => {
+				const consecutive = "Line 1\nLine 2";
+				expect(convertToSlackMobileHtml(consecutive)).toBe("Line 1<br>Line 2");
+
+				const oneEmpty = "Line 1\n\nLine 2";
+				expect(convertToSlackMobileHtml(oneEmpty)).toBe("Line 1<br><br>Line 2");
+
+				const twoEmpty = "Line 1\n\n\nLine 2";
+				expect(convertToSlackMobileHtml(twoEmpty)).toBe("Line 1<br><br><br>Line 2");
+			});
+
+			it("preserves spacing between inline text and block elements", () => {
+				const textThenQuote0 = "Text\n> Quote";
+				expect(convertToSlackMobileHtml(textThenQuote0)).toBe("Text<p>&gt; Quote</p>");
+
+				const textThenQuote1 = "Text\n\n> Quote";
+				expect(convertToSlackMobileHtml(textThenQuote1)).toBe("Text<br><p>&gt; Quote</p>");
+
+				const quoteThenText0 = "> Quote\nText";
+				expect(convertToSlackMobileHtml(quoteThenText0)).toBe("<p>&gt; Quote</p>Text");
+
+				const quoteThenText1 = "> Quote\n\nText";
+				expect(convertToSlackMobileHtml(quoteThenText1)).toBe("<p>&gt; Quote</p><br>Text");
+			});
+		});
 	});
 
 	describe("Platform Branching (convertMarkdown)", () => {
