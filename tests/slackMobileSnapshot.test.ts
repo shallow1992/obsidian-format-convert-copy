@@ -35,8 +35,8 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 		// Sanity checks on Phase 2 features
 		expect(html).toContain("<ul><li>Level 1 Bullet Item A");
 		expect(html).toContain("<ol><li>Step 1 (Root Level)");
-		expect(html).toContain("<blockquote>&gt; This is a standard single-line blockquote.</blockquote>");
-		expect(html).toContain("<blockquote>&gt; <b>[Release Update]</b><br>&gt; This is an Obsidian callout block.");
+		expect(html).toContain("<p>&gt; This is a standard single-line blockquote.</p>");
+		expect(html).toContain("<p>&gt; <b>[Release Update]</b><br>&gt; This is an Obsidian callout block.");
 		expect(html).toContain("☐ Incomplete task item");
 		expect(html).toContain("☑ <s>Completed task item (should have strikethrough)</s>");
 
