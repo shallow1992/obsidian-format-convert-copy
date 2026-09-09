@@ -88,7 +88,9 @@ export function isSafeUrl(rawUrl: string): boolean {
 export function extractCodeBlocks(
 	source: string,
 	wrapBlock: (code: string, lang?: string) => string,
-	wrapInline: (code: string) => string
+	wrapInline: (code: string) => string,
+	wrapBlockMath?: (math: string) => string,
+	wrapInlineMath?: (math: string) => string
 ): CodeExtraction {
 	const lines = source.split("\n");
 	const blocks: string[] = [];
@@ -148,7 +150,11 @@ export function extractCodeBlocks(
 	// 1. Extract and protect block math ($$...$$)
 	intermediateText = intermediateText.replace(/(?<!\\)\$\$([\s\S]+?)\$\$/g, (_match, math) => {
 		const trimmedMath = math.trim();
-		blocks.push(wrapBlock(`$$\n${trimmedMath}\n$$`));
+		if (wrapBlockMath) {
+			blocks.push(wrapBlockMath(trimmedMath));
+		} else {
+			blocks.push(wrapBlock(`$$\n${trimmedMath}\n$$`));
+		}
 		return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
 	});
 
@@ -156,7 +162,11 @@ export function extractCodeBlocks(
 	intermediateText = intermediateText.replace(
 		/(?<!\\|\$)\$([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)/g,
 		(_match, math) => {
-			blocks.push(wrapInline(`$${math}$`));
+			if (wrapInlineMath) {
+				blocks.push(wrapInlineMath(math));
+			} else {
+				blocks.push(wrapInline(`$${math}$`));
+			}
 			return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
 		}
 	);

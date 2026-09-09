@@ -169,11 +169,12 @@ describe("slack converter", () => {
 		expect(converted).toContain("| Val1");
 	});
 
-	it("protects LaTeX math blocks and inline formulas in Slack", () => {
+	it("protects LaTeX math blocks and inline formulas in Slack with $$ and $", () => {
 		const md = "Formula $x_1 * y_1$ and block:\n$$\nE = mc^2\n$$\nCurrency: $10.00 and $20.00";
 		const converted = convertToSlack(md);
-		expect(converted).toContain("`$x_1 * y_1$`");
-		expect(converted).toContain("```\n$$\nE = mc^2\n$$\n```");
+		expect(converted).toContain("Formula $x_1 * y_1$ and block:");
+		expect(converted).toContain("$$\nE = mc^2\n$$");
+		expect(converted).not.toContain("```");
 		expect(converted).toContain("Currency: $10.00 and $20.00");
 	});
 
@@ -187,7 +188,8 @@ describe("slack converter", () => {
 		expect(html).not.toContain("javascript:");
 		expect(html).toContain("Evil");
 		expect(html).toContain("<p>```<br>| H1");
-		expect(html).toContain("<code>$a_b$</code>");
+		expect(html).toContain("Formula $a_b$");
+		expect(html).not.toContain("<code>$a_b$</code>");
 	});
 
 	it("generates plain markdown paragraph structure for code blocks in Slack HTML", () => {
