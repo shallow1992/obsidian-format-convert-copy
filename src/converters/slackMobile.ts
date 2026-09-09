@@ -162,13 +162,7 @@ export function convertToSlackMobileHtml(md: string): string {
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
 
-	interface ConvertedPart {
-		html: string;
-		isBlock: boolean;
-		trailingEmptyLines: number;
-	}
-
-	const parts: ConvertedPart[] = [];
+	const parts: string[] = [];
 	const lines = text.split("\n");
 	let i = 0;
 
@@ -177,23 +171,39 @@ export function convertToSlackMobileHtml(md: string): string {
 		i++;
 	}
 
+	const isBlockStart = (l: string): boolean => {
+		const codePlaceholder = new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`);
+		const heading = /^#{1,6}\s+(.*)$/;
+		const listMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+		const quoteMatch = /^>\s?(.*)$/;
+		const hrMatch = /^(?:---+|\*\*\*+|___+)\s*$/;
+		return (
+			codePlaceholder.test(l) ||
+			heading.test(l) ||
+			listMatch.test(l) ||
+			quoteMatch.test(l) ||
+			hrMatch.test(l)
+		);
+	};
+
 	while (i < lines.length) {
 		const line = lines[i];
 		const codePlaceholder = line.match(new RegExp(`^${CODE_MARK}(\\d+)${CODE_MARK}$`));
 		const heading = line.match(/^#{1,6}\s+(.*)$/);
 		const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
 		const quoteMatch = line.match(/^>\s?(.*)$/);
+		const hrMatch = line.match(/^(?:---+|\*\*\*+|___+)\s*$/);
 
 		let html = "";
-		let isBlock = false;
 
 		if (codePlaceholder) {
 			html = codeBlocks[Number(codePlaceholder[1])];
-			isBlock = html.startsWith("<p>") || html.startsWith("<ul>") || html.startsWith("<ol>");
 			i++;
 		} else if (heading) {
-			html = `<b>${formatInlineSlackMobileHtml(heading[1])}</b>`;
-			isBlock = false;
+			html = `<p><b>${formatInlineSlackMobileHtml(heading[1])}</b></p>`;
+			i++;
+		} else if (hrMatch) {
+			html = "<p>───</p>";
 			i++;
 		} else if (quoteMatch) {
 			const quoteLines: string[] = [];
@@ -206,7 +216,6 @@ export function convertToSlackMobileHtml(md: string): string {
 				j++;
 			}
 			html = `<p>${quoteLines.join("<br>")}</p>`;
-			isBlock = true;
 			i = j;
 		} else if (listMatch) {
 			const listLines: ListLine[] = [];
@@ -224,42 +233,37 @@ export function convertToSlackMobileHtml(md: string): string {
 			const minIndent = Math.min(...listLines.map((l) => l.indent));
 			const [listHtml] = buildNestedListHtml(listLines, 0, minIndent);
 			html = listHtml;
-			isBlock = true;
 			i = j;
 		} else {
-			html = formatInlineSlackMobileHtml(line);
-			isBlock = false;
-			i++;
+			// Normal paragraph lines: group consecutive lines with soft breaks (<br>)
+			const paraLines: string[] = [formatInlineSlackMobileHtml(line)];
+			let j = i + 1;
+			while (j < lines.length && lines[j].trim() !== "" && !isBlockStart(lines[j])) {
+				paraLines.push(formatInlineSlackMobileHtml(lines[j]));
+				j++;
+			}
+			html = `<p>${paraLines.join("<br>")}</p>`;
+			i = j;
 		}
 
-		// Count any subsequent empty lines as trailingEmptyLines for this part
+		parts.push(html);
+
+		// Count any subsequent empty lines as trailing empty lines
 		let emptyCount = 0;
 		while (i < lines.length && lines[i].trim() === "") {
 			emptyCount++;
 			i++;
 		}
 
-		parts.push({
-			html,
-			isBlock,
-			trailingEmptyLines: emptyCount,
-		});
-	}
-
-	let result = "";
-	for (let idx = 0; idx < parts.length; idx++) {
-		result += parts[idx].html;
-		const next = parts[idx + 1];
-		if (!next) continue;
-
-		const bothInline = !parts[idx].isBlock && !next.isBlock;
-		const emptyCount = parts[idx].trailingEmptyLines;
-		const brCount = emptyCount + (bothInline ? 1 : 0);
-		if (brCount > 0) {
-			result += "<br>".repeat(brCount);
+		// If not at the end of the document, emit <p><br></p> for each empty line
+		if (i < lines.length) {
+			for (let k = 0; k < emptyCount; k++) {
+				parts.push("<p><br></p>");
+			}
 		}
 	}
 
+	let result = parts.join("");
 	result = restoreCodeBlocks(result, codeBlocks);
 	return result.trim();
 }
