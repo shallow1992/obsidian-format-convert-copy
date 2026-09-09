@@ -98,12 +98,12 @@ To keep the test suite cohesive and maintainable:
 
 ---
 
-## 5. Language & Privacy Policy (Strict Mandate)
+## 5. Language Policy (English Standard)
 
-To maintain international accessibility, professional quality, and strict confidentiality, all contributors and AI agents must adhere to the following rules:
+To maintain international accessibility, professional quality, and consistency across open-source contributions:
 
 ### Primary Language: English
-- All code comments, docstrings, identifier names, commit messages, pull request titles/descriptions, and documentation files must be written in **English**.
+- All source code comments, docstrings, identifier names, commit messages, pull request titles/descriptions, and documentation files must be written in **English**.
 
 ### Permitted CJK / Japanese Usage
 Japanese (CJK characters) is strictly permitted under only two specific conditions:
@@ -112,12 +112,24 @@ Japanese (CJK characters) is strictly permitted under only two specific conditio
 2. **Dedicated Localization & Translation**:
    - Secondary language translations of primary documentation (e.g. `README.ja.md`).
 
+---
+
+## 6. Privacy & Personal Data Prevention (Zero PII)
+
+To prevent accidental disclosure of sensitive or identifying information across public repositories and collaborative channels:
+
 ### Zero Personal Data Mandate
 - **No Real Names or Identifiers**: Never include real personal names, user handles, real email addresses, or specific individual/corporate identifiers anywhere in:
-  - Markdown test fixtures
-  - Test suites or comments
-  - Source code or documentation
-  - Git commit messages or commit history
+  - Markdown test fixtures and sample data
+  - Automated test suites, assertions, or comments
+  - Source code, docstrings, or documentation
+  - Git commit messages, branch names, or PR titles/descriptions
 - **Generic Terminology**: Always use generic, neutral technical or business placeholders:
   - English: `Task A`, `Feature X`, `Component B`, `Alice`, `Bob`
   - Japanese (when used for CJK tests): `項目名`, `進捗状況`, `優先度`, `基本設計`, `完了`, `高`, `中`, `低`
+- **Host & Environment Sanitization**:
+  - Always scrub local filesystem paths (`/Users/<username>`, `C:\Users\<username>`), machine hostnames, and user directories from pasted command logs or stack traces.
+- **Media & Credential Protection**:
+  - Crop screenshots and recordings to exclude browser bookmarks, active tabs, OS menu bars, and user profile pictures.
+  - Never commit credentials, tokens, cookies, or network dumps.
+
