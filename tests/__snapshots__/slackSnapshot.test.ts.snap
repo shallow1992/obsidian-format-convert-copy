@@ -1559,7 +1559,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "1. Consecutive Empty Lines & Block Spacing (空行・改行のエッジケース)",
+      "insert": "1. Consecutive Empty Lines & Block Spacing",
     },
     {
       "insert": "
@@ -2255,7 +2255,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "2. Math & Delimiter Collision Edge Cases (数式・記号の衝突エッジケース)",
+      "insert": "2. Math & Delimiter Collision Edge Cases",
     },
     {
       "insert": "
@@ -2612,7 +2612,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "3. URLs with Balanced Parentheses & Special Characters (URL・特殊文字)",
+      "insert": "3. URLs with Balanced Parentheses & Special Characters",
     },
     {
       "insert": "
@@ -2649,13 +2649,13 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Wikipedia Japanese: ",
+      "insert": "Encoded URL with Parentheses: ",
     },
     {
       "attributes": {
-        "link": "https://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0",
+        "link": "https://example.com/item/(v1.0)",
       },
-      "insert": "高階関数",
+      "insert": "Encoded Link",
     },
     {
       "attributes": {
@@ -2853,7 +2853,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "4. Complex Nested Inline Styles (複雑な複合装飾)",
+      "insert": "4. Complex Nested Inline Styles",
     },
     {
       "insert": "
@@ -3010,7 +3010,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "attributes": {
         "bold": true,
       },
-      "insert": "5. Horizontal Dividers with Surrounding Spacing (水平線と余白)",
+      "insert": "5. Horizontal Dividers with Surrounding Spacing",
     },
     {
       "insert": "

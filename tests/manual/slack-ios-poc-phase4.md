@@ -20,12 +20,12 @@ Its goal is to verify how the Slack iOS native app handles Markdown tables and L
 | Task B | In Progress | Medium |
 | Task C | Pending | Low |
 
-## 2. Table with Japanese / CJK Text
-| 項目名 | 進捗 | 担当者 |
+## 2. Table with Japanese / CJK Text (Full-Width Font Alignment Test)
+| 項目名 | 進捗状況 | 優先度 |
 | :--- | :--- | :--- |
-| 要件定義 | 完了 | 鈴木 |
-| 設計レビュー | 進行中 | 佐藤 |
-| リリース | 未着手 | 田中 |
+| 基本設計 | 完了 | 高 |
+| 詳細設計 | 進行中 | 中 |
+| 結合テスト | 未着手 | 低 |
 
 ## 3. Inline Math
 This is an inline formula: $E = mc^2$ within a sentence.

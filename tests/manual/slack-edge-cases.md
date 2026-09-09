@@ -9,7 +9,7 @@ This test note is specifically designed to verify **visual edge cases** that onl
 
 ---
 
-## 1. Consecutive Empty Lines & Block Spacing (空行・改行のエッジケース)
+## 1. Consecutive Empty Lines & Block Spacing
 
 ### Case 1.1: Single vs Multiple Consecutive Blank Lines
 Paragraph 1 (First line)
@@ -93,7 +93,7 @@ $$
 
 ---
 
-## 2. Math & Delimiter Collision Edge Cases (数式・記号の衝突エッジケース)
+## 2. Math & Delimiter Collision Edge Cases
 
 ### Case 2.1: Heading Containing `$$` Near Block Math
 ### Section 2.1: Verifying $$ and $ Delimiters in Prose
@@ -125,11 +125,11 @@ The small widget costs $15 and the deluxe widget costs $45. The total savings is
 
 ---
 
-## 3. URLs with Balanced Parentheses & Special Characters (URL・特殊文字)
+## 3. URLs with Balanced Parentheses & Special Characters
 
 ### Case 3.1: URLs Containing Parentheses
 - Wikipedia English: [Closure in Programming](https://en.wikipedia.org/wiki/Closure_(computer_programming))
-- Wikipedia Japanese: [高階関数](https://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0)
+- Encoded URL with Parentheses: [Encoded Link](https://example.com/item/(v1.0))
 - Multi-nested query link: [Search Link](https://example.com/search?q=(test)&category=(dev))
 
 - **Verification Criteria**:
@@ -144,7 +144,7 @@ Testing raw angle brackets and ampersands: `5 < 10 && 20 > 15`, `<script>alert('
 
 ---
 
-## 4. Complex Nested Inline Styles (複雑な複合装飾)
+## 4. Complex Nested Inline Styles
 
 ### Case 4.1: Multi-layer Inline Formatting
 - Underline with nested bold: <u>Underlined text containing **Bold Underlined Text** inside</u>.
@@ -156,7 +156,7 @@ Testing raw angle brackets and ampersands: `5 < 10 && 20 > 15`, `<script>alert('
 
 ---
 
-## 5. Horizontal Dividers with Surrounding Spacing (水平線と余白)
+## 5. Horizontal Dividers with Surrounding Spacing
 
 Preceding paragraph before horizontal rule.
 

@@ -64,7 +64,7 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		// Tables are formatted inside ``` code blocks with aligned monospace columns
 		expect(html).toContain("<p>```<br>| Item   | Status");
-		expect(html).toContain("| 項目名       | 進捗");
+		expect(html).toContain("| 項目名     | 進捗状況");
 
 		// Math formulas formatted with native $$ and $ without code tags/fences
 		expect(html).toContain("$E = mc^2$");
