@@ -97,7 +97,9 @@ export function convertToSlack(md: string): string {
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => "```\n" + code + "\n```",
-		(code) => "`" + code + "`"
+		(code) => "`" + code + "`",
+		(math) => `$$\n${math}\n$$`,
+		(math) => `$${math}$`
 	);
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
@@ -178,7 +180,16 @@ export function convertToSlackHtml(md: string): string {
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => formatSlackCodeBlockHtml(code),
-		(code) => `<code>${escapeHtml(code)}</code>`
+		(code) => `<code>${escapeHtml(code)}</code>`,
+		(math) => {
+			const lines = math.split("\n").map((line) => {
+				let content = escapeHtml(line);
+				content = content.replace(/^( +)/, (_match, spaces) => "&nbsp;".repeat(spaces.length));
+				return content || "&nbsp;";
+			});
+			return `<p>$$<br>${lines.join("<br>")}<br>$$</p>`;
+		},
+		(math) => `$${escapeHtml(math)}$`
 	);
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;

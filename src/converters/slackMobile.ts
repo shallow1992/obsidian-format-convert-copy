@@ -148,7 +148,16 @@ export function convertToSlackMobileHtml(md: string): string {
 	const extraction = extractCodeBlocks(
 		text,
 		(code, lang) => formatSlackMobileCodeBlockHtml(code, lang),
-		(code) => `<code>${escapeHtml(code)}</code>`
+		(code) => `<code>${escapeHtml(code)}</code>`,
+		(math) => {
+			const lines = math.split("\n").map((line) => {
+				let content = escapeHtml(line);
+				content = content.replace(/^( +)/, (_match, spaces) => "&nbsp;".repeat(spaces.length));
+				return content || "&nbsp;";
+			});
+			return `<p>$$<br>${lines.join("<br>")}<br>$$</p>`;
+		},
+		(math) => `$${escapeHtml(math)}$`
 	);
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
