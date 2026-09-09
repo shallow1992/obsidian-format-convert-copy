@@ -74,4 +74,34 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 
 		expect(html).toMatchSnapshot();
 	});
+
+	it("converts tests/manual/slack-edge-cases.md and matches snapshot", () => {
+		const suitePath = path.resolve(__dirname, "manual/slack-edge-cases.md");
+		const content = fs.readFileSync(suitePath, "utf-8");
+
+		const html = convertToSlackMobileHtml(content);
+
+		// Assertions on edge cases:
+		// 1. Consecutive empty lines produce <p>&nbsp;</p>
+		expect(html).toContain("<p>&nbsp;</p>");
+
+		// 2. Headings containing $$ don't swallow prose
+		expect(html).toContain("<p><b>Section 2.1: Verifying $$ and $ Delimiters in Prose</b></p>");
+		expect(html).toContain("Here is the formula below that must NOT be accidentally merged with the header:");
+
+		// 3. LaTeX subscripts don't become italicized
+		expect(html).toContain("$x_1 * y_1 + x_2 * y_2 \\le z_{max} * \\lambda_{target}$");
+
+		// 4. URLs with balanced parentheses
+		expect(html).toContain('href="https://en.wikipedia.org/wiki/Closure_(computer_programming)"');
+
+		// 5. Blockquote separation
+		expect(html).toContain("<p>&gt; Quote Block A: First independent quotation.<br>&gt; Line 2 of Quote Block A.</p>");
+		expect(html).toContain("<p>&gt; Quote Block B: Second quotation separated by an empty line above.</p>");
+
+		// 6. Horizontal divider
+		expect(html).toContain("<p>───</p>");
+
+		expect(html).toMatchSnapshot();
+	});
 });

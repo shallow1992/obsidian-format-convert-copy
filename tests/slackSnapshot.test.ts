@@ -73,5 +73,18 @@ describe("Slack Texty Automated Testing & Validation", () => {
 			// 3. Snapshot assertion to freeze regression protection
 			expect(parsed).toMatchSnapshot();
 		});
+
+		it("converts tests/manual/slack-edge-cases.md with zero invariant violations and matches snapshot", () => {
+			const suitePath = path.resolve(__dirname, "manual/slack-edge-cases.md");
+			const content = fs.readFileSync(suitePath, "utf-8");
+
+			const result = convertToSlackTexty(content);
+			const parsed = JSON.parse(result.texty);
+
+			assertSlackDeltaValid(parsed);
+			expect(parsed.ops.length).toBeGreaterThan(20);
+
+			expect(parsed).toMatchSnapshot();
+		});
 	});
 });
