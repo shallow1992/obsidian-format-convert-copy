@@ -23,7 +23,7 @@ Its goal is to verify how the Slack iOS native app handles Markdown tables and L
 ## 2. Table with Japanese / CJK Text
 | 項目名 | 進捗 | 担当者 |
 | :--- | :--- | :--- |
-| 要件定義 | 完了 | 担当A |
+| 要件定義 | 完了 | 鈴木 |
 | 設計レビュー | 進行中 | 佐藤 |
 | リリース | 未着手 | 田中 |
 
