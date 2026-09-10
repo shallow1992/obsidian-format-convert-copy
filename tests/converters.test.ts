@@ -494,6 +494,8 @@ import { noticeInstances } from "./__mocks__/obsidian";
 describe("copyToClipboard rich text and silent mode", () => {
 	beforeEach(() => {
 		noticeInstances.length = 0;
+		(globalThis as any).window = globalThis;
+		(globalThis as any).activeWindow = globalThis;
 		(globalThis as any).ClipboardItem = class ClipboardItem {
 			constructor(public data: Record<string, Blob>) {}
 		};
