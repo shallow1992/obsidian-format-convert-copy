@@ -95,7 +95,7 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 
 ## Installation
 
-### Via Obsidian Community Plugins (Coming Soon)
+### Via Obsidian Community Plugins
 1. Open **Settings > Community plugins** in Obsidian.
 2. Search for **Format Convert Copy**.
 3. Click **Install**, then **Enable**.
@@ -108,8 +108,8 @@ Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 
 ### Manual Installation
 1. Download `main.js`, `manifest.json`, and `styles.css` from the [Latest Release](https://github.com/shallow1992/obsidian-format-convert-copy/releases).
-2. Create a folder named `format-convert-copy` in your vault's `.obsidian/plugins/` directory:
-   `<Vault>/.obsidian/plugins/format-convert-copy/`
+2. Create a folder named `format-convert-copy` in your vault's plugin directory:
+   `your-vault/.obsidian/plugins/format-convert-copy/`
 3. Copy the downloaded files into that folder.
 4. Reload Obsidian and enable **Format Convert Copy** under **Settings > Community plugins**.
 

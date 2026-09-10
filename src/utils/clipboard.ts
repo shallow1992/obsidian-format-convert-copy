@@ -58,20 +58,17 @@ export async function copyToClipboard(
 		// Method A: Desktop Electron clipboard (synchronous rich write)
 		if (!Platform.isMobile) {
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-var-requires
-				const electron =
-					typeof (window as any)?.require === "function"
-						? (window as any).require("electron")
-						: typeof require === "function"
-						? require("electron")
-						: null;
+				const windowWithRequire = window as unknown as {
+					require?: (module: string) => { clipboard?: { write?: (data: { text: string; html?: string }) => void } };
+				};
+				const electron = typeof windowWithRequire.require === "function" ? windowWithRequire.require("electron") : null;
 
-				if (electron && electron.clipboard && typeof electron.clipboard.write === "function") {
+				if (electron?.clipboard && typeof electron.clipboard.write === "function") {
 					electron.clipboard.write({ text, html });
 					notifySuccess(t("noticeCopied", { format: label }));
 					return true;
 				}
-			} catch (_electronError) {
+			} catch {
 				// Proceed to Web Clipboard API / DOM methods
 			}
 		}
@@ -112,7 +109,7 @@ export async function copyToClipboard(
 				notifySuccess(t("noticeCopied", { format: label }));
 				return true;
 			}
-		} catch (_domError) {
+		} catch {
 			// Proceed to plain text fallback
 		}
 	}
@@ -134,16 +131,15 @@ export async function copyToClipboard(
 
 	// 4. Final legacy textarea fallback
 	try {
-		const textArea = document.createElement("textarea");
+		const doc = typeof activeDocument !== "undefined" ? activeDocument : document;
+		const textArea = doc.body.createEl("textarea", {
+			cls: "format-convert-hidden-textarea",
+		});
 		textArea.value = text;
-		textArea.style.position = "fixed";
-		textArea.style.left = "-9999px";
-		textArea.style.top = "-9999px";
-		document.body.appendChild(textArea);
 		textArea.focus();
 		textArea.select();
-		const successful = document.execCommand("copy");
-		document.body.removeChild(textArea);
+		const successful = doc.execCommand("copy");
+		textArea.remove();
 		if (successful) {
 			notifySuccess(
 				html

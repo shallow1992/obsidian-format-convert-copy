@@ -2,7 +2,7 @@ import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obs
 import { convertMarkdown } from "./converters";
 import { convertToSlackTexty } from "./converters/slackTexty";
 import { FormatConvertSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, EmptySelectionBehavior, FORMAT_ITEMS, FormatConvertSettings, FormatType, getFormatItems } from "./types";
+import { DEFAULT_SETTINGS, EmptySelectionBehavior, FormatConvertSettings, FormatType, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
 import { t } from "./i18n";
 
@@ -69,7 +69,7 @@ export default class FormatConvertPlugin extends Plugin {
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
 					const result = convertMarkdown(target, cmd.type);
-					this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+					void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 				},
 			});
 		}
@@ -86,7 +86,7 @@ export default class FormatConvertPlugin extends Plugin {
 					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 } as any,
 					(type) => {
 						const result = convertMarkdown(target, type);
-						this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+						void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 					}
 				);
 			},
@@ -135,7 +135,7 @@ export default class FormatConvertPlugin extends Plugin {
 								.setIcon("clipboard-copy")
 								.onClick(() => {
 									const result = convertMarkdown(target, item.type);
-									this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+									void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 								})
 						);
 					}
@@ -156,7 +156,7 @@ export default class FormatConvertPlugin extends Plugin {
 						const content = await this.app.vault.cachedRead(file);
 						const result = convertMarkdown(content, type);
 						await this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
-					} catch (_e) {
+					} catch {
 						new Notice(t("noticeFailed"));
 					}
 				};
@@ -175,7 +175,9 @@ export default class FormatConvertPlugin extends Plugin {
 							menuItem
 								.setTitle(item.title)
 								.setIcon("clipboard-copy")
-								.onClick(() => copyFileContent(item.type))
+								.onClick(() => {
+									void copyFileContent(item.type);
+								})
 						);
 					}
 				}
@@ -187,7 +189,9 @@ export default class FormatConvertPlugin extends Plugin {
 							.setTitle(t("actionChooseMenu"))
 							.setIcon("copy")
 							.onClick((evt: MouseEvent | KeyboardEvent) => {
-								this.showFormatSelectMenu(evt, (type) => copyFileContent(type));
+								this.showFormatSelectMenu(evt, (type) => {
+									void copyFileContent(type);
+								});
 							})
 					);
 				}
@@ -202,7 +206,7 @@ export default class FormatConvertPlugin extends Plugin {
 			const target = this.getActiveTargetText();
 			if (target) {
 				const result = convertMarkdown(target, type);
-				this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+				void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 			}
 		};
 

@@ -1,17 +1,9 @@
 /* obsidian-format-convert-copy */
 
-.format-convert-setting-heading {
-	font-size: var(--font-ui-medium);
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
-	margin-top: 24px;
-	margin-bottom: 6px;
-}
-
-.format-convert-setting-desc {
-	color: var(--text-muted);
-	font-size: var(--font-ui-smaller);
-	margin-top: 0;
-	margin-bottom: 12px;
-	line-height: var(--line-height-tight);
+.format-convert-hidden-textarea {
+	position: fixed;
+	left: -9999px;
+	top: -9999px;
+	opacity: 0;
+	pointer-events: none;
 }

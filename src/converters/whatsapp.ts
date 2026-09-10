@@ -18,7 +18,7 @@ function sanitizeHeadingContent(content: string): string {
 	// Strip bold delimiters (**text** or __text__) since the entire heading is already bold
 	res = res.replace(/(\*\*|__)(.+?)\1/g, "$2");
 	// Unify italic asterisks (*italic*) into underscores (_italic_) to prevent nested asterisk collisions
-	res = res.replace(/(?<!\*)\*([^\s\*](?:[^\*\n]*?[^\s\*])?)\*(?!\*)/g, "_$1_");
+	res = res.replace(/(^|[^*])\*([^\s*](?:[^*\n]*?[^\s*])?)\*(?!\*)/g, "$1_$2_");
 	return res;
 }
 
@@ -104,17 +104,22 @@ export function convertToWhatsApp(md: string): string {
 	});
 
 	// Bold (**) and (__)
-	text = text.replace(/(?:\*\*([^\s\*](?:[\s\S]*?[^\s\*])?)\*\*|(?<=^|[\s\p{P}])__([^\s_](?:[\s\S]*?[^\s_])?)__(?=[\s\p{P}]|$))/gu, (_match, b1, b2) => {
-		const content = b1 !== undefined ? b1 : b2;
+	// 1. Double asterisk bold: **text**
+	text = text.replace(/\*\*([^\s*](?:[\s\S]*?[^\s*])?)\*\*/g, (_match, content) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
+	});
+	// 2. Double underscore bold: __text__ (boundary-checked without lookbehind)
+	text = text.replace(/(^|[\s\p{P}])__([^\s_](?:[\s\S]*?[^\s_])?)__(?=[\s\p{P}]|$)/gu, (_match, prefix, content) => {
+		boldTargets.push(content);
+		return `${prefix}${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
 	// Italics (* / _)
 	// 1. Asterisk italic: *text* (excluding bold or multi-asterisk)
-	text = text.replace(/(?<!\*)\*([^\s\*](?:[^\*\n]*?[^\s\*])?)\*(?!\*)/g, "_$1_");
+	text = text.replace(/(^|[^*])\*([^\s*](?:[^*\n]*?[^\s*])?)\*(?!\*)/g, "$1_$2_");
 	// 2. Underscore italic: _text_ (excluding intra-word snake_case)
-	text = text.replace(/(?<=^|[\s\p{P}])_([^\s_](?:[^_\n]*?[^\s_])?)_(?=[\s\p{P}]|$)/gu, "_$1_");
+	text = text.replace(/(^|[\s\p{P}])_([^\s_](?:[^_\n]*?[^\s_])?)_(?=[\s\p{P}]|$)/gu, "$1_$2_");
 
 	// Restore bold targets to WhatsApp *text* format
 	const boldPattern = new RegExp(`${BOLD_MARK}(\\d+)${BOLD_MARK}`, "g");

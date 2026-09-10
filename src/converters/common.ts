@@ -75,8 +75,11 @@ export function isSafeUrl(rawUrl: string): boolean {
 		return true;
 	}
 	// Reject control characters (ASCII 0-31, 127)
-	if (/[\x00-\x1F\x7F]/.test(trimmed)) {
-		return false;
+	for (let i = 0; i < trimmed.length; i++) {
+		const code = trimmed.charCodeAt(i);
+		if (code < 32 || code === 127) {
+			return false;
+		}
 	}
 	return /^(https?|mailto|tel|obsidian):/i.test(trimmed);
 }
@@ -233,7 +236,7 @@ export function extractCodeBlocks(
 
 	// 1. Extract and protect inline math ($...$) while avoiding false positives for currency ($100)
 	intermediateText = intermediateText.replace(
-		/(?<!\\|\$)\$([^\s\$](?:[^$\n]*?[^\s\$])?)\$(?!\d|\$)/g,
+		/(?<!\\|\$)\$([^\s$](?:[^$\n]*?[^\s$])?)\$(?!\d|\$)/g,
 		(_match, math) => {
 			if (wrapInlineMath) {
 				blocks.push(wrapInlineMath(math));
