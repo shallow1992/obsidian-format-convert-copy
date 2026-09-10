@@ -1,9 +1,2 @@
-/* obsidian-format-convert-copy */
+/* obsidian-format-convert-copy styles */
 
-.format-convert-hidden-textarea {
-	position: fixed;
-	left: -9999px;
-	top: -9999px;
-	opacity: 0;
-	pointer-events: none;
-}

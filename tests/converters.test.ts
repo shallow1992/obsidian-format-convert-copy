@@ -527,4 +527,36 @@ describe("copyToClipboard rich text and silent mode", () => {
 		expect(success).toBe(true);
 		expect(navigator.clipboard.write).toHaveBeenCalled();
 	});
+
+	it("returns false and shows failure notice when clipboard write fails", async () => {
+		(navigator.clipboard.writeText as any).mockRejectedValueOnce(new Error("Permission denied"));
+		const success = await copyToClipboard("failed text", "Plain", undefined, false);
+		expect(success).toBe(false);
+		expect(noticeInstances.length).toBeGreaterThan(0);
+		expect(noticeInstances[0]).toContain("Failed to copy to clipboard");
+	});
+
+	it("writes custom MIME types via electron.clipboard on desktop", async () => {
+		const mockWrite = vi.fn();
+		const mockWriteBuffer = vi.fn();
+		(globalThis as any).require = (mod: string) => {
+			if (mod === "electron") {
+				return {
+					clipboard: {
+						write: mockWrite,
+						writeBuffer: mockWriteBuffer,
+					},
+				};
+			}
+			return null;
+		};
+
+		const success = await copyToClipboard("plain", "Slack", undefined, false, {
+			"slack/texty": "{\"data\":1}",
+		});
+		expect(success).toBe(true);
+		expect(mockWrite).toHaveBeenCalled();
+		expect(mockWriteBuffer).toHaveBeenCalledWith("slack/texty", expect.any(Uint8Array));
+		delete (globalThis as any).require;
+	});
 });
