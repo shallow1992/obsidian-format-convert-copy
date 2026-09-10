@@ -25,9 +25,12 @@ Testers may copy the contents of this file or place this note anywhere in their 
 
 ---
 
-## 2. Lists & Hierarchy
+## 2. Lists (Official WhatsApp Specification: Single Level Only)
+> [!NOTE]
+> Per official WhatsApp formatting guidelines, bullet lists and numbered lists do not support hierarchical nesting levels; nested items render as flat list items in WhatsApp.
+
 - Level 1 Bullet Item A
-  - Level 2 Nested Item B
+  - Level 2 Nested Item B (renders as flat bullet item in WhatsApp)
     - Level 3 Nested Item C
 1. Step 1 (Numbered List)
    1. Substep 1-1
@@ -81,8 +84,11 @@ Must preserve indentation and line breaks.
 
 ---
 
-## 7. Math & Vault-Specific Wikilinks
-- Inline Math: $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$ (must be protected inside code blocks)
+## 7. Math & Vault-Specific Wikilinks (Protected in Code Attributes)
+> [!NOTE]
+> LaTeX formulas are protected inside inline code and code block wrappers to prevent WhatsApp delimiter collisions (e.g. subscript underscores and multiplication asterisks).
+
+- Inline Math: $x_1 * y_1 = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$ (must be protected inside code blocks)
 - Block Math:
 $$
 A = \pi r^2
