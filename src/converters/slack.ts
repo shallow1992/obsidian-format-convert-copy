@@ -43,17 +43,17 @@ export function convertToSlack(md: string, options?: SlackConvertOptions): strin
 	const boldTargets: string[] = [];
 
 	// Stash Callouts (e.g. > [!NOTE] content)
-	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match: string, type: string, title: string) => {
 		const label = title.trim() || type.toUpperCase();
 		boldTargets.push(`[${label}]`);
 		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
+	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match: string, content: string) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
-	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match, _marker, content) => {
+	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match: string, _marker: string, content: string) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
@@ -63,11 +63,11 @@ export function convertToSlack(md: string, options?: SlackConvertOptions): strin
 
 	// Restore bold to Slack *text* format
 	const boldPattern = new RegExp(`${BOLD_MARK}(\\d+)${BOLD_MARK}`, "g");
-	text = text.replace(boldPattern, (_match, i) => `*${boldTargets[Number(i)]}*`);
+	text = text.replace(boldPattern, (_match: string, i: string) => `*${boldTargets[Number(i)]}*`);
 
 	// Strikethrough, links, and bullet points
 	text = text.replace(/~~(.+?)~~/g, "~$1~");
-	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, url) => {
+	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match: string, title: string, url: string) => {
 		const cleanUrl = url.trim();
 		if (isSafeUrl(cleanUrl)) {
 			return `<${cleanUrl}|${title}>`;
@@ -80,7 +80,7 @@ export function convertToSlack(md: string, options?: SlackConvertOptions): strin
 	text = text.trim();
 
 	if (options?.preserveMobileEmptyLines) {
-		text = text.replace(/\n\n+/g, (match) => "\n" + "\u00A0\n".repeat(match.length - 1));
+		text = text.replace(/\n\n+/g, (match: string) => "\n" + "\u00A0\n".repeat(match.length - 1));
 	}
 
 	return text;

@@ -8,7 +8,7 @@ import { convertToSlack } from "./slack";
 
 export interface DeltaOp {
 	insert: string;
-	attributes?: Record<string, any>;
+	attributes?: Record<string, unknown>;
 }
 
 export interface SlackTextyResult {
@@ -149,7 +149,7 @@ export class IndentTracker {
 /**
  * Checks equality of two Delta attribute records.
  */
-function areAttrsEqual(a?: Record<string, any>, b?: Record<string, any>): boolean {
+function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {
 	if (!a && !b) return true;
 	if (!a || !b) return false;
 	const keysA = Object.keys(a);
@@ -191,7 +191,7 @@ function compactOps(rawOps: DeltaOp[]): DeltaOp[] {
  * Generates newline Delta operation with list attributes.
  */
 function createListNewlineOp(type: "bullet" | "ordered", indent: number): DeltaOp {
-	const listAttrs: Record<string, any> = { list: type };
+	const listAttrs: Record<string, unknown> = { list: type };
 	if (indent > 0) {
 		listAttrs.indent = indent;
 	}

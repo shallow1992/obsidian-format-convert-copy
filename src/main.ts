@@ -83,7 +83,7 @@ export default class FormatConvertPlugin extends Plugin {
 				const target = this.getTargetText(editor);
 				if (!target) return;
 				this.showFormatSelectMenu(
-					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 } as any,
+					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 },
 					(type) => {
 						const result = convertMarkdown(target, type);
 						void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
@@ -257,7 +257,7 @@ export default class FormatConvertPlugin extends Plugin {
 	}
 
 	private showFormatSelectMenu(
-		evt: MouseEvent | KeyboardEvent,
+		evt: MouseEvent | KeyboardEvent | { clientX: number; clientY: number },
 		onSelect: (type: FormatType) => void
 	): void {
 		const formatMenu = new Menu();
@@ -307,10 +307,10 @@ export default class FormatConvertPlugin extends Plugin {
 	// ----------------------------------------------------
 
 	async loadSettings(): Promise<void> {
-		const loadedData = await this.loadData();
+		const loadedData = (await this.loadData()) as Partial<FormatConvertSettings> | null;
 		this.settings = {
 			...DEFAULT_SETTINGS,
-			...loadedData,
+			...(loadedData ?? {}),
 		};
 	}
 

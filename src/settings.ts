@@ -1,7 +1,13 @@
-import { App, Platform, PluginSettingTab, Setting } from "obsidian";
+import { App, Platform, PluginSettingTab, Setting, type SettingDefinitionItem } from "obsidian";
 import type FormatConvertPlugin from "./main";
 import { FormatConvertSettings } from "./types";
 import { t } from "./i18n";
+
+type BooleanSettingKey = {
+	[K in keyof FormatConvertSettings]: FormatConvertSettings[K] extends boolean ? K : never;
+}[keyof FormatConvertSettings];
+
+type SettingKey = Extract<keyof FormatConvertSettings, string>;
 
 export class FormatConvertSettingTab extends PluginSettingTab {
 	plugin: FormatConvertPlugin;
@@ -11,11 +17,146 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
+	override getControlValue(key: SettingKey): unknown {
+		return this.plugin.settings[key];
+	}
+
+	override async setControlValue(key: SettingKey, value: unknown): Promise<void> {
+		if (key === "emptySelectionBehavior") {
+			if (value === "document" || value === "currentLine") {
+				this.plugin.settings.emptySelectionBehavior = value;
+			}
+		} else {
+			this.plugin.settings[key] = Boolean(value);
+		}
+		await this.plugin.saveSettings();
+		if (key.startsWith("showRibbon")) {
+			this.plugin.refreshRibbonIcons();
+		}
+	}
+
+	override getSettingDefinitions(): SettingDefinitionItem<SettingKey>[] {
+		const ribbonAreaName = Platform.isMobile
+			? t("settingsRibbonHeadingMobile")
+			: t("settingsRibbonHeadingDesktop");
+
+		return [
+			{
+				type: "group",
+				heading: ribbonAreaName,
+				items: [
+					{
+						name: t("settingsRibbonSlackName"),
+						desc: t("settingsRibbonSlackDesc", { area: ribbonAreaName }),
+						control: { type: "toggle", key: "showRibbonSlackIcon" },
+					},
+					{
+						name: t("settingsRibbonDiscordName"),
+						desc: t("settingsRibbonDiscordDesc", { area: ribbonAreaName }),
+						control: { type: "toggle", key: "showRibbonDiscordIcon" },
+					},
+					{
+						name: t("settingsRibbonWhatsAppName"),
+						desc: t("settingsRibbonWhatsAppDesc", { area: ribbonAreaName }),
+						control: { type: "toggle", key: "showRibbonWhatsAppIcon" },
+					},
+					{
+						name: t("settingsRibbonRawName"),
+						desc: t("settingsRibbonRawDesc", { area: ribbonAreaName }),
+						control: { type: "toggle", key: "showRibbonRawIcon" },
+					},
+					{
+						name: t("settingsRibbonMenuName"),
+						desc: t("settingsRibbonMenuDesc", { area: ribbonAreaName }),
+						control: { type: "toggle", key: "showRibbonMenuIcon" },
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: t("settingsFileHeading"),
+				items: [
+					{
+						name: t("settingsFileSlackName"),
+						desc: t("settingsFileSlackDesc"),
+						control: { type: "toggle", key: "showFileSlackItem" },
+					},
+					{
+						name: t("settingsFileDiscordName"),
+						desc: t("settingsFileDiscordDesc"),
+						control: { type: "toggle", key: "showFileDiscordItem" },
+					},
+					{
+						name: t("settingsFileWhatsAppName"),
+						desc: t("settingsFileWhatsAppDesc"),
+						control: { type: "toggle", key: "showFileWhatsAppItem" },
+					},
+					{
+						name: t("settingsFileRawName"),
+						desc: t("settingsFileRawDesc"),
+						control: { type: "toggle", key: "showFileRawItem" },
+					},
+					{
+						name: t("settingsFileMenuName"),
+						desc: t("settingsFileMenuDesc"),
+						control: { type: "toggle", key: "showFileMenuItem" },
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: t("settingsEditorHeading"),
+				visible: !Platform.isMobile,
+				items: [
+					{
+						name: t("settingsEditorSlackName"),
+						control: { type: "toggle", key: "showSlackInMenu" },
+					},
+					{
+						name: t("settingsEditorDiscordName"),
+						control: { type: "toggle", key: "showDiscordInMenu" },
+					},
+					{
+						name: t("settingsEditorWhatsAppName"),
+						control: { type: "toggle", key: "showWhatsAppInMenu" },
+					},
+					{
+						name: t("settingsEditorRawName"),
+						control: { type: "toggle", key: "showRawInMenu" },
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: t("settingsBehaviorHeading"),
+				items: [
+					{
+						name: t("settingsEmptySelectionName"),
+						desc: t("settingsEmptySelectionDesc"),
+						control: {
+							type: "dropdown",
+							key: "emptySelectionBehavior",
+							options: {
+								document: t("settingsEmptySelectionDoc"),
+								currentLine: t("settingsEmptySelectionLine"),
+							},
+						},
+					},
+					{
+						name: t("settingsSilentModeName"),
+						desc: t("settingsSilentModeDesc"),
+						control: { type: "toggle", key: "silentMode" },
+					},
+				],
+			},
+		];
+	}
+
 	private addToggleSetting(
 		containerEl: HTMLElement,
 		name: string,
 		desc: string | undefined,
-		key: keyof FormatConvertSettings,
+		key: BooleanSettingKey,
 		afterChange?: () => void
 	): Setting {
 		const setting = new Setting(containerEl).setName(name);
@@ -23,8 +164,8 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			setting.setDesc(desc);
 		}
 		return setting.addToggle((toggle) =>
-			toggle.setValue(Boolean(this.plugin.settings[key])).onChange(async (value) => {
-				(this.plugin.settings as any)[key] = value;
+			toggle.setValue(this.plugin.settings[key]).onChange(async (value) => {
+				this.plugin.settings[key] = value;
 				await this.plugin.saveSettings();
 				if (afterChange) {
 					afterChange();
@@ -49,7 +190,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			.setDesc(t("settingsRibbonDesc"))
 			.setHeading();
 
-		const ribbonToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
+		const ribbonToggles: { name: string; desc: string; key: BooleanSettingKey }[] = [
 			{ name: t("settingsRibbonSlackName"), desc: t("settingsRibbonSlackDesc", { area: ribbonAreaName }), key: "showRibbonSlackIcon" },
 			{ name: t("settingsRibbonDiscordName"), desc: t("settingsRibbonDiscordDesc", { area: ribbonAreaName }), key: "showRibbonDiscordIcon" },
 			{ name: t("settingsRibbonWhatsAppName"), desc: t("settingsRibbonWhatsAppDesc", { area: ribbonAreaName }), key: "showRibbonWhatsAppIcon" },
@@ -69,7 +210,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 			.setDesc(t("settingsFileDesc"))
 			.setHeading();
 
-		const fileToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
+		const fileToggles: { name: string; desc: string; key: BooleanSettingKey }[] = [
 			{ name: t("settingsFileSlackName"), desc: t("settingsFileSlackDesc"), key: "showFileSlackItem" },
 			{ name: t("settingsFileDiscordName"), desc: t("settingsFileDiscordDesc"), key: "showFileDiscordItem" },
 			{ name: t("settingsFileWhatsAppName"), desc: t("settingsFileWhatsAppDesc"), key: "showFileWhatsAppItem" },
@@ -90,7 +231,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 				.setDesc(t("settingsEditorDesc"))
 				.setHeading();
 
-			const editorToggles: { name: string; key: keyof FormatConvertSettings }[] = [
+			const editorToggles: { name: string; key: BooleanSettingKey }[] = [
 				{ name: t("settingsEditorSlackName"), key: "showSlackInMenu" },
 				{ name: t("settingsEditorDiscordName"), key: "showDiscordInMenu" },
 				{ name: t("settingsEditorWhatsAppName"), key: "showWhatsAppInMenu" },

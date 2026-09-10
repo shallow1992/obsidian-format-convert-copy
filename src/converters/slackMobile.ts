@@ -54,7 +54,7 @@ export function formatInlineSlackMobileHtml(line: string, depth = 0): string {
 	const inlineCodeBlocks: string[] = [];
 	let text = line;
 	if (text.includes("`")) {
-		text = text.replace(/`([^`]+)`/g, (_match, code) => {
+		text = text.replace(/`([^`]+)`/g, (_match: string, code: string) => {
 			inlineCodeBlocks.push(`<code>${escapeHtml(code)}</code>`);
 			return `${INLINE_CODE_MARK}${inlineCodeBlocks.length - 1}${INLINE_CODE_MARK}`;
 		});
@@ -62,14 +62,14 @@ export function formatInlineSlackMobileHtml(line: string, depth = 0): string {
 
 	// 2. Extract <u> tags (protect raw HTML from escapeHtml)
 	const underlineBlocks: string[] = [];
-	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, (_match, inner) => {
+	text = text.replace(/<u>([\s\S]*?)<\/u>/gi, (_match: string, inner: string) => {
 		underlineBlocks.push(inner);
 		return `${UNDERLINE_MARK}${underlineBlocks.length - 1}${UNDERLINE_MARK}`;
 	});
 
 	// 3. Extract hyperlinks (protect URLs containing _ or * from italic/bold formatting)
 	const linkBlocks: string[] = [];
-	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, url) => {
+	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match: string, title: string, url: string) => {
 		const cleanUrl = url.trim();
 		if (isSafeUrl(cleanUrl)) {
 			const formattedTitle = formatInlineSlackMobileHtml(title, depth + 1);
@@ -155,7 +155,7 @@ function formatSlackMobileCodeBlockHtml(code: string, lang?: string): string {
 	const openFence = lang ? `\`\`\`${escapeHtml(lang)}` : "```";
 	const lines = code.split("\n").map((line) => {
 		let content = escapeHtml(line);
-		content = content.replace(/^( +)/, (_match, spaces) => "&nbsp;".repeat(spaces.length));
+		content = content.replace(/^( +)/, (_match: string, spaces: string) => "&nbsp;".repeat(spaces.length));
 		return content || "&nbsp;";
 	});
 	return `<p>${openFence}<br>${lines.join("<br>")}<br>\`\`\`</p>`;
@@ -231,7 +231,7 @@ export function convertToSlackMobileHtml(md: string): string {
 	let text = resolveWikilinks(md);
 
 	// Callout conversion (e.g. > [!NOTE] content)
-	text = text.replace(CALLOUT_REGEX, (_match, type, title) => {
+	text = text.replace(CALLOUT_REGEX, (_match: string, type: string, title: string) => {
 		const label = title.trim() || type.toUpperCase();
 		return `> **[${label}]**`;
 	});
