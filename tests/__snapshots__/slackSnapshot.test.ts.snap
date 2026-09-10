@@ -2066,7 +2066,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "| Checkbox       | \`- [x]\`                                            |  Center   |     ☑ Checked bullet |",
+      "insert": "| Checkbox       | \`- [x]\`                                            |  Center   |    ☑ Checked bullet |",
     },
     {
       "attributes": {
