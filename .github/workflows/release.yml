@@ -47,5 +47,5 @@ jobs:
             manifest.json
             styles.css
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
