@@ -27,16 +27,36 @@ Testers may copy the contents of this file or place this note anywhere in their 
 ---
 
 ## 2. Bulleted Lists (5-Level Nesting)
+
+### Pattern A: 2-Space Indentation
 - Level 1 Bullet Item A
-  - Level 2 Nested Item (Indent 1)
-    - Level 3 Nested Item (Indent 2)
-      - Level 4 Nested Item (Indent 3)
-        - Level 5 Nested Item (Indent 4: Deepest Supported Level)
+  - Level 2 Nested Item (Indent: 2 spaces)
+    - Level 3 Nested Item (Indent: 4 spaces)
+      - Level 4 Nested Item (Indent: 6 spaces)
+        - Level 5 Nested Item (Indent: 8 spaces: Deepest Supported Level)
+- Level 1 Bullet Item B
+
+### Pattern B: 4-Space Indentation (Standard Obsidian / CommonMark)
+- Level 1 Bullet Item A
+    - Level 2 Nested Item (Indent: 4 spaces)
+        - Level 3 Nested Item (Indent: 8 spaces)
+            - Level 4 Nested Item (Indent: 12 spaces)
+                - Level 5 Nested Item (Indent: 16 spaces: Deepest Supported Level)
+- Level 1 Bullet Item B
+
+### Pattern C: Tab Indentation (Obsidian "Use Tabs" Setting)
+- Level 1 Bullet Item A
+	- Level 2 Nested Item (Indent: 1 tab)
+		- Level 3 Nested Item (Indent: 2 tabs)
+			- Level 4 Nested Item (Indent: 3 tabs)
+				- Level 5 Nested Item (Indent: 4 tabs: Deepest Supported Level)
 - Level 1 Bullet Item B
 
 ---
 
 ## 3. Numbered Lists (5-Level Nesting & Return to Root)
+
+### Pattern A: 2-Space Indentation
 1. Step 1 (Level 1: rendered as `1.`)
    1. Step 1-1 (Level 2: rendered as `a.`)
       1. Step 1-1-1 (Level 3: rendered as `i.`)
@@ -44,9 +64,27 @@ Testers may copy the contents of this file or place this note anywhere in their 
             1. Step 1-1-1-1-1 (Level 5: rendered as `a.`)
 2. Step 2 (Level 1: returns to `2.`)
 
+### Pattern B: 4-Space Indentation
+1. Step 1 (Level 1: rendered as `1.`)
+    1. Step 1-1 (Level 2: rendered as `a.`)
+        1. Step 1-1-1 (Level 3: rendered as `i.`)
+            1. Step 1-1-1-1 (Level 4: rendered as `1.`)
+                1. Step 1-1-1-1-1 (Level 5: rendered as `a.`)
+2. Step 2 (Level 1: returns to `2.`)
+
+### Pattern C: Tab Indentation
+1. Step 1 (Level 1: rendered as `1.`)
+	1. Step 1-1 (Level 2: rendered as `a.`)
+		1. Step 1-1-1 (Level 3: rendered as `i.`)
+			1. Step 1-1-1-1 (Level 4: rendered as `1.`)
+				1. Step 1-1-1-1-1 (Level 5: rendered as `a.`)
+2. Step 2 (Level 1: returns to `2.`)
+
 ---
 
 ## 4. Checklists / Task Lists (5-Level Nesting)
+
+### Pattern A: 2-Space Indentation
 - [ ] Incomplete Task (Level 1)
   - [x] Completed Task (Level 2)
     - [ ] Detailed Subtask A (Level 3)
@@ -54,15 +92,51 @@ Testers may copy the contents of this file or place this note anywhere in their 
         - [ ] Deepest Task (Level 5)
 - [x] Parent Completed Task (Level 1)
 
+### Pattern B: 4-Space Indentation
+- [ ] Incomplete Task (Level 1)
+    - [x] Completed Task (Level 2)
+        - [ ] Detailed Subtask A (Level 3)
+            - [x] Completed Subtask B (Level 4)
+                - [ ] Deepest Task (Level 5)
+- [x] Parent Completed Task (Level 1)
+
+### Pattern C: Tab Indentation
+- [ ] Incomplete Task (Level 1)
+	- [x] Completed Task (Level 2)
+		- [ ] Detailed Subtask A (Level 3)
+			- [x] Completed Subtask B (Level 4)
+				- [ ] Deepest Task (Level 5)
+- [x] Parent Completed Task (Level 1)
+
 ---
 
 ## 5. Mixed Nested Lists
+
+### Pattern A: 2-Space Indentation
 1. Project Planning Phase (Numbered Level 1)
    - Requirements Definition (Bullet Level 2)
      - [ ] Create API Specifications (Incomplete Checklist Level 3)
      - [x] Design Database Schema (Completed Checklist Level 3)
        1. Finalize Foreign Key Constraints (Numbered Level 4)
           - [x] Security Review Approval (Checklist Level 5)
+2. Implementation Phase (Numbered Level 1)
+
+### Pattern B: 4-Space Indentation
+1. Project Planning Phase (Numbered Level 1)
+    - Requirements Definition (Bullet Level 2)
+        - [ ] Create API Specifications (Incomplete Checklist Level 3)
+        - [x] Design Database Schema (Completed Checklist Level 3)
+            1. Finalize Foreign Key Constraints (Numbered Level 4)
+                - [x] Security Review Approval (Checklist Level 5)
+2. Implementation Phase (Numbered Level 1)
+
+### Pattern C: Tab Indentation
+1. Project Planning Phase (Numbered Level 1)
+	- Requirements Definition (Bullet Level 2)
+		- [ ] Create API Specifications (Incomplete Checklist Level 3)
+		- [x] Design Database Schema (Completed Checklist Level 3)
+			1. Finalize Foreign Key Constraints (Numbered Level 4)
+				- [x] Security Review Approval (Checklist Level 5)
 2. Implementation Phase (Numbered Level 1)
 
 ---

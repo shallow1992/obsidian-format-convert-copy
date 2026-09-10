@@ -359,6 +359,20 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern A: 2-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
       "insert": "Level 1 Bullet Item A",
     },
     {
@@ -369,7 +383,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Level 2 Nested Item (Indent 1)",
+      "insert": "Level 2 Nested Item (Indent: 2 spaces)",
     },
     {
       "attributes": {
@@ -380,7 +394,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Level 3 Nested Item (Indent 2)",
+      "insert": "Level 3 Nested Item (Indent: 4 spaces)",
     },
     {
       "attributes": {
@@ -391,7 +405,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Level 4 Nested Item (Indent 3)",
+      "insert": "Level 4 Nested Item (Indent: 6 spaces)",
     },
     {
       "attributes": {
@@ -402,7 +416,163 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Level 5 Nested Item (Indent 4: Deepest Supported Level)",
+      "insert": "Level 5 Nested Item (Indent: 8 spaces: Deepest Supported Level)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item B",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern B: 4-Space Indentation (Standard Obsidian / CommonMark)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item A",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 2 Nested Item (Indent: 4 spaces)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 3 Nested Item (Indent: 8 spaces)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 4 Nested Item (Indent: 12 spaces)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 5 Nested Item (Indent: 16 spaces: Deepest Supported Level)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item B",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern C: Tab Indentation (Obsidian "Use Tabs" Setting)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 1 Bullet Item A",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 2 Nested Item (Indent: 1 tab)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 3 Nested Item (Indent: 2 tabs)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 4 Nested Item (Indent: 3 tabs)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Level 5 Nested Item (Indent: 4 tabs: Deepest Supported Level)",
     },
     {
       "attributes": {
@@ -439,6 +609,284 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
         "bold": true,
       },
       "insert": "3. Numbered Lists (5-Level Nesting & Return to Root)",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern A: 2-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1 (Level 1: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1 (Level 2: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1 (Level 3: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "i.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1 (Level 4: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1-1 (Level 5: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 2 (Level 1: returns to ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "2.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern B: 4-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1 (Level 1: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1 (Level 2: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1 (Level 3: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "i.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1 (Level 4: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "1.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 1-1-1-1-1 (Level 5: rendered as ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "a.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Step 2 (Level 1: returns to ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "2.",
+    },
+    {
+      "insert": ")",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern C: Tab Indentation",
     },
     {
       "insert": "
@@ -585,6 +1033,212 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern A: 2-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Incomplete Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Task (Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Detailed Subtask A (Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Subtask B (Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Deepest Task (Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Parent Completed Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern B: 4-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Incomplete Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Task (Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Detailed Subtask A (Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Completed Subtask B (Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Deepest Task (Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Parent Completed Task (Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern C: Tab Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
       "insert": "☐ Incomplete Task (Level 1)",
     },
     {
@@ -683,6 +1337,222 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
         "bold": true,
       },
       "insert": "5. Mixed Nested Lists",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern A: 2-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Project Planning Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Requirements Definition (Bullet Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Create API Specifications (Incomplete Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Design Database Schema (Completed Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Finalize Foreign Key Constraints (Numbered Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Security Review Approval (Checklist Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Implementation Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern B: 4-Space Indentation",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "insert": "Project Planning Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Requirements Definition (Bullet Level 2)",
+    },
+    {
+      "attributes": {
+        "indent": 1,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☐ Create API Specifications (Incomplete Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Design Database Schema (Completed Checklist Level 3)",
+    },
+    {
+      "attributes": {
+        "indent": 2,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Finalize Foreign Key Constraints (Numbered Level 4)",
+    },
+    {
+      "attributes": {
+        "indent": 3,
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "☑ ",
+    },
+    {
+      "attributes": {
+        "strike": true,
+      },
+      "insert": "Security Review Approval (Checklist Level 5)",
+    },
+    {
+      "attributes": {
+        "indent": 4,
+        "list": "bullet",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "Implementation Phase (Numbered Level 1)",
+    },
+    {
+      "attributes": {
+        "list": "ordered",
+      },
+      "insert": "
+",
+    },
+    {
+      "insert": "
+",
+    },
+    {
+      "attributes": {
+        "bold": true,
+      },
+      "insert": "Pattern C: Tab Indentation",
     },
     {
       "insert": "
