@@ -89,7 +89,7 @@ $$
 
 - **Verification Criteria**:
   - [ ] There is a clean empty line between the table and the block formula.
-  - [ ] The formula is wrapped only in native `$$` delimiters (no stray backticks).
+  - [ ] The formula is wrapped in a code block containing `$$` delimiters.
 
 ---
 

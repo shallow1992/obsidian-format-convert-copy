@@ -192,11 +192,20 @@ describe("convertToSlackTexty", () => {
 		expect(listOps).toHaveLength(0);
 	});
 
-	it("preserves LaTeX block math and inline math without turning _ or * into italic/bold", () => {
-		const md = "Formula $x_1 * y_1$ inline\n$$\n\\sum_{i=1}^n x_i * y_i\n$$";
+	it("renders LaTeX block math as code-block and inline math as inline code", () => {
+		const md = "Formula $x_1 * y_1$ inline\n$$\n\\sum_{i=1}^n x_i * y_i\n$$\n$$ A = \\pi r^2 $$";
 		const res = convertToSlackTexty(md);
 		const parsed = JSON.parse(res.texty);
 		assertSlackDeltaValid(parsed);
+
+		// Inline math must have code: true
+		const inlineMathOp = parsed.ops.find((op: any) => op.insert === "$x_1 * y_1$");
+		expect(inlineMathOp).toBeDefined();
+		expect(inlineMathOp.attributes?.code).toBe(true);
+
+		// Block math lines must have code-block: true
+		const codeBlockNewlineOps = parsed.ops.filter((op: any) => op.insert === "\n" && op.attributes?.["code-block"]);
+		expect(codeBlockNewlineOps.length).toBeGreaterThanOrEqual(4);
 
 		// No italic or bold attributes should be present on math
 		const italicOps = parsed.ops.filter((op: any) => op.attributes?.italic);
@@ -208,5 +217,6 @@ describe("convertToSlackTexty", () => {
 		const text = parsed.ops.map((op: any) => op.insert).join("");
 		expect(text).toContain("$x_1 * y_1$");
 		expect(text).toContain("\\sum_{i=1}^n x_i * y_i");
+		expect(text).toContain("A = \\pi r^2");
 	});
 });

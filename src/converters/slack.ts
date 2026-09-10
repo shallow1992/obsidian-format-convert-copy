@@ -24,13 +24,11 @@ export function convertToSlack(md: string, options?: SlackConvertOptions): strin
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+/gm, "$1☑ ");
 
-	// Extract code blocks
+	// Extract code blocks, tables, and LaTeX math
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => "```\n" + code + "\n```",
-		(code) => "`" + code + "`",
-		(math) => `$$\n${math}\n$$`,
-		(math) => `$${math}$`
+		(code) => "`" + code + "`"
 	);
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;

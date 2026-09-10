@@ -121,6 +121,15 @@ Slack has no native table Delta element. Markdown tables are converted into **mo
 - OS font fallback substitutes a system CJK font (e.g., Hiragino Sans on macOS). The glyph width of this fallback font does not strictly match a 2:1 ratio against Menlo's monospace space character width.
 - Consequently, while ASCII tables align with millimeter precision, mixed Japanese/English tables will show minor vertical pipe (`|`) variations between rows. This is an unavoidable limitation of Slack's font stack.
 
+### 3.6 LaTeX Math Formulas (Code Protection Architecture)
+Slack does not support native LaTeX or mathematical formula rendering. To prevent formula syntax—such as subscript underscores (`x_1`) and multiplication asterisks (`*`)—from colliding with Slack's mrkdwn formatting:
+- **Inline Math (`$...$`)**:
+  - Encoded with `{ "code": true }` attributes in Quill Delta.
+  - Renders as a Slack native inline code chip (`$E = mc^2$`), preventing delimiter misinterpretation and isolating variables from surrounding text.
+- **Block Math (`$$...$$`)**:
+  - Enclosed in a Slack native code block container with `{ "code-block": true }` on each line's trailing newline.
+  - Preserves multi-line indentation and renders cleanly with Slack's bordered, gray-background code block box.
+
 ---
 
 ## 4. Cross-Platform Architecture & Implementation
@@ -170,8 +179,9 @@ Through systematic real-device testing on iOS (Obsidian iOS ➜ Slack iOS), the 
 5. **Blockquotes & Callouts (`&gt; ` Prefix Architecture)**:
    - Because Slack iOS strips standard `<blockquote>` container borders, quote lines are prefixed with `&gt; ` inside `<blockquote>` (`<blockquote>&gt; Line 1<br>&gt; Line 2</blockquote>`).
    - When sent in Slack iOS, Slack detects the `>` prefix at the start of each line and renders a **native, vertical-line quote block** while preserving inner formatting (bold titles, links, inline code).
-6. **Tables & LaTeX**:
-   - Tables and display math formulas are wrapped inside triple backticks with monospaced column alignment, rendering as unified monospace blocks upon send.
+6. **Tables & LaTeX (Mobile Code Protection)**:
+   - Aligned tables and display math formulas (`$$...$$`) are output as markdown backtick-fenced paragraphs (`<p>```<br>...<br>```</p>`), rendering as unified monospace code block containers upon send in Slack iOS.
+   - Inline math formulas (`$...$`) are output inside `<code>` tags (`<code>$E = mc^2$</code>`), rendering as native Slack inline code chips.
 
 ---
 

@@ -43,9 +43,8 @@ describe("Slack Mobile HTML Snapshot Testing", () => {
 		expect(html).toContain("| 項目名     | 進捗状況 | 優先度 |");
 
 		// Math
-		expect(html).toContain("$E = mc^2$");
-		expect(html).not.toContain("<code>$E = mc^2$</code>");
-		expect(html).toContain("<p>$$<br>\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}<br>$$</p>");
+		expect(html).toContain("<code>$E = mc^2$</code>");
+		expect(html).toContain("<p>```<br>$$<br>\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}<br>$$<br>```</p>");
 
 		// Wikilinks
 		expect(html).toContain("System Architecture");
