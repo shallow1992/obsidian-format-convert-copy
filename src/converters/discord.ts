@@ -15,6 +15,10 @@ export function convertToDiscord(md: string): string {
 	text = extraction.text;
 	const codeBlocks = extraction.blocks;
 
+	// Discord natively supports # (H1), ## (H2), and ### (H3).
+	// Fall back H4-H6 headings to bold text as Discord does not support them natively.
+	text = text.replace(/^#{4,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm, "**$1**");
+
 	// In Discord, __text__ renders as underline; unify standard Markdown bold (__text__) into **text**
 	text = text.replace(/__(.+?)__/g, "**$1**");
 

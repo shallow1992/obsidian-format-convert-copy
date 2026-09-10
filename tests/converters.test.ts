@@ -254,6 +254,18 @@ describe("discord converter", () => {
 		expect(converted).toContain("[image: chart.png]");
 		expect(converted).toContain("[image: Alt](https://example.com/pic.png)");
 	});
+
+	it("preserves H1-H3 headings and falls back H4-H6 headings to bold", () => {
+		const md = "# Heading 1\n## Heading 2\n### Heading 3\n#### Heading 4\n##### Heading 5\n###### Heading 6";
+		const converted = convertToDiscord(md);
+		expect(converted).toContain("# Heading 1");
+		expect(converted).toContain("## Heading 2");
+		expect(converted).toContain("### Heading 3");
+		expect(converted).toContain("**Heading 4**");
+		expect(converted).toContain("**Heading 5**");
+		expect(converted).toContain("**Heading 6**");
+		expect(converted).not.toContain("#### Heading 4");
+	});
 });
 
 import { convertToWhatsApp } from "../src/converters/whatsapp";

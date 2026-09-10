@@ -26,7 +26,8 @@ describe("Discord Format Automated Testing & Snapshot", () => {
 		expect(result).toContain("☑ ~~Completed task item~~");
 
 		// Discord callout conversion
-		expect(result).toContain("> **[NOTE]** Announcement");
+		expect(result).toContain("> **[Announcement]**");
+		expect(result).toContain("> **[WARNING]**");
 
 		// Wikilink alias extraction
 		expect(result).toContain("Community Guidelines");
