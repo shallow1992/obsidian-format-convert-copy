@@ -73,7 +73,7 @@ export function parseInlineToOps(text: string, currentAttrs: InlineAttr = {}): D
 		if (math !== undefined) {
 			ops.push({
 				insert: fullMatch,
-				...(Object.keys(currentAttrs).length > 0 ? { attributes: { ...currentAttrs } } : {}),
+				attributes: { ...currentAttrs, code: true },
 			});
 		} else if (linkTitle !== undefined && linkUrl !== undefined) {
 			const cleanUrl = linkUrl.trim();
@@ -331,17 +331,17 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 			continue;
 		}
 
-		// 3. Block Math ($$...$$)
+		// 3. Block Math ($$...$$) rendered as Slack code-block container
 		if (line.trim().startsWith("$$")) {
 			indentTracker.reset();
 			const singleMatch = line.match(/^(\s*)\$\$(.+?)\$\$\s*$/);
 			if (singleMatch) {
 				rawOps.push({ insert: "$$" });
-				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 				rawOps.push({ insert: singleMatch[2].trim() });
-				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 				rawOps.push({ insert: "$$" });
-				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 				i++;
 				continue;
 			}
@@ -359,14 +359,16 @@ export function convertToSlackTexty(source: string): SlackTextyResult {
 			}
 
 			rawOps.push({ insert: "$$" });
-			rawOps.push({ insert: "\n" });
+			rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 			for (const mLine of mathLines) {
-				rawOps.push({ insert: mLine });
-				rawOps.push({ insert: "\n" });
+				if (mLine.length > 0) {
+					rawOps.push({ insert: mLine });
+				}
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 			}
 			if (closed) {
 				rawOps.push({ insert: "$$" });
-				rawOps.push({ insert: "\n" });
+				rawOps.push({ insert: "\n", attributes: { "code-block": true } });
 				i = j + 1;
 			} else {
 				i = lines.length;

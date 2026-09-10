@@ -1302,7 +1302,13 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Inline Math: $E = mc^2$",
+      "insert": "Inline Math: ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$E = mc^2$",
     },
     {
       "attributes": {
@@ -1325,6 +1331,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -1332,6 +1341,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -1339,6 +1351,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -1484,7 +1499,13 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "Formula with subscripts: $a_1 * b_1 + a_2 * b_2$",
+      "insert": "Formula with subscripts: ",
+    },
+    {
+      "attributes": {
+        "code": true,
+      },
+      "insert": "$a_1 * b_1 + a_2 * b_2$",
     },
     {
       "attributes": {
@@ -2235,6 +2256,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2242,6 +2266,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "\\text{Growth} = \\frac{Q2 - Q1}{Q1} \\times 100\\%",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2249,6 +2276,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2284,7 +2314,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
-      "insert": "☐ The formula is wrapped only in native ",
+      "insert": "☐ The formula is wrapped in a code block containing ",
     },
     {
       "attributes": {
@@ -2293,7 +2323,7 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
-      "insert": " delimiters (no stray backticks).",
+      "insert": " delimiters.",
     },
     {
       "attributes": {
@@ -2377,6 +2407,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2384,6 +2417,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "f(x) = \\int_{0}^{x} t^2 \\, dt",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2391,6 +2427,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
       "insert": "$$",
     },
     {
+      "attributes": {
+        "code-block": true,
+      },
       "insert": "
 ",
     },
@@ -2495,6 +2534,9 @@ exports[`Slack Texty Automated Testing & Validation > Snapshot Testing of Compre
 ",
     },
     {
+      "attributes": {
+        "code": true,
+      },
       "insert": "$x_1 * y_1 + x_2 * y_2 \\le z_{max} * \\lambda_{target}$",
     },
     {
