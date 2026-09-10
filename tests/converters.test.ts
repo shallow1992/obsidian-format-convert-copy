@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	escapeHtml,
 	formatAlignedTable,
+	getStringWidth,
 	isSafeUrl,
 	isTableSeparatorRow,
 	resolveWikilinks,
@@ -73,6 +74,59 @@ describe("common - table formatting", () => {
 		];
 		const aligned = formatAlignedTable(table);
 		expect(aligned).toContain("|:-----|:------:|------:|");
+	});
+
+	it("calculates string width accurately for ASCII, CJK, half-width kana, surrogate pairs, and emojis", () => {
+		// ASCII
+		expect(getStringWidth("hello")).toBe(5);
+		expect(getStringWidth("a b c")).toBe(5);
+
+		// Full-width CJK
+		expect(getStringWidth("こんにちは")).toBe(10);
+		expect(getStringWidth("漢字テスト")).toBe(10);
+
+		// Half-width Katakana
+		expect(getStringWidth("ｱｲｳｴｵ")).toBe(5);
+
+		// Surrogate pair CJK extension (e.g. 𠮷 U+20BB7)
+		expect(getStringWidth("𠮷野家")).toBe(6);
+
+		// Standard emojis (e.g. 🚀, 📝, 🎉, ⭐)
+		expect(getStringWidth("🚀")).toBe(2);
+		expect(getStringWidth("📝")).toBe(2);
+		expect(getStringWidth("🎉")).toBe(2);
+		expect(getStringWidth("⭐")).toBe(2);
+
+		// Compound emojis (ZWJ sequence, country flag, skin tone)
+		expect(getStringWidth("👨‍👩‍👧‍👦")).toBe(2);
+		expect(getStringWidth("🇯🇵")).toBe(2);
+		expect(getStringWidth("👍🏽")).toBe(2);
+		expect(getStringWidth("☁️")).toBe(2);
+
+		// Mixed strings
+		expect(getStringWidth("Status: 🚀 完了")).toBe(15);
+	});
+
+	it("aligns tables containing emojis and surrogate pairs with consistent column widths", () => {
+		const table = [
+			"| アイコン | 名前 | 状態 |",
+			"| :--- | :---: | ---: |",
+			"| 🚀 | ロケット | 完了 |",
+			"| 📝 | ドキュメント | 進行中 |",
+			"| 𠮷 | 異体字テスト | 未着手 |",
+		];
+		const aligned = formatAlignedTable(table);
+		const lines = aligned.split("\n");
+
+		// Header row width should equal all other rows in terms of visual width
+		// Column 1: "アイコン" (8), "🚀" (2), "📝" (2), "𠮷" (2) -> max width = 8
+		// Column 2: "名前" (4), "ロケット" (8), "ドキュメント" (12), "異体字テスト" (12) -> max width = 12
+		// Column 3: "状態" (4), "完了" (4), "進行中" (6), "未着手" (6) -> max width = 6
+		expect(lines[0]).toBe("| アイコン |     名前     |   状態 |");
+		expect(lines[1]).toBe("|:---------|:------------:|-------:|");
+		expect(lines[2]).toBe("| 🚀       |   ロケット   |   完了 |");
+		expect(lines[3]).toBe("| 📝       | ドキュメント | 進行中 |");
+		expect(lines[4]).toBe("| 𠮷       | 異体字テスト | 未着手 |");
 	});
 });
 

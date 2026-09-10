@@ -263,29 +263,127 @@ export function restoreCodeBlocks(text: string, blocks: string[]): string {
 
 export type TableAlignment = "left" | "center" | "right";
 
-function getCharWidth(char: string): number {
-	const code = char.codePointAt(0);
-	if (!code) return 0;
-	if (code >= 0xff61 && code <= 0xff9f) return 1;
-	if (
-		(code >= 0x1100 && code <= 0x115f) ||
-		(code >= 0x2e80 && code <= 0xa4cf) ||
-		(code >= 0xac00 && code <= 0xd7a3) ||
-		(code >= 0xf900 && code <= 0xfaff) ||
-		(code >= 0xfe10 && code <= 0xfe19) ||
-		(code >= 0xfe30 && code <= 0xfe6f) ||
-		(code >= 0xff00 && code <= 0xff60) ||
-		(code >= 0xffe0 && code <= 0xffe6)
-	) {
+interface GraphemeSegmenter {
+	segment(input: string): Iterable<{ segment: string }>;
+}
+
+/**
+ * Safely initializes an Intl.Segmenter instance for grapheme cluster boundary analysis.
+ * Returns null if the runtime does not support Intl.Segmenter.
+ */
+function initGraphemeSegmenter(): GraphemeSegmenter | null {
+	try {
+		if (typeof Intl !== "undefined") {
+			const intlGlobal = Intl as unknown as {
+				Segmenter?: new (locales?: unknown, options?: unknown) => GraphemeSegmenter;
+			};
+			if (intlGlobal.Segmenter) {
+				return new intlGlobal.Segmenter(undefined, { granularity: "grapheme" });
+			}
+		}
+	} catch {
+		// Fall back to Array.from when Intl.Segmenter is unavailable or fails
+	}
+	return null;
+}
+
+const graphemeSegmenter: GraphemeSegmenter | null = initGraphemeSegmenter();
+
+/**
+ * Checks if a Unicode code point falls within known emoji or symbol ranges.
+ */
+function isEmojiOrSymbol(code: number): boolean {
+	return (
+		(code >= 0x1f300 && code <= 0x1faff) || // Standard emojis (🚀, 📝, 🎉, etc.)
+		(code >= 0x2600 && code <= 0x27bf) ||   // Miscellaneous Symbols & Dingbats (☀️, ✈️, ⭐, etc.)
+		(code >= 0x1f100 && code <= 0x1f2ff) || // Enclosed Alphanumeric / Ideographic Supplement (Regional indicators, etc.)
+		(code >= 0x1f000 && code <= 0x1f0ff) || // Mahjong & Playing Cards
+		(code >= 0x231a && code <= 0x231b) ||   // Watch, Hourglass
+		(code >= 0x23e9 && code <= 0x23f3) ||   // Audio/video symbols
+		(code >= 0x23f8 && code <= 0x23fa) ||
+		code === 0x2b50 || code === 0x2b55      // ⭐, ⭕
+	);
+}
+
+/**
+ * Checks if a Unicode code point belongs to full-width East Asian CJK ranges (UAX #11).
+ */
+function isFullWidthCjk(code: number): boolean {
+	return (
+		(code >= 0x1100 && code <= 0x115f) ||   // Hangul Jamo
+		(code >= 0x2e80 && code <= 0xa4cf) ||   // CJK Radicals, Ideographs, Yi
+		(code >= 0xac00 && code <= 0xd7a3) ||   // Hangul Syllables
+		(code >= 0xf900 && code <= 0xfaff) ||   // CJK Compatibility Ideographs
+		(code >= 0xfe10 && code <= 0xfe19) ||   // Vertical Forms
+		(code >= 0xfe30 && code <= 0xfe6f) ||   // CJK Compatibility Forms
+		(code >= 0xff00 && code <= 0xff60) ||   // Fullwidth ASCII variants & punctuation
+		(code >= 0xffe0 && code <= 0xffe6) ||   // Fullwidth Signs
+		(code >= 0x20000 && code <= 0x323af)    // CJK Unified Ideographs Extensions B-I (Plane 2, e.g. 𠮷)
+	);
+}
+
+/**
+ * Checks if a code point is a non-spacing, zero-width character (joiners, selectors, diacritics).
+ */
+function isZeroWidthCodePoint(code: number): boolean {
+	return (
+		code === 0x200b || // Zero-width space
+		code === 0x200c || // Zero-width non-joiner (ZWNJ)
+		code === 0x200d || // Zero-width joiner (ZWJ)
+		code === 0xfeff || // Byte order mark (BOM)
+		(code >= 0xfe00 && code <= 0xfe0f) ||   // Variation Selectors (VS1-VS16)
+		(code >= 0xe0100 && code <= 0xe01ef) || // Variation Selectors Supplement
+		(code >= 0x0300 && code <= 0x036f) ||   // Combining Diacritical Marks
+		(code >= 0x1f3fb && code <= 0x1f3ff)    // Emoji Modifier (Fitzpatrick skin tones)
+	);
+}
+
+/**
+ * Determines the display width of a single grapheme cluster in monospace cells.
+ */
+function getGraphemeWidth(grapheme: string): number {
+	if (!grapheme) return 0;
+
+	// Check for compound emoji or sequences (e.g. ZWJ sequences, flags, emoji with variation selector)
+	if (grapheme.includes("\u200D") || grapheme.includes("\uFE0F")) {
 		return 2;
 	}
+
+	const firstCode = grapheme.codePointAt(0);
+	if (firstCode === undefined) return 0;
+
+	// Single zero-width code points
+	if (isZeroWidthCodePoint(firstCode)) return 0;
+
+	// Half-width Katakana (explicitly width 1)
+	if (firstCode >= 0xff61 && firstCode <= 0xff9f) return 1;
+
+	// Standard ASCII
+	if (firstCode >= 0x20 && firstCode <= 0x7e) return 1;
+
+	// Full-width CJK or Emoji
+	if (isFullWidthCjk(firstCode) || isEmojiOrSymbol(firstCode)) {
+		return 2;
+	}
+
 	return 1;
 }
 
+/**
+ * Calculates the visible column width of a string in monospace cells,
+ * taking into account Unicode grapheme clusters, surrogate pairs, and full-width characters.
+ */
 export function getStringWidth(str: string): number {
+	if (!str) return 0;
 	let width = 0;
-	for (const char of str) {
-		width += getCharWidth(char);
+	if (graphemeSegmenter) {
+		for (const segment of graphemeSegmenter.segment(str)) {
+			width += getGraphemeWidth(segment.segment);
+		}
+	} else {
+		for (const char of Array.from(str)) {
+			width += getGraphemeWidth(char);
+		}
 	}
 	return width;
 }
