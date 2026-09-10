@@ -11,8 +11,8 @@ describe("WhatsApp Format Automated Testing & Snapshot", () => {
 		const result = convertToWhatsApp(content);
 
 		// 1. Semantic assertions
-		// WhatsApp converts headings to bold (*Heading*)
-		expect(result).toContain("*Heading 1 (Must convert to *Heading 1* bold)*");
+		// WhatsApp converts headings to bold (*Heading*) and sanitizes inner conflicting asterisks
+		expect(result).toContain("*Heading 1 (Must convert to _Heading 1_ bold)*");
 		expect(result).not.toContain("# Heading 1");
 
 		// WhatsApp converts **bold** to *bold*
@@ -25,16 +25,20 @@ describe("WhatsApp Format Automated Testing & Snapshot", () => {
 		expect(result).toContain("Underlined HTML text");
 		expect(result).not.toContain("<u>");
 
-		// WhatsApp expands [title](url) to title (url)
+		// WhatsApp expands [title](url) to title (url) and preserves underscores in URLs
 		expect(result).toContain("Official WhatsApp Site (https://www.whatsapp.com)");
+		expect(result).toContain("API Documentation (https://example.com/api_v1_endpoint)");
+		expect(result).toContain("https://example.com/webhook_event_trigger");
 		expect(result).not.toContain("[Official WhatsApp Site]");
+		expect(result).toContain("user_account_id");
 
 		// Checklists
 		expect(result).toContain("☐ Incomplete task item");
 		expect(result).toContain("☑ Completed task item");
 
-		// Callouts converted to > *[NOTE]*
-		expect(result).toContain("> *[NOTE]*");
+		// Callouts converted to > *[NOTE]* Title or > *[WARNING]*
+		expect(result).toContain("> *[NOTE]* Release Update");
+		expect(result).toContain("> *[WARNING]*");
 
 		// Wikilink alias extraction
 		expect(result).toContain("Team Standup");
