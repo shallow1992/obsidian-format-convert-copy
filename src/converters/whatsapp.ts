@@ -63,7 +63,7 @@ export function convertToWhatsApp(md: string): string {
 	const urls: string[] = [];
 
 	// 1. Expand Markdown links: [title](url) -> title (url)
-	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, rawUrl) => {
+	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match: string, title: string, rawUrl: string) => {
 		const cleanUrl = rawUrl.trim();
 		if (!isSafeUrl(cleanUrl)) {
 			return title;
@@ -77,7 +77,7 @@ export function convertToWhatsApp(md: string): string {
 	});
 
 	// 2. Protect standalone raw URLs (http://, https://, etc.)
-	text = text.replace(/\bhttps?:\/\/[^\s<>"'`)]+/g, (match) => {
+	text = text.replace(/\bhttps?:\/\/[^\s<>"'`)]+/g, (match: string) => {
 		urls.push(match);
 		return `${URL_MARK}${urls.length - 1}${URL_MARK}`;
 	});
@@ -88,7 +88,7 @@ export function convertToWhatsApp(md: string): string {
 	// Convert Callouts:
 	// > [!NOTE] Title -> > *[NOTE]* Title
 	// > [!NOTE] -> > *[NOTE]*
-	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, rawTitle) => {
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match: string, type: string, rawTitle: string) => {
 		const upperType = type.toUpperCase();
 		const title = rawTitle.trim();
 		boldTargets.push(`[${upperType}]`);
@@ -97,7 +97,7 @@ export function convertToWhatsApp(md: string): string {
 	});
 
 	// Convert headings to WhatsApp bold (*Heading*) with internal sanitization
-	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
+	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match: string, content: string) => {
 		const sanitized = sanitizeHeadingContent(content.trim());
 		boldTargets.push(sanitized);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
@@ -105,12 +105,12 @@ export function convertToWhatsApp(md: string): string {
 
 	// Bold (**) and (__)
 	// 1. Double asterisk bold: **text**
-	text = text.replace(/\*\*([^\s*](?:[\s\S]*?[^\s*])?)\*\*/g, (_match, content) => {
+	text = text.replace(/\*\*([^\s*](?:[\s\S]*?[^\s*])?)\*\*/g, (_match: string, content: string) => {
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 	// 2. Double underscore bold: __text__ (boundary-checked without lookbehind)
-	text = text.replace(/(^|[\s\p{P}])__([^\s_](?:[\s\S]*?[^\s_])?)__(?=[\s\p{P}]|$)/gu, (_match, prefix, content) => {
+	text = text.replace(/(^|[\s\p{P}])__([^\s_](?:[\s\S]*?[^\s_])?)__(?=[\s\p{P}]|$)/gu, (_match: string, prefix: string, content: string) => {
 		boldTargets.push(content);
 		return `${prefix}${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});

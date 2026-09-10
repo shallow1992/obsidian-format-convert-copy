@@ -15,7 +15,7 @@ const AUDIO_VIDEO_EXTENSIONS = new Set(["mp3", "wav", "m4a", "ogg", "mp4", "webm
  */
 export function resolveWikilinks(md: string): string {
 	// 1. Embedded Wikilinks (![[filename|alias/size]])
-	let text = md.replace(/!\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, rawName, rawAlias) => {
+	let text = md.replace(/!\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match: string, rawName: string, rawAlias?: string) => {
 		const name = rawName.trim();
 		const alias = rawAlias ? rawAlias.trim() : "";
 		const hasExt = name.includes(".");
@@ -38,14 +38,14 @@ export function resolveWikilinks(md: string): string {
 	});
 
 	// 2. Normalize standard Markdown images (![alt](url)) to [image: alt](url)
-	text = text.replace(/!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, alt, url) => {
+	text = text.replace(/!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match: string, alt: string, url: string) => {
 		const cleanAlt = alt.trim();
 		const label = cleanAlt ? `image: ${cleanAlt}` : "image";
 		return `[${label}](${url})`;
 	});
 
 	// 3. Regular Wikilinks ([[note|alias]])
-	text = text.replace(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match, name, alias) => {
+	text = text.replace(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]/g, (_match: string, name: string, alias?: string) => {
 		return alias || name;
 	});
 
@@ -219,7 +219,7 @@ export function extractCodeBlocks(
 		}
 
 		if (line.includes("`")) {
-			const replaced = line.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_match, _ticks, code) => {
+			const replaced = line.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_match: string, _ticks: string, code: string) => {
 				blocks.push(wrapInline(code));
 				return `${CODE_MARK}${blocks.length - 1}${CODE_MARK}`;
 			});
@@ -237,7 +237,7 @@ export function extractCodeBlocks(
 	// 1. Extract and protect inline math ($...$) while avoiding false positives for currency ($100)
 	intermediateText = intermediateText.replace(
 		/(?<!\\|\$)\$([^\s$](?:[^$\n]*?[^\s$])?)\$(?!\d|\$)/g,
-		(_match, math) => {
+		(_match: string, math: string) => {
 			if (wrapInlineMath) {
 				blocks.push(wrapInlineMath(math));
 			} else {
