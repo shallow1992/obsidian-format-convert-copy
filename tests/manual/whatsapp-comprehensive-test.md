@@ -19,7 +19,9 @@ Testers may copy the contents of this file or place this note anywhere in their 
 - <u>Underline</u>: <u>Underlined HTML text</u> (must strip HTML underline tags because WhatsApp does not support underline)
 - `Inline Code`: `const code = "wa_123";` (must remain single backtick inline code)
 - Hyperlink: [Official WhatsApp Site](https://www.whatsapp.com) (must expand to `Official WhatsApp Site (https://www.whatsapp.com)`)
-- Plain URL: https://example.com (must remain clickable)
+- Underscore in URL: [API Documentation](https://example.com/api_v1_endpoint) (must preserve underscores in URL)
+- Plain URL: https://example.com/webhook_event_trigger (must remain clickable with intact underscores)
+- Snake_case Text: `order_id_code` or unquoted user_account_id (intra-word underscores must not italicize)
 
 ---
 
@@ -45,11 +47,12 @@ Testers may copy the contents of this file or place this note anywhere in their 
 > Standard quote in WhatsApp.
 
 > [!NOTE] Release Update
-> Obsidian Callout syntax.
-> Must convert to `> *[NOTE]*` followed by content.
+> Obsidian Callout syntax with title.
+> Must convert to `> *[NOTE]* Release Update` followed by content.
 
-> [!WARNING] Urgent Alert
-> Warning callout verification.
+> [!WARNING]
+> Warning callout without title.
+> Must convert to `> *[WARNING]*`.
 
 ---
 

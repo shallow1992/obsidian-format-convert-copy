@@ -7,6 +7,21 @@ import {
 	restoreCodeBlocks,
 } from "./common";
 
+const URL_MARK = "\uE003";
+
+/**
+ * Normalizes inner markdown formatting within a heading to prevent conflicting delimiters
+ * when the entire heading is wrapped with WhatsApp bold (*Heading*).
+ */
+function sanitizeHeadingContent(content: string): string {
+	let res = content;
+	// Strip bold delimiters (**text** or __text__) since the entire heading is already bold
+	res = res.replace(/(\*\*|__)(.+?)\1/g, "$2");
+	// Unify italic asterisks (*italic*) into underscores (_italic_) to prevent nested asterisk collisions
+	res = res.replace(/(?<!\*)\*([^\s\*](?:[^\*\n]*?[^\s\*])?)\*(?!\*)/g, "_$1_");
+	return res;
+}
+
 /**
  * Converts Markdown to WhatsApp format.
  * WhatsApp formatting rules:
@@ -28,7 +43,7 @@ export function convertToWhatsApp(md: string): string {
 	text = text.replace(/^(\s*)[-*+]\s+\[ \]\s+/gm, "$1☐ ");
 	text = text.replace(/^(\s*)[-*+]\s+\[[xX]\]\s+/gm, "$1☑ ");
 
-	// Extract code blocks
+	// Extract code blocks, tables, and LaTeX math
 	const extraction = extractCodeBlocks(
 		text,
 		(code) => "```\n" + code + "\n```",
@@ -43,47 +58,74 @@ export function convertToWhatsApp(md: string): string {
 		return `${CODE_MARK}${codeBlocks.length - 1}${CODE_MARK}`;
 	});
 
-	// Stash headings, bold (**/__), and Callout titles
-	const boldTargets: string[] = [];
+	// Protect URLs (both Markdown links and raw URLs) to prevent underscores or asterisks
+	// inside URLs from being mutated by inline formatting regexes.
+	const urls: string[] = [];
 
-	// Stash Callouts (e.g. > [!NOTE] content)
-	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, title) => {
-		const label = title.trim() || type.toUpperCase();
-		boldTargets.push(`[${label}]`);
-		return `> ${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
+	// 1. Expand Markdown links: [title](url) -> title (url)
+	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, rawUrl) => {
+		const cleanUrl = rawUrl.trim();
+		if (!isSafeUrl(cleanUrl)) {
+			return title;
+		}
+		urls.push(cleanUrl);
+		const urlPlaceholder = `${URL_MARK}${urls.length - 1}${URL_MARK}`;
+		if (title.trim() === cleanUrl) {
+			return urlPlaceholder;
+		}
+		return `${title} (${urlPlaceholder})`;
 	});
 
-	// Convert headings to bold
+	// 2. Protect standalone raw URLs (http://, https://, etc.)
+	text = text.replace(/\bhttps?:\/\/[^\s<>"'`)]+/g, (match) => {
+		urls.push(match);
+		return `${URL_MARK}${urls.length - 1}${URL_MARK}`;
+	});
+
+	// Stash headings, bold (**/__), and Callouts
+	const boldTargets: string[] = [];
+
+	// Convert Callouts:
+	// > [!NOTE] Title -> > *[NOTE]* Title
+	// > [!NOTE] -> > *[NOTE]*
+	text = text.replace(/^>[ \t]*\[!([A-Za-z]+)\][ \t]*(.*)$/gm, (_match, type, rawTitle) => {
+		const upperType = type.toUpperCase();
+		const title = rawTitle.trim();
+		boldTargets.push(`[${upperType}]`);
+		const badge = `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
+		return title ? `> ${badge} ${title}` : `> ${badge}`;
+	});
+
+	// Convert headings to WhatsApp bold (*Heading*) with internal sanitization
 	text = text.replace(/^#{1,6}\s+(.*)$/gm, (_match, content) => {
-		boldTargets.push(content);
+		const sanitized = sanitizeHeadingContent(content.trim());
+		boldTargets.push(sanitized);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
-	// Bold (**)
-	text = text.replace(/(\*\*|__)(.+?)\1/g, (_match, _marker, content) => {
+	// Bold (**) and (__)
+	text = text.replace(/(?:\*\*([^\s\*](?:[\s\S]*?[^\s\*])?)\*\*|(?<=^|[\s\p{P}])__([^\s_](?:[\s\S]*?[^\s_])?)__(?=[\s\p{P}]|$))/gu, (_match, b1, b2) => {
+		const content = b1 !== undefined ? b1 : b2;
 		boldTargets.push(content);
 		return `${BOLD_MARK}${boldTargets.length - 1}${BOLD_MARK}`;
 	});
 
 	// Italics (* / _)
-	text = text.replace(/(\*|_)(.+?)\1/g, "_$2_");
+	// 1. Asterisk italic: *text* (excluding bold or multi-asterisk)
+	text = text.replace(/(?<!\*)\*([^\s\*](?:[^\*\n]*?[^\s\*])?)\*(?!\*)/g, "_$1_");
+	// 2. Underscore italic: _text_ (excluding intra-word snake_case)
+	text = text.replace(/(?<=^|[\s\p{P}])_([^\s_](?:[^_\n]*?[^\s_])?)_(?=[\s\p{P}]|$)/gu, "_$1_");
 
-	// Restore bold to WhatsApp *text* format
+	// Restore bold targets to WhatsApp *text* format
 	const boldPattern = new RegExp(`${BOLD_MARK}(\\d+)${BOLD_MARK}`, "g");
 	text = text.replace(boldPattern, (_match, i) => `*${boldTargets[Number(i)]}*`);
 
-	// Strikethrough (~~)
-	text = text.replace(/~~(.+?)~~/g, "~$1~");
+	// Strikethrough (~~text~~ -> ~text~)
+	text = text.replace(/~~([^\s~](?:[^~\n]*?[^\s~])?)~~/g, "~$1~");
 
-	// Convert [title](url) -> title (url) or url (safe URLs only)
-	text = text.replace(/\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)/g, (_match, title, url) => {
-		const cleanUrl = url.trim();
-		if (!isSafeUrl(cleanUrl)) {
-			return title;
-		}
-		if (title.trim() === cleanUrl) return cleanUrl;
-		return `${title} (${cleanUrl})`;
-	});
+	// Restore protected URLs
+	const urlPattern = new RegExp(`${URL_MARK}(\\d+)${URL_MARK}`, "g");
+	text = text.replace(urlPattern, (_match, i) => urls[Number(i)] ?? "");
 
 	text = restoreCodeBlocks(text, codeBlocks);
 

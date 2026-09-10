@@ -307,9 +307,32 @@ describe("whatsapp converter", () => {
 		expect(converted).toContain("☑ Done task");
 	});
 
-	it("converts callouts to bold quote", () => {
-		const md = "> [!NOTE] This is a note";
-		expect(convertToWhatsApp(md)).toBe("> *[This is a note]*");
+	it("converts callouts to bold quote with badge and title", () => {
+		const mdWithTitle = "> [!NOTE] Release Update\n> Content";
+		expect(convertToWhatsApp(mdWithTitle)).toBe("> *[NOTE]* Release Update\n> Content");
+
+		const mdWithoutTitle = "> [!WARNING]\n> Be careful";
+		expect(convertToWhatsApp(mdWithoutTitle)).toBe("> *[WARNING]*\n> Be careful");
+	});
+
+	it("sanitizes nested bold and italics in headings to avoid WhatsApp syntax collision", () => {
+		const md = "# Heading 1 (Must convert to *Heading 1* bold)\n## Section with **Strong** text";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toBe("*Heading 1 (Must convert to _Heading 1_ bold)*\n*Section with Strong text*");
+	});
+
+	it("protects underscores in URLs from italic conversion", () => {
+		const md = "[API Docs](https://example.com/v1_user_profile)\nCheck https://example.com/webhook_event_trigger directly\nAnd *italic* word";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toContain("API Docs (https://example.com/v1_user_profile)");
+		expect(converted).toContain("https://example.com/webhook_event_trigger");
+		expect(converted).toContain("_italic_");
+	});
+
+	it("preserves intra-word snake_case underscores without false italic conversion", () => {
+		const md = "Use const order_id_number = 42 for user_account_lookup";
+		const converted = convertToWhatsApp(md);
+		expect(converted).toBe("Use const order_id_number = 42 for user_account_lookup");
 	});
 });
 
