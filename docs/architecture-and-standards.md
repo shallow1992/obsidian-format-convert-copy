@@ -73,3 +73,31 @@ Markdown テーブルを Slack や固定幅テキスト形式に変換する際�
    - **幅 2 (Full Width)**: CJK 基本多言語面、CJK 統合漢字拡張（Plane 2: `0x20000`〜`0x323AF`）、絵文字ブロック（`0x1F300`〜`0x1FAFF`, `0x2600`〜`0x27BF`, シンボル類）。
    - 結合絵文字（ZWJ や `\uFE0F` を含むクラスタ）は全体で幅 2 として評価。
 
+---
+
+## 5. クリップボード制御パイプラインとレガシー API (`execCommand`) の完全廃止
+
+### 背景と課題
+過去の実装では、古いブラウザ環境や権限拒絶時のセーフティネットとして `document.execCommand("copy")`（DOM `copy` イベント経由および非表示 `textarea` 要素へのフォールバック）を保持していました。
+しかし、Obsidian のコミュニティディレクトリ自動審査（Automated Review）にて `execCommand is deprecated` が指摘されたことを受け、現代の Obsidian 実行環境における要件を再精査しました。
+
+### 現代の Obsidian 実行環境における検証
+1. **デスクトップ (Mac / Windows / Linux)**:
+   - Chromium ベースの Electron 環境であり、`window.require("electron").clipboard`（OS ネイティブのクリップボード制御）および `navigator.clipboard` が 100% 確実に動作します。
+2. **iOS (iPhone / iPad)**:
+   - 本プラグインの要求環境である `minAppVersion: 1.4.0` を満たす Obsidian（iOS 16 以降）では、WebKit の非同期 Clipboard API（`ClipboardItem`）が標準搭載されており、`execCommand` を必要とする環境は存在しません。
+3. **Android**:
+   - Android System WebView（Chromium 66 以降）において `navigator.clipboard` は完全対応済みです。
+
+### 新しいクリップボード制御パイプライン (`src/utils/clipboard.ts`)
+レガシーな DOM 要素（`textarea`）生成や `execCommand` を完全に撤廃し、以下のクリーンな多層パイプラインに一本化しました：
+
+1. **カスタム MIME 形式 (Slack Texty 形式 - デスクトップ)**:
+   - デスクトップ環境では `electron.clipboard.writeBuffer(mime, new TextEncoder().encode(content))` を用いて `slack/texty` 等の独自バッファを OS クリップボードへ直接書き込みます。
+2. **リッチテキスト HTML 形式**:
+   - デスクトップ: `electron.clipboard.write({ text, html })` で同期的にアトミック書き込み。
+   - モバイル: `navigator.clipboard.write([new ClipboardItem(...)])` による WebKit / Chromium 標準の非同期書き込み。
+3. **プレーンテキスト形式 / フォールバック**:
+   - `navigator.clipboard.writeText(text)` による標準非同期書き込み。
+4. **エラーハンドリング**:
+   - いずれのモダン API も成功しなかった場合は、安全に `return false` とし、Obsidian 標準の通知 UI（`Notice: Failed to copy to clipboard`）を表示。DOM 汚染やレガシー API への依存は一切発生しません。

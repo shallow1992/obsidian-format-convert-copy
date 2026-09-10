@@ -18,38 +18,39 @@ export async function copyToClipboard(
 		}
 	};
 
-	// 1. If custom MIME types (e.g., slack/texty) are present, use synchronous DOM copy event first.
-	// This avoids ClipboardItem type whitelist rejection in modern browsers and writes all types atomically.
+	// 1. Custom MIME types (e.g., slack/texty for Desktop Slack native clipboard)
+	// On desktop Electron, writes custom buffers directly via electron.clipboard
 	if (customMimeTypes && Object.keys(customMimeTypes).length > 0) {
-		try {
-			let copiedCustom = false;
-			const copyListener = (event: ClipboardEvent) => {
-				event.preventDefault();
-				if (event.clipboardData) {
-					event.clipboardData.clearData();
-					event.clipboardData.setData("text/plain", text);
-					if (html) {
-						event.clipboardData.setData("text/html", html);
+		if (!Platform.isMobile) {
+			try {
+				const windowWithRequire = (typeof window !== "undefined" ? window : globalThis) as unknown as {
+					require?: (module: string) => {
+						clipboard?: {
+							write?: (data: { text: string; html?: string }) => void;
+							writeBuffer?: (format: string, buffer: Uint8Array) => void;
+						};
+					};
+				};
+				const electron = typeof windowWithRequire.require === "function" ? windowWithRequire.require("electron") : null;
+
+				if (electron?.clipboard) {
+					if (typeof electron.clipboard.write === "function") {
+						electron.clipboard.write({ text, html });
 					}
-					for (const [mime, content] of Object.entries(customMimeTypes)) {
-						if (content !== undefined && content !== null) {
-							event.clipboardData.setData(mime, content);
+					if (typeof electron.clipboard.writeBuffer === "function") {
+						for (const [mime, content] of Object.entries(customMimeTypes)) {
+							if (content) {
+								const buffer = new TextEncoder().encode(content);
+								electron.clipboard.writeBuffer(mime, buffer);
+							}
 						}
 					}
-					copiedCustom = true;
+					notifySuccess(t("noticeCopied", { format: label }));
+					return true;
 				}
-			};
-
-			document.addEventListener("copy", copyListener, { once: true });
-			const execSuccess = document.execCommand("copy");
-			document.removeEventListener("copy", copyListener);
-
-			if (execSuccess && copiedCustom) {
-				notifySuccess(t("noticeCopied", { format: label }));
-				return true;
+			} catch (electronError) {
+				console.warn("format-convert-copy: Electron custom MIME write failed, trying standard clipboard", electronError);
 			}
-		} catch (domCustomError) {
-			console.warn("format-convert-copy: Custom MIME DOM copy failed, trying fallbacks", domCustomError);
 		}
 	}
 
@@ -58,7 +59,7 @@ export async function copyToClipboard(
 		// Method A: Desktop Electron clipboard (synchronous rich write)
 		if (!Platform.isMobile) {
 			try {
-				const windowWithRequire = window as unknown as {
+				const windowWithRequire = (typeof window !== "undefined" ? window : globalThis) as unknown as {
 					require?: (module: string) => { clipboard?: { write?: (data: { text: string; html?: string }) => void } };
 				};
 				const electron = typeof windowWithRequire.require === "function" ? windowWithRequire.require("electron") : null;
@@ -69,7 +70,7 @@ export async function copyToClipboard(
 					return true;
 				}
 			} catch {
-				// Proceed to Web Clipboard API / DOM methods
+				// Proceed to Web Clipboard API
 			}
 		}
 
@@ -85,32 +86,7 @@ export async function copyToClipboard(
 				return true;
 			}
 		} catch (clipboardItemError) {
-			console.warn("format-convert-copy: ClipboardItem write failed, trying DOM copy event", clipboardItemError);
-		}
-
-		// Method C: Synchronous DOM copy event handler (cross-platform HTML + plain text fallback)
-		try {
-			let copiedWithHtml = false;
-			const copyListener = (event: ClipboardEvent) => {
-				event.preventDefault();
-				if (event.clipboardData) {
-					event.clipboardData.clearData();
-					event.clipboardData.setData("text/plain", text);
-					event.clipboardData.setData("text/html", html);
-					copiedWithHtml = true;
-				}
-			};
-
-			document.addEventListener("copy", copyListener, { once: true });
-			const execSuccess = document.execCommand("copy");
-			document.removeEventListener("copy", copyListener);
-
-			if (execSuccess && copiedWithHtml) {
-				notifySuccess(t("noticeCopied", { format: label }));
-				return true;
-			}
-		} catch {
-			// Proceed to plain text fallback
+			console.warn("format-convert-copy: ClipboardItem write failed, falling back to plain text", clipboardItemError);
 		}
 	}
 
@@ -126,30 +102,7 @@ export async function copyToClipboard(
 			return true;
 		}
 	} catch (error) {
-		console.warn("format-convert-copy: writeText failed, attempting execCommand fallback", error);
-	}
-
-	// 4. Final legacy textarea fallback
-	try {
-		const doc = typeof activeDocument !== "undefined" ? activeDocument : document;
-		const textArea = doc.body.createEl("textarea", {
-			cls: "format-convert-hidden-textarea",
-		});
-		textArea.value = text;
-		textArea.focus();
-		textArea.select();
-		const successful = doc.execCommand("copy");
-		textArea.remove();
-		if (successful) {
-			notifySuccess(
-				html
-					? t("noticeCopiedSimple", { format: label })
-					: t("noticeCopied", { format: label })
-			);
-			return true;
-		}
-	} catch (execError) {
-		console.error("format-convert-copy: execCommand fallback failed", execError);
+		console.warn("format-convert-copy: writeText failed", error);
 	}
 
 	new Notice(t("noticeFailed"));
