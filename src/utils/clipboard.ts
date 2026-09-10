@@ -23,7 +23,7 @@ export async function copyToClipboard(
 	if (customMimeTypes && Object.keys(customMimeTypes).length > 0) {
 		if (!Platform.isMobile) {
 			try {
-				const windowWithRequire = (typeof window !== "undefined" ? window : globalThis) as unknown as {
+				const windowWithRequire = (typeof activeWindow !== "undefined" ? activeWindow : window) as unknown as {
 					require?: (module: string) => {
 						clipboard?: {
 							write?: (data: { text: string; html?: string }) => void;
@@ -59,7 +59,7 @@ export async function copyToClipboard(
 		// Method A: Desktop Electron clipboard (synchronous rich write)
 		if (!Platform.isMobile) {
 			try {
-				const windowWithRequire = (typeof window !== "undefined" ? window : globalThis) as unknown as {
+				const windowWithRequire = (typeof activeWindow !== "undefined" ? activeWindow : window) as unknown as {
 					require?: (module: string) => { clipboard?: { write?: (data: { text: string; html?: string }) => void } };
 				};
 				const electron = typeof windowWithRequire.require === "function" ? windowWithRequire.require("electron") : null;
