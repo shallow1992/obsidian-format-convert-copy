@@ -1,6 +1,6 @@
 import { Platform } from "obsidian";
 import { convertToDiscord } from "./discord";
-import { convertToSlack, convertToSlackHtml } from "./slack";
+import { convertToSlack } from "./slack";
 import { convertToSlackMobileHtml } from "./slackMobile";
 import { convertToSlackTexty } from "./slackTexty";
 import { convertToWhatsApp } from "./whatsapp";

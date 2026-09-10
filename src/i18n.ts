@@ -166,7 +166,7 @@ export function getCurrentLocale(): string {
 		if (typeof moment !== "undefined" && typeof moment.locale === "function") {
 			return moment.locale();
 		}
-	} catch (_e) {
+	} catch {
 		// fallback
 	}
 	return "en";

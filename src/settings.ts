@@ -44,8 +44,10 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 1. Navigation bar / ribbon settings
 		// ==========================================
-		containerEl.createEl("h3", { text: ribbonAreaName, cls: "format-convert-setting-heading" });
-		containerEl.createEl("p", { text: t("settingsRibbonDesc"), cls: "setting-item-description format-convert-setting-desc" });
+		new Setting(containerEl)
+			.setName(ribbonAreaName)
+			.setDesc(t("settingsRibbonDesc"))
+			.setHeading();
 
 		const ribbonToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
 			{ name: t("settingsRibbonSlackName"), desc: t("settingsRibbonSlackDesc", { area: ribbonAreaName }), key: "showRibbonSlackIcon" },
@@ -62,8 +64,10 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 2. File explorer menu settings
 		// ==========================================
-		containerEl.createEl("h3", { text: t("settingsFileHeading"), cls: "format-convert-setting-heading" });
-		containerEl.createEl("p", { text: t("settingsFileDesc"), cls: "setting-item-description format-convert-setting-desc" });
+		new Setting(containerEl)
+			.setName(t("settingsFileHeading"))
+			.setDesc(t("settingsFileDesc"))
+			.setHeading();
 
 		const fileToggles: { name: string; desc: string; key: keyof FormatConvertSettings }[] = [
 			{ name: t("settingsFileSlackName"), desc: t("settingsFileSlackDesc"), key: "showFileSlackItem" },
@@ -81,8 +85,10 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// 3. Desktop editor context menu settings
 		// ==========================================
 		if (!Platform.isMobile) {
-			containerEl.createEl("h3", { text: t("settingsEditorHeading"), cls: "format-convert-setting-heading" });
-			containerEl.createEl("p", { text: t("settingsEditorDesc"), cls: "setting-item-description format-convert-setting-desc" });
+			new Setting(containerEl)
+				.setName(t("settingsEditorHeading"))
+				.setDesc(t("settingsEditorDesc"))
+				.setHeading();
 
 			const editorToggles: { name: string; key: keyof FormatConvertSettings }[] = [
 				{ name: t("settingsEditorSlackName"), key: "showSlackInMenu" },
@@ -99,7 +105,7 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 		// ==========================================
 		// 4. Copy behavior and notification settings
 		// ==========================================
-		containerEl.createEl("h3", { text: t("settingsBehaviorHeading"), cls: "format-convert-setting-heading" });
+		new Setting(containerEl).setName(t("settingsBehaviorHeading")).setHeading();
 
 		new Setting(containerEl)
 			.setName(t("settingsEmptySelectionName"))

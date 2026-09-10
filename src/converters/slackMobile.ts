@@ -10,7 +10,6 @@ import {
 
 const INLINE_CODE_MARK = "\uE003";
 const LINK_MARK = "\uE004";
-const NBSP = "\u00A0";
 const EMPTY_LINE_HTML = "<p>&nbsp;</p>";
 const HR_HTML = "<p>───</p>";
 
