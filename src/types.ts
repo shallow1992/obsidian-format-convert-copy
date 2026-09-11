@@ -23,7 +23,7 @@ export interface FormatConvertSettings {
 
 	// Copy behavior and notifications
 	emptySelectionBehavior: EmptySelectionBehavior;
-	silentMode: boolean;
+	showNotification: boolean;
 }
 
 export type EmptySelectionBehavior = "document" | "currentLine";
@@ -51,7 +51,7 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 
 	// Copy behavior default values
 	emptySelectionBehavior: "document",
-	silentMode: false,
+	showNotification: true,
 };
 
 import { t } from "./i18n";

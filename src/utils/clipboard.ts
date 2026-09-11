@@ -9,11 +9,11 @@ export async function copyToClipboard(
 	text: string,
 	label: string,
 	html?: string,
-	silent: boolean = false,
+	showNotification: boolean = true,
 	customMimeTypes?: Record<string, string>
 ): Promise<boolean> {
 	const notifySuccess = (message: string) => {
-		if (!silent) {
+		if (showNotification) {
 			new Notice(message);
 		}
 	};

@@ -491,7 +491,7 @@ describe("getTargetText selection behavior", () => {
 import { copyToClipboard } from "../src/utils/clipboard";
 import { noticeInstances } from "./__mocks__/obsidian";
 
-describe("copyToClipboard rich text and silent mode", () => {
+describe("copyToClipboard rich text and showNotification", () => {
 	beforeEach(() => {
 		noticeInstances.length = 0;
 		(globalThis as any).window = globalThis;
@@ -511,28 +511,28 @@ describe("copyToClipboard rich text and silent mode", () => {
 		});
 	});
 
-	it("shows Notice when silent is false (default)", async () => {
-		const success = await copyToClipboard("test text", "Slack", undefined, false);
+	it("shows Notice when showNotification is true (default)", async () => {
+		const success = await copyToClipboard("test text", "Slack");
 		expect(success).toBe(true);
 		expect(noticeInstances.length).toBeGreaterThan(0);
 		expect(noticeInstances[0]).toContain("Slack");
 	});
 
-	it("suppresses Notice when silent is true", async () => {
-		const success = await copyToClipboard("test text", "Slack", undefined, true);
+	it("suppresses Notice when showNotification is false", async () => {
+		const success = await copyToClipboard("test text", "Slack", undefined, false);
 		expect(success).toBe(true);
 		expect(noticeInstances.length).toBe(0);
 	});
 
 	it("writes rich HTML via ClipboardItem when html is provided", async () => {
-		const success = await copyToClipboard("*test*", "Slack", "<b>test</b>", false);
+		const success = await copyToClipboard("*test*", "Slack", "<b>test</b>", true);
 		expect(success).toBe(true);
 		expect(navigator.clipboard.write).toHaveBeenCalled();
 	});
 
 	it("returns false and shows failure notice when clipboard write fails", async () => {
 		(navigator.clipboard.writeText as any).mockRejectedValueOnce(new Error("Permission denied"));
-		const success = await copyToClipboard("failed text", "Plain", undefined, false);
+		const success = await copyToClipboard("failed text", "Plain", undefined, true);
 		expect(success).toBe(false);
 		expect(noticeInstances.length).toBeGreaterThan(0);
 		expect(noticeInstances[0]).toContain("Failed to copy to clipboard");

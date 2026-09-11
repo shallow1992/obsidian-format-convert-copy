@@ -71,8 +71,8 @@ const en = {
 	settingsEmptySelectionDesc: "Choose what to copy when no text is selected in the editor.",
 	settingsEmptySelectionDoc: "Entire note (default)",
 	settingsEmptySelectionLine: "Current line (cursor line)",
-	settingsSilentModeName: "Silent mode",
-	settingsSilentModeDesc: "Suppress success toast notifications for uninterrupted copying. Error notifications will still be displayed.",
+	settingsShowNotificationName: "Show notifications",
+	settingsShowNotificationDesc: "Display toast notifications when copying succeeds. Error notifications will still be displayed.",
 };
 
 const ja: typeof en = {
@@ -146,8 +146,8 @@ const ja: typeof en = {
 	settingsEmptySelectionDesc: "エディタで文字を選択していない状態でコピーを実行した際の対象を指定します。",
 	settingsEmptySelectionDoc: "ノート全体（全文）",
 	settingsEmptySelectionLine: "カーソル行（現在の1行）",
-	settingsSilentModeName: "サイレントモード",
-	settingsSilentModeDesc: "コピー成功時の画面上部トースト通知を非表示にします（エラー時の通知は維持されます）。",
+	settingsShowNotificationName: "通知を表示",
+	settingsShowNotificationDesc: "コピー成功時にトースト通知を表示します（エラー時の通知は維持されます）。",
 };
 
 export type TranslationKey = keyof typeof en;
