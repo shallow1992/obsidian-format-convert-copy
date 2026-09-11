@@ -34,8 +34,8 @@ Designed from the ground up for seamless cross-platform usage across **Desktop (
   - Wikilink embeds (`![[screenshot.png|300]]`, `![[document.pdf]]`) are cleanly converted to readable placeholders (`[image: screenshot.png]`, `[attachment: document.pdf]`).
 - 🔒 **Security First (URL Scheme Sanitization)**:
   - Validates URL schemes in links, blocking dangerous protocols like `javascript:` and `data:`.
-- 🔕 **Customizable Notification (Silent Mode)**:
-  - Option to suppress success Notice toasts for uninterrupted high-frequency copying.
+- 🔔 **Customizable Notification**:
+  - Toggle copy success toast notifications on or off for seamless, uninterrupted workflows. Error notifications will always be displayed.
 - 🎯 **Smart Empty Selection**:
   - Configurable behavior when no text is selected: copy the **entire note** or just the **current cursor line**.
 

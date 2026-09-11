@@ -284,7 +284,7 @@ export default class FormatConvertPlugin extends Plugin {
 		html?: string,
 		customMimeTypes?: Record<string, string>
 	): Promise<boolean> {
-		return copyToClipboard(text, label, html, this.settings.silentMode, customMimeTypes);
+		return copyToClipboard(text, label, html, this.settings.showNotification, customMimeTypes);
 	}
 
 	getTargetText(editor?: Editor | null): string {
@@ -307,11 +307,19 @@ export default class FormatConvertPlugin extends Plugin {
 	// ----------------------------------------------------
 
 	async loadSettings(): Promise<void> {
-		const loadedData = (await this.loadData()) as Partial<FormatConvertSettings> | null;
-		this.settings = {
+		const loadedData = (await this.loadData()) as (Partial<FormatConvertSettings> & { silentMode?: boolean }) | null;
+		const settings: FormatConvertSettings = {
 			...DEFAULT_SETTINGS,
 			...(loadedData ?? {}),
 		};
+
+		// Migration: silentMode -> showNotification
+		if (loadedData && typeof loadedData.silentMode === "boolean" && loadedData.showNotification === undefined) {
+			settings.showNotification = !loadedData.silentMode;
+			delete (settings as { silentMode?: boolean }).silentMode;
+		}
+
+		this.settings = settings;
 	}
 
 	async saveSettings(): Promise<void> {

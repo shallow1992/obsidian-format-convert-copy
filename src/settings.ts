@@ -143,9 +143,9 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 						},
 					},
 					{
-						name: t("settingsSilentModeName"),
-						desc: t("settingsSilentModeDesc"),
-						control: { type: "toggle", key: "silentMode" },
+						name: t("settingsShowNotificationName"),
+						desc: t("settingsShowNotificationDesc"),
+						control: { type: "toggle", key: "showNotification" },
 					},
 				],
 			},
@@ -264,9 +264,9 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 
 		this.addToggleSetting(
 			containerEl,
-			t("settingsSilentModeName"),
-			t("settingsSilentModeDesc"),
-			"silentMode"
+			t("settingsShowNotificationName"),
+			t("settingsShowNotificationDesc"),
+			"showNotification"
 		);
 	}
 }

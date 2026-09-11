@@ -101,3 +101,20 @@ Markdown テーブルを Slack や固定幅テキスト形式に変換する際�
    - `navigator.clipboard.writeText(text)` による標準非同期書き込み。
 4. **エラーハンドリング**:
    - いずれのモダン API も成功しなかった場合は、安全に `return false` とし、Obsidian 標準の通知 UI（`Notice: Failed to copy to clipboard`）を表示。DOM 汚染やレガシー API への依存は一切発生しません。
+
+---
+
+## 6. 通知設定の肯定形モデル化 (`showNotification`) と後方互換マイグレーション
+
+### 背景と課題
+従来のコピー完了通知設定は `silentMode: boolean`（通知を非表示にするトグル）という否定形の設定になっていました。トグルを ON にすると「通知が出なくなる」という挙動は、直感に反しやすく認知的負荷（二重否定の混乱）を生む要因となっていました。
+
+### 設計方針
+1. **肯定形トグルへのリファクタリング (`showNotification`)**:
+   - 項目名を「通知を表示（Show notifications）」、デフォルト値を `true`（通知を表示する）に変更。
+   - 一般的な Obsidian プラグインおよびモダン UI 標準に準拠し、ON = 通知表示、OFF = 通知非表示（旧サイレントモード相当）と直感的に一致させました。
+2. **既存設定のシームレスな自動マイグレーション (`loadSettings`)**:
+   - 既存ユーザーの `data.json` に `silentMode` が保存されていた場合、`showNotification = !loadedData.silentMode` として設定値を反転継承します。
+   - 移行完了後は古いプロパティ `silentMode` を設定オブジェクトから安全に削除（`delete`）し、設定保存時に新しいクリーンなスキーマへと統一されます。
+3. **Dual Support（設定検索 ＆ 従来描画）の整合性維持**:
+   - Obsidian 1.13.0+ の宣言的 API（`getSettingDefinitions`）および旧バージョン向けの命令的描画（`display()`）の双方で、一貫して `showNotification` をコントロール対象としてバインドしています。
