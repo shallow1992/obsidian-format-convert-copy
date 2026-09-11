@@ -83,9 +83,14 @@ Add Format Convert Copy commands to your Obsidian Mobile Toolbar under **Setting
 ### 3. File Explorer Menu (Long-Press / Right-Click)
 In the file tree, right-click (desktop) or long-press (mobile) any Markdown note to copy its contents:
 - By default, the **Format Selection Menu** is enabled in the file menu to choose any format.
-- Individual direct copy items (Slack, Discord, WhatsApp, Markdown) and desktop editor context menu items can be enabled in Settings.
+- Individual direct copy items (Slack, Discord, WhatsApp, Markdown) can be enabled in Settings.
 
-### 4. Command Palette & Hotkeys
+### 4. Desktop Editor Context Menu (Right-Click)
+Right-click inside the editor on desktop to convert and copy text:
+- By default, the **Format Selection Menu** is enabled to choose any format from a popup menu.
+- Individual direct format items (Slack, Discord, WhatsApp, Markdown) can be enabled in Settings.
+
+### 5. Command Palette & Hotkeys
 Open the Command Palette (`Ctrl/Cmd + P`) and search for:
 - `Format Convert Copy: Convert and copy for Slack` (Japanese: `Slack形式に変換してコピー`)
 - `Format Convert Copy: Convert and copy for Discord` (Japanese: `Discord形式に変換してコピー`)
