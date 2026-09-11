@@ -68,8 +68,7 @@ export default class FormatConvertPlugin extends Plugin {
 				icon: cmd.icon,
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
-					const result = convertMarkdown(target, cmd.type);
-					void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+					void this.convertAndCopy(target, cmd.type);
 				},
 			});
 		}
@@ -85,8 +84,7 @@ export default class FormatConvertPlugin extends Plugin {
 				this.showFormatSelectMenu(
 					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 },
 					(type) => {
-						const result = convertMarkdown(target, type);
-						void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+						void this.convertAndCopy(target, type);
 					}
 				);
 			},
@@ -134,11 +132,23 @@ export default class FormatConvertPlugin extends Plugin {
 								.setTitle(item.title)
 								.setIcon("clipboard-copy")
 								.onClick(() => {
-									const result = convertMarkdown(target, item.type);
-									void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+									void this.convertAndCopy(target, item.type);
 								})
 						);
 					}
+				}
+
+				if (this.settings.showEditorMenuItem) {
+					menu.addItem((item) =>
+						item
+							.setTitle(t("actionChooseMenu"))
+							.setIcon("copy")
+							.onClick((evt: MouseEvent | KeyboardEvent) => {
+								this.showFormatSelectMenu(evt, (type) => {
+									void this.convertAndCopy(target, type);
+								});
+							})
+					);
 				}
 			})
 		);
@@ -154,8 +164,7 @@ export default class FormatConvertPlugin extends Plugin {
 				const copyFileContent = async (type: FormatType) => {
 					try {
 						const content = await this.app.vault.cachedRead(file);
-						const result = convertMarkdown(content, type);
-						await this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+						await this.convertAndCopy(content, type);
 					} catch {
 						new Notice(t("noticeFailed"));
 					}
@@ -205,8 +214,7 @@ export default class FormatConvertPlugin extends Plugin {
 		const activeCopy = (type: FormatType) => {
 			const target = this.getActiveTargetText();
 			if (target) {
-				const result = convertMarkdown(target, type);
-				void this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
+				void this.convertAndCopy(target, type);
 			}
 		};
 
@@ -276,6 +284,11 @@ export default class FormatConvertPlugin extends Plugin {
 		} else {
 			formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 		}
+	}
+
+	async convertAndCopy(text: string, type: FormatType): Promise<boolean> {
+		const result = convertMarkdown(text, type);
+		return this.copyResult(result.text, result.label, result.html, result.customMimeTypes);
 	}
 
 	async copyResult(

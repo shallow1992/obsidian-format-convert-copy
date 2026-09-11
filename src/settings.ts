@@ -124,6 +124,11 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 						name: t("settingsEditorRawName"),
 						control: { type: "toggle", key: "showRawInMenu" },
 					},
+					{
+						name: t("settingsEditorMenuName"),
+						desc: t("settingsEditorMenuDesc"),
+						control: { type: "toggle", key: "showEditorMenuItem" },
+					},
 				],
 			},
 			{
@@ -231,15 +236,16 @@ export class FormatConvertSettingTab extends PluginSettingTab {
 				.setDesc(t("settingsEditorDesc"))
 				.setHeading();
 
-			const editorToggles: { name: string; key: BooleanSettingKey }[] = [
+			const editorToggles: { name: string; desc?: string; key: BooleanSettingKey }[] = [
 				{ name: t("settingsEditorSlackName"), key: "showSlackInMenu" },
 				{ name: t("settingsEditorDiscordName"), key: "showDiscordInMenu" },
 				{ name: t("settingsEditorWhatsAppName"), key: "showWhatsAppInMenu" },
 				{ name: t("settingsEditorRawName"), key: "showRawInMenu" },
+				{ name: t("settingsEditorMenuName"), desc: t("settingsEditorMenuDesc"), key: "showEditorMenuItem" },
 			];
 
 			for (const item of editorToggles) {
-				this.addToggleSetting(containerEl, item.name, undefined, item.key);
+				this.addToggleSetting(containerEl, item.name, item.desc, item.key);
 			}
 		}
 

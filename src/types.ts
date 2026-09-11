@@ -20,6 +20,7 @@ export interface FormatConvertSettings {
 	showDiscordInMenu: boolean;
 	showWhatsAppInMenu: boolean;
 	showRawInMenu: boolean;
+	showEditorMenuItem: boolean;
 
 	// Copy behavior and notifications
 	emptySelectionBehavior: EmptySelectionBehavior;
@@ -48,6 +49,7 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	showDiscordInMenu: false,
 	showWhatsAppInMenu: false,
 	showRawInMenu: false,
+	showEditorMenuItem: true,
 
 	// Copy behavior default values
 	emptySelectionBehavior: "document",

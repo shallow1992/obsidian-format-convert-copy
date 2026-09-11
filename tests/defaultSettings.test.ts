@@ -26,7 +26,8 @@ describe("DEFAULT_SETTINGS optimization (#106)", () => {
 		expect(DEFAULT_SETTINGS.showFileRawItem).toBe(false);
 	});
 
-	it("has all desktop editor context menu items disabled by default", () => {
+	it("has only editor format menu enabled by default and direct items disabled (#109)", () => {
+		expect(DEFAULT_SETTINGS.showEditorMenuItem).toBe(true);
 		expect(DEFAULT_SETTINGS.showSlackInMenu).toBe(false);
 		expect(DEFAULT_SETTINGS.showDiscordInMenu).toBe(false);
 		expect(DEFAULT_SETTINGS.showWhatsAppInMenu).toBe(false);

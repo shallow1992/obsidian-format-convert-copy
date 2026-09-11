@@ -22,6 +22,7 @@ describe("i18n localization", () => {
 		expect(t("settingsEmptySelectionLine")).toBe("Current line (cursor line)");
 		expect(t("settingsRibbonSlackName")).toBe("Slack format");
 		expect(t("settingsFileMenuName")).toBe("Format selection menu");
+		expect(t("settingsEditorMenuName")).toBe("Format selection menu");
 		expect(t("settingsShowNotificationName")).toBe("Show notifications");
 	});
 
@@ -42,6 +43,7 @@ describe("i18n localization", () => {
 		expect(t("settingsEmptySelectionLine")).toBe("カーソル行（現在の1行）");
 		expect(t("settingsRibbonSlackName")).toBe("Slack形式");
 		expect(t("settingsFileMenuName")).toBe("形式選択メニュー");
+		expect(t("settingsEditorMenuName")).toBe("形式選択メニュー");
 		expect(t("settingsShowNotificationName")).toBe("通知を表示");
 	});
 

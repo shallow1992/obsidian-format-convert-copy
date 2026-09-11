@@ -64,6 +64,8 @@ const en = {
 	settingsEditorDiscordName: "Discord format",
 	settingsEditorWhatsAppName: "WhatsApp format",
 	settingsEditorRawName: "Markdown format",
+	settingsEditorMenuName: "Format selection menu",
+	settingsEditorMenuDesc: "Shows a format selection menu when right-clicking inside the editor.",
 
 	// Behavior & Notifications Settings
 	settingsBehaviorHeading: "Copy Behavior & Notifications",
@@ -139,6 +141,8 @@ const ja: typeof en = {
 	settingsEditorDiscordName: "Discord形式",
 	settingsEditorWhatsAppName: "WhatsApp形式",
 	settingsEditorRawName: "Markdown形式",
+	settingsEditorMenuName: "形式選択メニュー",
+	settingsEditorMenuDesc: "エディタ内の右クリック時に形式選択メニューを表示します。",
 
 	// Behavior & Notifications Settings
 	settingsBehaviorHeading: "コピー動作・通知設定",
