@@ -118,3 +118,23 @@ Markdown テーブルを Slack や固定幅テキスト形式に変換する際�
    - 移行完了後は古いプロパティ `silentMode` を設定オブジェクトから安全に削除（`delete`）し、設定保存時に新しいクリーンなスキーマへと統一されます。
 3. **Dual Support（設定検索 ＆ 従来描画）の整合性維持**:
    - Obsidian 1.13.0+ の宣言的 API（`getSettingDefinitions`）および旧バージョン向けの命令的描画（`display()`）の双方で、一貫して `showNotification` をコントロール対象としてバインドしています。
+
+---
+
+## 7. 初期導入 UX の最適化とデフォルト設定値の設計方針 (Out-of-the-Box UX)
+
+### 背景と目的
+初期状態において特定の単一形式（Slack）のみが個別アイコンとして有効化されていると、他形式（Discord, WhatsApp, Markdown）の利用者が戸惑い、また UI が乱立する要因となっていました。
+そのため、書式選択の初期設定は「形式を選択してコピー」のみを ON とし、個別形式アイコンおよび PC 版エディタ右クリックメニューはデフォルトで OFF に整理しました。
+
+### 設計方針
+1. **書式選択は「形式を選択してコピー」のみを初期有効化**:
+   - **リボン / ナビゲーションバー**: `showRibbonMenuIcon: true` のみ ON、個別形式（`showRibbonSlackIcon` 等）はすべて `false`。
+   - **ファイルエクスプローラ**: `showFileMenuItem: true` のみ ON、個別形式（`showFileSlackItem` 等）はすべて `false`。
+   - これにより、UI をすっきり保ちつつ、初回ユーザーがワンタップで全フォーマットを直感的に選択・コピーできる体験を提供します。
+2. **PC 版エディタ右クリックメニューはデフォルト OFF**:
+   - エディタ内右クリックメニューは Obsidian のコンテキストメニュー領域を圧迫しやすいため、初期状態ではすべて OFF（`showSlackInMenu: false`, `showDiscordInMenu: false`, `showWhatsAppInMenu: false`, `showRawInMenu: false`）とし、必要なユーザーが設定から有効化するオプトイン設計としました。
+3. **安全かつ予測可能な基本挙動の維持**:
+   - **全面コピー (`emptySelectionBehavior: "document"`)**: 未選択時はノート全体をコピーする標準挙動。
+   - **通知表示 (`showNotification: true`)**: コピー完了の成否がトースト（Notice）で確実にフィードバックされる挙動。
+

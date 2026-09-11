@@ -73,15 +73,17 @@ Designed from the ground up for seamless cross-platform usage across **Desktop (
 
 ### 1. Navigation Bar / Ribbon Icons
 Click or tap the ribbon icon (left ribbon on desktop, navigation bar on mobile) to immediately convert and copy:
-- Individual direct buttons (Slack, Discord, WhatsApp, Markdown) can be enabled in Settings.
-- Or use the **Format Selection Menu** (`copy` icon) to select from a popup menu.
+- By default, only the **Format Selection Menu** (`copy`) icon is enabled, allowing you to choose any format on tap.
+- Individual direct copy buttons (Slack, Discord, WhatsApp, Markdown) can be enabled or customized in Settings.
 
 ### 2. Mobile Keyboard Toolbar (iOS / Android)
 Add Format Convert Copy commands to your Obsidian Mobile Toolbar under **Settings > Mobile > Manage toolbar options**:
 - Each command has a distinct icon so they are easily recognizable above the keyboard.
 
 ### 3. File Explorer Menu (Long-Press / Right-Click)
-In the file tree, right-click (desktop) or long-press (mobile) any Markdown note to copy its contents in your preferred format.
+In the file tree, right-click (desktop) or long-press (mobile) any Markdown note to copy its contents:
+- By default, the **Format Selection Menu** is enabled in the file menu to choose any format.
+- Individual direct copy items (Slack, Discord, WhatsApp, Markdown) and desktop editor context menu items can be enabled in Settings.
 
 ### 4. Command Palette & Hotkeys
 Open the Command Palette (`Ctrl/Cmd + P`) and search for:
