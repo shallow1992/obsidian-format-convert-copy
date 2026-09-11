@@ -56,7 +56,71 @@ export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	showNotification: true,
 };
 
-import { t } from "./i18n";
+import { t, type TranslationKey } from "./i18n";
+
+export interface FormatDefinition {
+	id: FormatType;
+	commandId: string;
+	icon: string;
+	actionKey: TranslationKey;
+	cmdKey: TranslationKey;
+	settings: {
+		ribbon: keyof FormatConvertSettings;
+		file: keyof FormatConvertSettings;
+		editor: keyof FormatConvertSettings;
+	};
+}
+
+export const FORMAT_DEFINITIONS: FormatDefinition[] = [
+	{
+		id: "slack",
+		commandId: "convert-slack",
+		icon: "share-2",
+		actionKey: "actionCopySlack",
+		cmdKey: "cmdSlack",
+		settings: {
+			ribbon: "showRibbonSlackIcon",
+			file: "showFileSlackItem",
+			editor: "showSlackInMenu",
+		},
+	},
+	{
+		id: "discord",
+		commandId: "convert-discord",
+		icon: "message-square",
+		actionKey: "actionCopyDiscord",
+		cmdKey: "cmdDiscord",
+		settings: {
+			ribbon: "showRibbonDiscordIcon",
+			file: "showFileDiscordItem",
+			editor: "showDiscordInMenu",
+		},
+	},
+	{
+		id: "whatsapp",
+		commandId: "convert-whatsapp",
+		icon: "message-circle",
+		actionKey: "actionCopyWhatsApp",
+		cmdKey: "cmdWhatsApp",
+		settings: {
+			ribbon: "showRibbonWhatsAppIcon",
+			file: "showFileWhatsAppItem",
+			editor: "showWhatsAppInMenu",
+		},
+	},
+	{
+		id: "raw",
+		commandId: "copy-raw-markdown",
+		icon: "file-text",
+		actionKey: "actionCopyRaw",
+		cmdKey: "cmdRaw",
+		settings: {
+			ribbon: "showRibbonRawIcon",
+			file: "showFileRawItem",
+			editor: "showRawInMenu",
+		},
+	},
+];
 
 export interface FormatItemConfig {
 	id: FormatType;
@@ -65,17 +129,9 @@ export interface FormatItemConfig {
 }
 
 export function getFormatItems(): FormatItemConfig[] {
-	return [
-		{ id: "slack", label: t("actionCopySlack"), icon: "share-2" },
-		{ id: "discord", label: t("actionCopyDiscord"), icon: "message-square" },
-		{ id: "whatsapp", label: t("actionCopyWhatsApp"), icon: "message-circle" },
-		{ id: "raw", label: t("actionCopyRaw"), icon: "file-text" },
-	];
+	return FORMAT_DEFINITIONS.map((def) => ({
+		id: def.id,
+		label: t(def.actionKey),
+		icon: def.icon,
+	}));
 }
-
-export const FORMAT_ITEMS: FormatItemConfig[] = [
-	{ id: "slack", label: "Copy for Slack", icon: "share-2" },
-	{ id: "discord", label: "Copy for Discord", icon: "message-square" },
-	{ id: "whatsapp", label: "Copy for WhatsApp", icon: "message-circle" },
-	{ id: "raw", label: "Copy as raw Markdown", icon: "file-text" },
-];

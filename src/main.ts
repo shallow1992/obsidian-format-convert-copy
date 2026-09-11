@@ -2,7 +2,7 @@ import { Editor, MarkdownView, Menu, Notice, Platform, Plugin, TFile } from "obs
 import { convertMarkdown } from "./converters";
 import { convertToSlackTexty } from "./converters/slackTexty";
 import { FormatConvertSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, EmptySelectionBehavior, FormatConvertSettings, FormatType, getFormatItems } from "./types";
+import { DEFAULT_SETTINGS, EmptySelectionBehavior, FormatConvertSettings, FormatType, FORMAT_DEFINITIONS, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
 import { t } from "./i18n";
 
@@ -54,21 +54,14 @@ export default class FormatConvertPlugin extends Plugin {
 	// ----------------------------------------------------
 
 	private registerCommands(): void {
-		const commands: { id: string; name: string; type: FormatType; icon: string }[] = [
-			{ id: "convert-slack", name: t("cmdSlack"), type: "slack", icon: "share-2" },
-			{ id: "convert-discord", name: t("cmdDiscord"), type: "discord", icon: "message-square" },
-			{ id: "convert-whatsapp", name: t("cmdWhatsApp"), type: "whatsapp", icon: "message-circle" },
-			{ id: "copy-raw-markdown", name: t("cmdRaw"), type: "raw", icon: "file-text" },
-		];
-
-		for (const cmd of commands) {
+		for (const def of FORMAT_DEFINITIONS) {
 			this.addCommand({
-				id: cmd.id,
-				name: cmd.name,
-				icon: cmd.icon,
+				id: def.commandId,
+				name: t(def.cmdKey),
+				icon: def.icon,
 				editorCallback: (editor: Editor) => {
 					const target = this.getTargetText(editor);
-					void this.convertAndCopy(target, cmd.type);
+					void this.convertAndCopy(target, def.id);
 				},
 			});
 		}
@@ -118,21 +111,14 @@ export default class FormatConvertPlugin extends Plugin {
 			this.app.workspace.on("editor-menu", (menu: Menu, editor: Editor) => {
 				const target = this.getTargetText(editor);
 
-				const menuConfigs: { enabled: boolean; type: FormatType; title: string }[] = [
-					{ enabled: this.settings.showSlackInMenu, type: "slack", title: t("actionCopySlack") },
-					{ enabled: this.settings.showDiscordInMenu, type: "discord", title: t("actionCopyDiscord") },
-					{ enabled: this.settings.showWhatsAppInMenu, type: "whatsapp", title: t("actionCopyWhatsApp") },
-					{ enabled: this.settings.showRawInMenu, type: "raw", title: t("actionCopyRaw") },
-				];
-
-				for (const item of menuConfigs) {
-					if (item.enabled) {
+				for (const def of FORMAT_DEFINITIONS) {
+					if (this.settings[def.settings.editor]) {
 						menu.addItem((menuItem) =>
 							menuItem
-								.setTitle(item.title)
+								.setTitle(t(def.actionKey))
 								.setIcon("clipboard-copy")
 								.onClick(() => {
-									void this.convertAndCopy(target, item.type);
+									void this.convertAndCopy(target, def.id);
 								})
 						);
 					}
@@ -170,22 +156,14 @@ export default class FormatConvertPlugin extends Plugin {
 					}
 				};
 
-				// Register direct copy items
-				const directItems: { enabled: boolean; type: FormatType; title: string }[] = [
-					{ enabled: this.settings.showFileSlackItem, type: "slack", title: t("actionCopySlack") },
-					{ enabled: this.settings.showFileDiscordItem, type: "discord", title: t("actionCopyDiscord") },
-					{ enabled: this.settings.showFileWhatsAppItem, type: "whatsapp", title: t("actionCopyWhatsApp") },
-					{ enabled: this.settings.showFileRawItem, type: "raw", title: t("actionCopyRaw") },
-				];
-
-				for (const item of directItems) {
-					if (item.enabled) {
+				for (const def of FORMAT_DEFINITIONS) {
+					if (this.settings[def.settings.file]) {
 						menu.addItem((menuItem) =>
 							menuItem
-								.setTitle(item.title)
+								.setTitle(t(def.actionKey))
 								.setIcon("clipboard-copy")
 								.onClick(() => {
-									void copyFileContent(item.type);
+									void copyFileContent(def.id);
 								})
 						);
 					}
@@ -218,35 +196,15 @@ export default class FormatConvertPlugin extends Plugin {
 			}
 		};
 
-		// 1. Direct Slack
-		if (this.settings.showRibbonSlackIcon) {
-			this.ribbonIconEls.push(
-				this.addRibbonIcon("share-2", t("actionCopySlack"), () => activeCopy("slack"))
-			);
+		for (const def of FORMAT_DEFINITIONS) {
+			if (this.settings[def.settings.ribbon]) {
+				this.ribbonIconEls.push(
+					this.addRibbonIcon(def.icon, t(def.actionKey), () => activeCopy(def.id))
+				);
+			}
 		}
 
-		// 2. Direct Discord
-		if (this.settings.showRibbonDiscordIcon) {
-			this.ribbonIconEls.push(
-				this.addRibbonIcon("message-square", t("actionCopyDiscord"), () => activeCopy("discord"))
-			);
-		}
-
-		// 3. Direct WhatsApp
-		if (this.settings.showRibbonWhatsAppIcon) {
-			this.ribbonIconEls.push(
-				this.addRibbonIcon("message-circle", t("actionCopyWhatsApp"), () => activeCopy("whatsapp"))
-			);
-		}
-
-		// 4. Direct Markdown
-		if (this.settings.showRibbonRawIcon) {
-			this.ribbonIconEls.push(
-				this.addRibbonIcon("file-text", t("actionCopyRaw"), () => activeCopy("raw"))
-			);
-		}
-
-		// 5. Format selection menu
+		// Format selection menu
 		if (this.settings.showRibbonMenuIcon) {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("copy", t("actionChooseMenu"), (evt: MouseEvent) => {

@@ -139,4 +139,29 @@ Markdown テーブルを Slack や固定幅テキスト形式に変換する際�
    - **全面コピー (`emptySelectionBehavior: "document"`)**: 未選択時はノート全体をコピーする標準挙動。
    - **通知表示 (`showNotification: true`)**: コピー完了の成否がトースト（Notice）で確実にフィードバックされる挙動。
 
+---
+
+## 8. サービス間隔離と UI 配線レジストリパターン (Service Domain Isolation & UI Wiring Registry)
+
+### 背景と設計課題
+各チャット・メッセージングサービス（Slack, Discord, WhatsApp, Markdown）は、「テキストを変換してクリップボードにコピーする」という目的においては同一に見えます。しかし、それぞれのサービスが持つ変換仕様（Slack の mrkdwn / Quill Delta / Texty 形式、Discord の 2000 文字制限・Markdown 記法、WhatsApp のアスタリスク太字やチルダ打ち消し等）は、プラットフォームごとに大きく異なり、将来的な仕様変更や新サービスの追加が独立して発生します。
+
+サービスごとの変換ロジックを無理に共通化・抽象化（継承や過度な共通ヘルパー化）すると、特定サービスの仕様変更が他サービスへ予期せぬ副作用を及ぼす「望ましくない結合（Unwanted Coupling）」を招きます。
+
+### 設計方針
+1. **サービスドメインロジックの完全隔離（コンバーターの独立性）**:
+   - `src/converters/` 配下の各コンバーターは相互に干渉せず、各サービス独自の仕様に特化した独立した実装を維持します。
+   - サービスの仕様に関わるロジックの共通化は行わず、サービス固有の変更を安全にクローズドに保ちます。
+2. **UI 配線レジストリパターン (`FORMAT_DEFINITIONS`) による登録の集約**:
+   - サービス固有のドメインロジックとは完全に切り離された「Obsidian との UI 配線（メタデータ）」のみを `src/types.ts` の `FORMAT_DEFINITIONS` レジストリに一元管理します。
+   - レジストリには、各形式の識別子（`id`）、コマンド ID（`commandId`）、アイコン（`icon`）、多言語化キー（`actionKey`, `cmdKey`）、および各 UI 領域における表示設定キー（`settings.ribbon`, `settings.file`, `settings.editor`）を集約します。
+3. **登録処理の宣言化と DRY 原則の達成 (`src/main.ts`)**:
+   - `registerCommands()`, `registerEditorMenu()`, `registerFileMenu()`, `refreshRibbonIcons()`, `showFormatSelectMenu()` の全導線で、ハードコードされた冗長な個別定義配列を廃止し、`FORMAT_DEFINITIONS` を走査する宣言的ループ処理へと統一しました。
+   - 変換・クリップボード書き込みの一連の処理は `convertAndCopy(text, type)` に集約され、各 UI コールバックのボイラープレートを排除しました。
+4. **歴史的命名との後方互換性担保**:
+   - コマンド ID において、Slack/Discord/WhatsApp が `convert-<id>` であるのに対し、Raw Markdown は歴史的経緯から `copy-raw-markdown` という固有の ID を保持しています。
+   - これらを機械的に生成せず `commandId` プロパティとして明示定義することで、既存ユーザーのホットキー設定やコマンドパレット履歴との 100% 後方互換性を保証しています。
+5. **開放閉鎖の原則 (Open-Closed Principle) に基づく拡張性**:
+   - 将来新しいチャットツールやエクスポート形式を追加する際、`src/converters/` に新コンバーターを追加し、`FORMAT_DEFINITIONS` に 1 エントリを登録するだけで、コマンド・右クリックメニュー・ファイルメニュー・リボンアイコン・形式選択メニューのすべてに自動的かつ安全に配線されます。
+
 
