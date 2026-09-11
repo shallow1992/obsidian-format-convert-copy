@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/shallow1992/obsidian-format-convert-copy#readme",
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^26.5.0",
     "esbuild": "^0.28.2",
     "obsidian": "latest",
     "tslib": "^2.6.0",
