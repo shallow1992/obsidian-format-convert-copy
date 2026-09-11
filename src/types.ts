@@ -30,24 +30,24 @@ export type EmptySelectionBehavior = "document" | "currentLine";
 
 export const DEFAULT_SETTINGS: FormatConvertSettings = {
 	// Navigation bar / ribbon default values
-	showRibbonSlackIcon: true,
+	showRibbonSlackIcon: false,
 	showRibbonDiscordIcon: false,
 	showRibbonWhatsAppIcon: false,
 	showRibbonRawIcon: false,
-	showRibbonMenuIcon: false,
+	showRibbonMenuIcon: true,
 
 	// File explorer default values
-	showFileSlackItem: true,
+	showFileSlackItem: false,
 	showFileDiscordItem: false,
 	showFileWhatsAppItem: false,
 	showFileRawItem: false,
 	showFileMenuItem: true,
 
 	// Desktop editor context menu default values
-	showSlackInMenu: true,
-	showDiscordInMenu: true,
-	showWhatsAppInMenu: true,
-	showRawInMenu: true,
+	showSlackInMenu: false,
+	showDiscordInMenu: false,
+	showWhatsAppInMenu: false,
+	showRawInMenu: false,
 
 	// Copy behavior default values
 	emptySelectionBehavior: "document",
