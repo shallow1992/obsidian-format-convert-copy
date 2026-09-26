@@ -185,9 +185,15 @@ Commander (OC) やコマンドパレット、ショートカットキー（ホ�
    - ホバー時に右側に「Slack」「Discord」「WhatsApp」「Markdown」が展開され、右クリックメニューを 1 行のみでコンパクトに保ちます。
    - **グレースフル・デグラデーション (Graceful Degradation)**: `typeof item.setSubmenu === "function"` による機能検知を行い、万が一 `setSubmenu` が存在しない環境ではクリック時に `FormatSelectModal` を開く安全なフォールバックを保証。
 3. **リボンアイコン（左ナビゲーションバー）**:
-   - `Menu.prototype.showAtMouseEvent(evt)` を採用。
-   - クリックされたリボンアイコン要素の境界（Bounding Rect）に Obsidian が自動的にスナップし、リボンのすぐ右横に自然に展開されます。
+   - 座標展開メニューを撤廃し、画面中央の **`FormatSelectModal`** を直接オープンする形に統一。Commander、コマンドパレット、ホットキーと同一の堅牢なモーダル UX を実現しました。
 4. **サブメニュー構築の DRY 原則 (`populateFormatSubmenu`)**:
-   - 右クリックサブメニューおよびリボンメニューへの項目追加処理を `populateFormatSubmenu(menu, onSelect)` ヘルパーに集約し、`FORMAT_DEFINITIONS` レジストリに基づく宣言的かつ保守性の高いコードベースを維持します。
+   - 右クリックサブメニュー（エディタ ＆ ファイル一覧）への項目追加処理を `populateFormatSubmenu(menu, onSelect)` ヘルパーに集約し、`FORMAT_DEFINITIONS` レジストリに基づく宣言的かつ保守性の高いコードベースを維持します。
+5. **対象ノート解決パイプラインとスプリット分割判定 (`resolveTargetText`)**:
+   - 従来の「エディタフォーカス（`getActiveViewOfType(MarkdownView)`）の有無」への過度な依存を解消し、画面上の可視 Markdown リーフ（`getVisibleMarkdownLeaves`）に基づき対象テキストを決定します。
+   - **選択テキスト優先**: フォーカス有無やスプリット分割状態にかかわらず、いずれかのエディタでテキストが選択されていればそれを最優先でコピー対象とします。
+   - **スプリット分割表示の安全ガード**: テキスト未選択時に画面上に 2 つ以上の Markdown ノートが同時に表示（可視）されている場合は、「対象が特定できない」としてトースト通知（`Multiple notes are open in split view`）を表示し、意図しない別ノートの誤コピーを防止します。
+   - **単一表示時の自動取得**: 画面上に 1 つだけノートが表示されている場合は、エディタにカーソルが置かれていなくても最前面のノート全文（または設定に応じた現在行）を確実に取得します。
+6. **コマンドパレット・ホットキーの常時利用可能化**:
+   - コマンド登録を `editorCallback` から汎用の `callback` へ移行。これにより、エディタにカーソルが当たっていない状態（閲覧モード、サイドバー操作直後など）であっても、常にコマンドパレット（`Cmd/Ctrl + P`）やホットキーから検索・実行可能になりました。
 
 

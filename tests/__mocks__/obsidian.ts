@@ -31,9 +31,18 @@ export class TFile {
 	path: string = "test.md";
 }
 
+export class WorkspaceLeaf {
+	view: any;
+	constructor(view?: any) {
+		this.view = view;
+	}
+}
+
 export class App {
 	workspace = {
 		getActiveViewOfType: vi.fn(),
+		getActiveFile: vi.fn(),
+		getLeavesOfType: vi.fn().mockReturnValue([]),
 		on: vi.fn(),
 	};
 	vault = {

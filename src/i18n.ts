@@ -28,6 +28,7 @@ const en = {
 	noticeFailed: "Failed to copy to clipboard",
 	noticeNoActiveNote: "No active note to copy",
 	noticeReadFailed: "Failed to read note content",
+	noticeSplitAmbiguous: "Multiple notes are open in split view. Please select text or focus on a note.",
 
 	// Ribbon / Navigation Bar Settings
 	settingsRibbonHeadingDesktop: "Left Ribbon (Desktop)",
@@ -106,6 +107,7 @@ const ja: typeof en = {
 	noticeFailed: "クリップボードへのコピーに失敗しました",
 	noticeNoActiveNote: "対象のノートが開かれていません",
 	noticeReadFailed: "ノートの読み込みに失敗しました",
+	noticeSplitAmbiguous: "画面が分割表示されているため、対象のノートを特定できません。文字を選択するかノートをアクティブにしてください。",
 
 	// Ribbon / Navigation Bar Settings
 	settingsRibbonHeadingDesktop: "画面左リボン（デスクトップ）",
