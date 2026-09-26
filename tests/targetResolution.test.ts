@@ -119,6 +119,47 @@ describe("targetResolution pipeline (#112)", () => {
 		expect(noticeInstances).toContain("Multiple notes are open in split view. Please select text or focus on a note.");
 	});
 
+	it("returns active editor content in split view when cursor is placed without selection", async () => {
+		const mockPlugin = new FormatConvertPlugin({} as any, {} as any);
+		mockPlugin.settings = { ...DEFAULT_SETTINGS, emptySelectionBehavior: "document" };
+
+		const mockEditor = {
+			getSelection: vi.fn().mockReturnValue(""),
+			getValue: vi.fn().mockReturnValue("Active split pane document"),
+		};
+
+		const leaf1 = {
+			view: {
+				editor: mockEditor,
+				containerEl: { offsetParent: {} },
+			},
+		};
+		const leaf2 = {
+			view: {
+				editor: {
+					getSelection: vi.fn().mockReturnValue(""),
+					getValue: vi.fn().mockReturnValue("Other split pane document"),
+				},
+				containerEl: { offsetParent: {} },
+			},
+		};
+		const MarkdownViewClass = (await import("obsidian")).MarkdownView;
+		Object.setPrototypeOf(leaf1.view, MarkdownViewClass.prototype);
+		Object.setPrototypeOf(leaf2.view, MarkdownViewClass.prototype);
+
+		// Active editor is leaf1
+		mockPlugin.app = {
+			workspace: {
+				getActiveViewOfType: vi.fn().mockReturnValue(leaf1.view),
+				getLeavesOfType: vi.fn().mockReturnValue([leaf1, leaf2]),
+			},
+		} as any;
+
+		const target = await mockPlugin.resolveTargetText();
+		expect(target).toBe("Active split pane document");
+		expect(noticeInstances).toHaveLength(0);
+	});
+
 	it("returns entire note when single visible leaf exists without selection", async () => {
 		const mockPlugin = new FormatConvertPlugin({} as any, {} as any);
 		mockPlugin.settings = { ...DEFAULT_SETTINGS, emptySelectionBehavior: "document" };

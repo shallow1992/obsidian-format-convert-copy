@@ -276,16 +276,16 @@ export default class FormatConvertPlugin extends Plugin {
 	}
 
 	async resolveTargetText(): Promise<string | null> {
-		// 1. If active editor has selected text, use it immediately
+		// 1. If an active editor is focused, use it immediately (even in split view)
 		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 		if (activeView?.editor) {
-			const selection = activeView.editor.getSelection();
-			if (selection.trim().length > 0) {
-				return selection;
+			const target = this.getTargetText(activeView.editor);
+			if (target) {
+				return target;
 			}
 		}
 
-		// 2. Inspect all visible Markdown leaves on screen
+		// 2. Inspect all visible Markdown leaves on screen when active focus is outside editors
 		const visibleLeaves = getVisibleMarkdownLeaves(this.app);
 
 		// Prioritize selected text in any visible markdown editor even without active focus
@@ -299,8 +299,17 @@ export default class FormatConvertPlugin extends Plugin {
 			}
 		}
 
-		// 3. Handle cases where no text is selected
+		// 3. Handle cases where no text is selected and focus is outside editors
 		if (visibleLeaves.length === 0) {
+			const file = this.app.workspace.getActiveFile();
+			if (file && file.extension === "md") {
+				try {
+					return await this.app.vault.cachedRead(file);
+				} catch {
+					new Notice(t("noticeReadFailed"));
+					return null;
+				}
+			}
 			new Notice(t("noticeNoActiveNote"));
 			return null;
 		}
@@ -315,16 +324,6 @@ export default class FormatConvertPlugin extends Plugin {
 		const view = singleLeaf.view;
 		if (view instanceof MarkdownView && view.editor) {
 			return this.getTargetText(view.editor);
-		}
-
-		const file = this.app.workspace.getActiveFile();
-		if (file && file.extension === "md") {
-			try {
-				return await this.app.vault.cachedRead(file);
-			} catch {
-				new Notice(t("noticeReadFailed"));
-				return null;
-			}
 		}
 
 		new Notice(t("noticeNoActiveNote"));
