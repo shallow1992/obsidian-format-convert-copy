@@ -133,20 +133,8 @@ export default class FormatConvertPlugin extends Plugin {
 				}
 
 				if (this.settings.showEditorMenuItem) {
-					menu.addItem((item) => {
-						item.setTitle(t("actionChooseMenu")).setIcon("copy");
-						if (typeof item.setSubmenu === "function") {
-							const submenu = item.setSubmenu();
-							this.populateFormatSubmenu(submenu, (type) => {
-								void this.convertAndCopy(target, type);
-							});
-						} else {
-							item.onClick(() => {
-								new FormatSelectModal(this.app, (chosen) => {
-									void this.convertAndCopy(target, chosen.id);
-								}).open();
-							});
-						}
+					this.addFormatSelectionMenuItem(menu, (type) => {
+						void this.convertAndCopy(target, type);
 					});
 				}
 			})
@@ -184,20 +172,8 @@ export default class FormatConvertPlugin extends Plugin {
 
 				// Register format selection menu item
 				if (this.settings.showFileMenuItem) {
-					menu.addItem((item) => {
-						item.setTitle(t("actionChooseMenu")).setIcon("copy");
-						if (typeof item.setSubmenu === "function") {
-							const submenu = item.setSubmenu();
-							this.populateFormatSubmenu(submenu, (type) => {
-								void copyFileContent(type);
-							});
-						} else {
-							item.onClick(() => {
-								new FormatSelectModal(this.app, (chosen) => {
-									void copyFileContent(chosen.id);
-								}).open();
-							});
-						}
+					this.addFormatSelectionMenuItem(menu, (type) => {
+						void copyFileContent(type);
 					});
 				}
 			})
@@ -241,6 +217,25 @@ export default class FormatConvertPlugin extends Plugin {
 			el.remove();
 		}
 		this.ribbonIconEls = [];
+	}
+
+	addFormatSelectionMenuItem(
+		menu: Menu,
+		onSelect: (type: FormatType) => void
+	): void {
+		menu.addItem((item) => {
+			item.setTitle(t("actionChooseMenu")).setIcon("copy");
+			if (typeof item.setSubmenu === "function") {
+				const submenu = item.setSubmenu();
+				this.populateFormatSubmenu(submenu, onSelect);
+			} else {
+				item.onClick(() => {
+					new FormatSelectModal(this.app, (chosen) => {
+						onSelect(chosen.id);
+					}).open();
+				});
+			}
+		});
 	}
 
 	populateFormatSubmenu(

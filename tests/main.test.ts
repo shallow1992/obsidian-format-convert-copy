@@ -100,4 +100,57 @@ describe("populateFormatSubmenu and menu behaviors (#112)", () => {
 		items[3]._onClick();
 		expect(onSelectSpy).toHaveBeenCalledWith("raw");
 	});
+
+	it("addFormatSelectionMenuItem populates submenu when setSubmenu is supported", () => {
+		const plugin = new FormatConvertPlugin({} as any, {} as any);
+		const onSelectSpy = vi.fn();
+		const submenu = { addItem: vi.fn() };
+		const mockItem = {
+			setTitle: vi.fn().mockReturnThis(),
+			setIcon: vi.fn().mockReturnThis(),
+			onClick: vi.fn().mockReturnThis(),
+			setSubmenu: vi.fn().mockReturnValue(submenu),
+		};
+		const mockMenu = {
+			addItem: vi.fn((cb) => {
+				cb(mockItem);
+				return mockMenu;
+			}),
+		};
+
+		plugin.addFormatSelectionMenuItem(mockMenu as any, onSelectSpy);
+
+		expect(mockItem.setTitle).toHaveBeenCalled();
+		expect(mockItem.setIcon).toHaveBeenCalledWith("copy");
+		expect(mockItem.setSubmenu).toHaveBeenCalled();
+		expect(submenu.addItem).toHaveBeenCalledTimes(4);
+	});
+
+	it("addFormatSelectionMenuItem falls back to FormatSelectModal when setSubmenu is not supported", () => {
+		const plugin = new FormatConvertPlugin({} as any, {} as any);
+		const onSelectSpy = vi.fn();
+		let clickHandler: (() => void) | undefined;
+		const mockItem = {
+			setTitle: vi.fn().mockReturnThis(),
+			setIcon: vi.fn().mockReturnThis(),
+			onClick: vi.fn((cb) => {
+				clickHandler = cb;
+				return mockItem;
+			}),
+			setSubmenu: undefined,
+		};
+		const mockMenu = {
+			addItem: vi.fn((cb) => {
+				cb(mockItem);
+				return mockMenu;
+			}),
+		};
+
+		plugin.addFormatSelectionMenuItem(mockMenu as any, onSelectSpy);
+
+		expect(mockItem.setTitle).toHaveBeenCalled();
+		expect(mockItem.setIcon).toHaveBeenCalledWith("copy");
+		expect(clickHandler).toBeDefined();
+	});
 });
+
