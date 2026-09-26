@@ -1,2 +1,16 @@
 /* obsidian-format-convert-copy styles */
 
+.format-convert-modal-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.format-convert-modal-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	color: var(--text-muted);
+}

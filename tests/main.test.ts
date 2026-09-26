@@ -65,3 +65,39 @@ describe("FORMAT_DEFINITIONS registry metadata (#109)", () => {
 		}
 	});
 });
+
+describe("populateFormatSubmenu and menu behaviors (#112)", () => {
+	it("populates 4 format items into Menu and invokes onSelect callback", () => {
+		const plugin = new FormatConvertPlugin({} as any, {} as any);
+		const onSelectSpy = vi.fn();
+		const items: any[] = [];
+		const mockMenu = {
+			addItem: vi.fn((cb) => {
+				const item = {
+					setTitle: vi.fn().mockReturnThis(),
+					setIcon: vi.fn().mockReturnThis(),
+					onClick: vi.fn((onClickCb) => {
+						(item as any)._onClick = onClickCb;
+						return item;
+					}),
+				};
+				items.push(item);
+				cb(item);
+				return mockMenu;
+			}),
+		};
+
+		plugin.populateFormatSubmenu(mockMenu as any, onSelectSpy);
+
+		expect(mockMenu.addItem).toHaveBeenCalledTimes(4);
+		expect(items).toHaveLength(4);
+
+		// Trigger click on first item (slack)
+		items[0]._onClick();
+		expect(onSelectSpy).toHaveBeenCalledWith("slack");
+
+		// Trigger click on last item (raw)
+		items[3]._onClick();
+		expect(onSelectSpy).toHaveBeenCalledWith("raw");
+	});
+});

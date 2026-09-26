@@ -4,6 +4,7 @@ import { convertToSlackTexty } from "./converters/slackTexty";
 import { FormatConvertSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, EmptySelectionBehavior, FormatConvertSettings, FormatType, FORMAT_DEFINITIONS, getFormatItems } from "./types";
 import { copyToClipboard } from "./utils/clipboard";
+import { FormatSelectModal } from "./ui/formatSelectModal";
 import { t } from "./i18n";
 
 export function getTargetText(
@@ -66,7 +67,7 @@ export default class FormatConvertPlugin extends Plugin {
 			});
 		}
 
-		// Show format selection menu command (one-tap sheet for mobile keyboard toolbar or command palette)
+		// Show format selection modal command (command palette, Commander, or shortcuts)
 		this.addCommand({
 			id: "convert-select-menu",
 			name: t("cmdMenu"),
@@ -74,12 +75,9 @@ export default class FormatConvertPlugin extends Plugin {
 			editorCallback: (editor: Editor) => {
 				const target = this.getTargetText(editor);
 				if (!target) return;
-				this.showFormatSelectMenu(
-					{ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 },
-					(type) => {
-						void this.convertAndCopy(target, type);
-					}
-				);
+				new FormatSelectModal(this.app, (item) => {
+					void this.convertAndCopy(target, item.id);
+				}).open();
 			},
 		});
 
@@ -125,16 +123,21 @@ export default class FormatConvertPlugin extends Plugin {
 				}
 
 				if (this.settings.showEditorMenuItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle(t("actionChooseMenu"))
-							.setIcon("copy")
-							.onClick((evt: MouseEvent | KeyboardEvent) => {
-								this.showFormatSelectMenu(evt, (type) => {
-									void this.convertAndCopy(target, type);
-								});
-							})
-					);
+					menu.addItem((item) => {
+						item.setTitle(t("actionChooseMenu")).setIcon("copy");
+						if (typeof item.setSubmenu === "function") {
+							const submenu = item.setSubmenu();
+							this.populateFormatSubmenu(submenu, (type) => {
+								void this.convertAndCopy(target, type);
+							});
+						} else {
+							item.onClick(() => {
+								new FormatSelectModal(this.app, (chosen) => {
+									void this.convertAndCopy(target, chosen.id);
+								}).open();
+							});
+						}
+					});
 				}
 			})
 		);
@@ -171,16 +174,21 @@ export default class FormatConvertPlugin extends Plugin {
 
 				// Register format selection menu item
 				if (this.settings.showFileMenuItem) {
-					menu.addItem((item) =>
-						item
-							.setTitle(t("actionChooseMenu"))
-							.setIcon("copy")
-							.onClick((evt: MouseEvent | KeyboardEvent) => {
-								this.showFormatSelectMenu(evt, (type) => {
-									void copyFileContent(type);
-								});
-							})
-					);
+					menu.addItem((item) => {
+						item.setTitle(t("actionChooseMenu")).setIcon("copy");
+						if (typeof item.setSubmenu === "function") {
+							const submenu = item.setSubmenu();
+							this.populateFormatSubmenu(submenu, (type) => {
+								void copyFileContent(type);
+							});
+						} else {
+							item.onClick(() => {
+								new FormatSelectModal(this.app, (chosen) => {
+									void copyFileContent(chosen.id);
+								}).open();
+							});
+						}
+					});
 				}
 			})
 		);
@@ -209,7 +217,9 @@ export default class FormatConvertPlugin extends Plugin {
 			this.ribbonIconEls.push(
 				this.addRibbonIcon("copy", t("actionChooseMenu"), (evt: MouseEvent) => {
 					if (!this.getActiveTargetText()) return;
-					this.showFormatSelectMenu(evt, (type) => activeCopy(type));
+					const formatMenu = new Menu();
+					this.populateFormatSubmenu(formatMenu, (type) => activeCopy(type));
+					formatMenu.showAtMouseEvent(evt);
 				})
 			);
 		}
@@ -222,25 +232,17 @@ export default class FormatConvertPlugin extends Plugin {
 		this.ribbonIconEls = [];
 	}
 
-	private showFormatSelectMenu(
-		evt: MouseEvent | KeyboardEvent | { clientX: number; clientY: number },
+	populateFormatSubmenu(
+		menu: Menu,
 		onSelect: (type: FormatType) => void
 	): void {
-		const formatMenu = new Menu();
-
 		for (const item of getFormatItems()) {
-			formatMenu.addItem((subItem) =>
+			menu.addItem((subItem) =>
 				subItem
 					.setTitle(item.label)
 					.setIcon(item.icon)
 					.onClick(() => onSelect(item.id))
 			);
-		}
-
-		if ("clientX" in evt && "clientY" in evt) {
-			formatMenu.showAtPosition({ x: evt.clientX, y: evt.clientY });
-		} else {
-			formatMenu.showAtPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 		}
 	}
 

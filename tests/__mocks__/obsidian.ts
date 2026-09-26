@@ -100,13 +100,45 @@ export class Editor {
 	getLine(_line: number): string { return ""; }
 }
 
+export function setIcon(el: any, icon: string): void {
+	if (el && typeof el.setAttribute === "function") {
+		el.setAttribute("data-icon", icon);
+	}
+}
+
+export class Modal {
+	constructor(public app: any) {}
+	open(): void {}
+	close(): void {}
+}
+
+export abstract class SuggestModal<T> extends Modal {
+	inputEl = {
+		value: "",
+		addEventListener: vi.fn(),
+	};
+	constructor(app: any) {
+		super(app);
+	}
+	setPlaceholder(_placeholder: string): void {}
+	abstract getSuggestions(query: string): T[] | Promise<T[]>;
+	abstract renderSuggestion(value: T, el: any): void;
+	abstract onChooseSuggestion(item: T, evt: any): void;
+}
+
 export class Menu {
+	items: any[] = [];
 	addItem(cb: (item: any) => any) {
-		cb({
-			setTitle: () => ({ setIcon: () => ({ onClick: () => {} }) }),
-		});
+		const item = {
+			setTitle: vi.fn().mockReturnThis(),
+			setIcon: vi.fn().mockReturnThis(),
+			onClick: vi.fn().mockReturnThis(),
+			setSubmenu: vi.fn(() => new Menu()),
+		};
+		this.items.push(item);
+		cb(item);
 		return this;
 	}
-	showAtMouseEvent(_evt: any) {}
-	showAtPosition(_pos: any) {}
+	showAtMouseEvent = vi.fn();
+	showAtPosition = vi.fn();
 }

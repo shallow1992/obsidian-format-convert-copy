@@ -23,6 +23,8 @@ describe("i18n localization", () => {
 		expect(t("settingsRibbonSlackName")).toBe("Slack format");
 		expect(t("settingsFileMenuName")).toBe("Format selection menu");
 		expect(t("settingsEditorMenuName")).toBe("Format selection menu");
+		expect(t("actionChooseMenu")).toBe("Convert and copy...");
+		expect(t("placeholderSelectFormat")).toBe("Choose a format to copy...");
 		expect(t("settingsShowNotificationName")).toBe("Show notifications");
 	});
 
@@ -36,6 +38,7 @@ describe("i18n localization", () => {
 		expect(t("cmdMenu")).toBe("形式を選択してコピー");
 		expect(t("actionCopyRaw")).toBe("Markdown形式でコピー");
 		expect(t("actionChooseMenu")).toBe("形式を選択してコピー");
+		expect(t("placeholderSelectFormat")).toBe("コピーする形式を選択...");
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Slack形式でコピーしました");
 		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Slack形式のコピーに失敗したため、Markdown形式でコピーしました");
 		expect(t("noticeFailed")).toBe("クリップボードへのコピーに失敗しました");

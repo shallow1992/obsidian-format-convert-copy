@@ -1,3 +1,11 @@
+import type { Menu } from "obsidian";
+
+declare module "obsidian" {
+	interface MenuItem {
+		setSubmenu?: () => Menu;
+	}
+}
+
 export type FormatType = "slack" | "discord" | "whatsapp" | "raw";
 
 export interface FormatConvertSettings {

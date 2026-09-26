@@ -20,6 +20,7 @@ const en = {
 	actionCopyWhatsApp: "Copy for WhatsApp",
 	actionCopyRaw: "Copy as raw Markdown",
 	actionChooseMenu: "Convert and copy...",
+	placeholderSelectFormat: "Choose a format to copy...",
 
 	// Notices
 	noticeCopied: "Copied for {format}",
@@ -97,6 +98,7 @@ const ja: typeof en = {
 	actionCopyWhatsApp: "WhatsApp形式でコピー",
 	actionCopyRaw: "Markdown形式でコピー",
 	actionChooseMenu: "形式を選択してコピー",
+	placeholderSelectFormat: "コピーする形式を選択...",
 
 	// Notices
 	noticeCopied: "{format}形式でコピーしました",
