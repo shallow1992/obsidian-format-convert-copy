@@ -18,11 +18,14 @@ describe("i18n localization", () => {
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Copied for Slack");
 		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Failed to copy for Slack. Copied as Markdown instead.");
 		expect(t("noticeFailed")).toBe("Failed to copy to clipboard");
+		expect(t("noticeSplitAmbiguous")).toBe("Multiple notes are open in split view. Please select text or focus on a note.");
 		expect(t("settingsEmptySelectionDoc")).toBe("Entire note (default)");
 		expect(t("settingsEmptySelectionLine")).toBe("Current line (cursor line)");
 		expect(t("settingsRibbonSlackName")).toBe("Slack format");
 		expect(t("settingsFileMenuName")).toBe("Format selection menu");
 		expect(t("settingsEditorMenuName")).toBe("Format selection menu");
+		expect(t("actionChooseMenu")).toBe("Convert and copy...");
+		expect(t("placeholderSelectFormat")).toBe("Choose a format to copy...");
 		expect(t("settingsShowNotificationName")).toBe("Show notifications");
 	});
 
@@ -36,9 +39,11 @@ describe("i18n localization", () => {
 		expect(t("cmdMenu")).toBe("形式を選択してコピー");
 		expect(t("actionCopyRaw")).toBe("Markdown形式でコピー");
 		expect(t("actionChooseMenu")).toBe("形式を選択してコピー");
+		expect(t("placeholderSelectFormat")).toBe("コピーする形式を選択...");
 		expect(t("noticeCopied", { format: "Slack" })).toBe("Slack形式でコピーしました");
 		expect(t("noticeCopiedSimple", { format: "Slack" })).toBe("Slack形式のコピーに失敗したため、Markdown形式でコピーしました");
 		expect(t("noticeFailed")).toBe("クリップボードへのコピーに失敗しました");
+		expect(t("noticeSplitAmbiguous")).toBe("画面が分割表示されているため、対象のノートを特定できません。文字を選択するかノートをアクティブにしてください。");
 		expect(t("settingsEmptySelectionDoc")).toBe("ノート全体（全文）");
 		expect(t("settingsEmptySelectionLine")).toBe("カーソル行（現在の1行）");
 		expect(t("settingsRibbonSlackName")).toBe("Slack形式");
